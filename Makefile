@@ -1,3 +1,6 @@
+
+PYTHON_PATH_ENV_APP=$(shell which python)
+
 # Define the directories where your code and tests are located
 SRC_DIR = src
 TEST_DIR = tests
@@ -18,6 +21,10 @@ test:
 .PHONY: lint
 lint:
 	$(LINT_CMD)
+
+.PHONY: pre-commit
+pre-commit:
+	pre-commit run --all-files
 
 .PHONY: run
 run:

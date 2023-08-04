@@ -20,6 +20,7 @@ media
 *.py[cod]
 *$py.class
 
+
 # C extensions
 *.so
 
@@ -296,5 +297,5 @@ pyrightconfig.json
 # Ignore all local history of files
 .history
 .ionide
-
+.env
 # End of https://www.toptal.com/developers/gitignore/api/linux,django,python,visualstudiocode
