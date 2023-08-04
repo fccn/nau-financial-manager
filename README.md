@@ -1,15 +1,8 @@
-
-░█▄─░█ █▀▀█ █──█ 　 ░█▀▀█ █▀▀ █▀▀ █▀▀ ─▀─ █▀▀█ ▀▀█▀▀ █▀▀ 　
-░█░█░█ █▄▄█ █──█ 　 ░█▄▄▀ █▀▀ █── █▀▀ ▀█▀ █──█ ──█── ▀▀█ 　
-░█──▀█ ▀──▀ ─▀▀▀ 　 ░█─░█ ▀▀▀ ▀▀▀ ▀▀▀ ▀▀▀ █▀▀▀ ──▀── ▀▀▀ 　
-
-░█▀▄▀█ █▀▀█ █▀▀▄ █▀▀█ █▀▀▀ █▀▀ █▀▀█
-░█░█░█ █▄▄█ █──█ █▄▄█ █─▀█ █▀▀ █▄▄▀
-░█──░█ ▀──▀ ▀──▀ ▀──▀ ▀▀▀▀ ▀▀▀ ▀─▀▀
+# Project Nau Receipts Manager
 
 This is a Django application intended to manage billing receipts and also share revenue between partners.
 
-# Preparing enviromnent
+## Preparing enviromnent
 
 This guide is to setup project using `poetry` with Python version 3.11.4 for the project.
 optional: you can use docker files to get instances of database and application.
