@@ -1,0 +1,13 @@
+[flake8]
+exclude =
+    .git,
+    .gitignore,
+    *.pot,
+    *.py[co],
+    __pycache__,
+    venv,
+    .env,
+    static/,
+    app/grpc/*
+ignore = E501,
+max-line-length = 119
