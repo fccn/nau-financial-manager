@@ -11,8 +11,27 @@ python = "^3.10"
 django = "^4.2.4"
 python-decouple = "^3.8"
 pre-commit = "^3.3.3"
+black = "^23.7.0"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 119
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | migrations
+)/
+'''
