@@ -8,13 +8,12 @@ packages = [{include = "nau_receipts_manager"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.2"
-python = "^3.10.2"
 django = "^4.2.4"
 python-decouple = "^3.8"
 pre-commit = "^3.3.3"
 black = "^23.7.0"
-factory-boy = "^3.3.0"
 flake8 = "^6.1.0"
+factory-boy = "^3.3.0"
 
 [build-system]
 requires = ["poetry-core"]

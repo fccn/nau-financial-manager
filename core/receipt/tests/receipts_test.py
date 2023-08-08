@@ -1,6 +1,7 @@
 from django.test import TestCase
+
+from core.receipt.factories import ReceiptFactory, ReceiptLineFactory
 from core.receipt.models import Receipt, ReceiptLine
-from core.receipt.tests.models_factory import ReceiptFactory, ReceiptLineFactory
 
 
 class ReceiptModelTestCase(TestCase):

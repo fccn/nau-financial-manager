@@ -19,7 +19,7 @@ SECRET_KEY = config("SECRET_KEY")
 
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv, default="localhost")
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv(), default="localhost")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -29,7 +29,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "core.receipt",
-    "core.shared_revenue",
 ]
 
 MIDDLEWARE = [
