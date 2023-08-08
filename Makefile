@@ -4,15 +4,18 @@ PYTHON_PATH_ENV_APP=$(shell which python)
 # Define the directories where your code and tests are located
 SRC_DIR = src
 TEST_DIR = tests
+POETRY_RUN = poetry run
 
 # Define the command to run pytest
-TEST_CMD = pytest $(TEST_DIR)
+TEST_CMD = $(POETRY_RUN) pytest $(TEST_DIR)
 
 # Define the command to format Python code with Black
-LINT_CMD = black $(SRC_DIR) $(TEST_DIR)
+LINT_CMD = $(POETRY_RUN) black .
+
+PRE_COMMIT = $(POETRY_RUN) pre-commit run --all-files
 
 # Define the command to run the Django development server
-RUN_CMD = poetry run python manage.py runserver
+RUN_CMD = $(POETRY_RUN) python manage.py runserver
 
 .PHONY: test
 test:
@@ -24,7 +27,7 @@ lint:
 
 .PHONY: pre-commit
 pre-commit:
-	pre-commit run --all-files
+	$(PRE_COMMIT)
 
 .PHONY: run
 run:
