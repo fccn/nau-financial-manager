@@ -7,7 +7,7 @@ This is a Django application intended to manage billing receipts and also share 
 This guide is to setup project using `poetry` with Python version 3.11.4 for the project.
 optional: you can use docker files to get instances of database and application.
 
-## Setting up `poetry` with Python 3.11.4
+## Setting up `poetry`(version 1.5.1) with Python 3.11.4
 
 One dependency of poetry is `pyenv`.
 

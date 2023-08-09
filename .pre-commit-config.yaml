@@ -1,4 +1,4 @@
-exclude: (.flake8|CHANGELOG.md|mypy.ini)
+exclude: (.flake8|CHANGELOG.md|mypy.ini|dockers/*)
 default_language_version:
   # default language version for each language
   python: python3.11

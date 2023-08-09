@@ -299,4 +299,4 @@ pyrightconfig.json
 .ionide
 .env
 # End of https://www.toptal.com/developers/gitignore/api/linux,django,python,visualstudiocode
-poetry.lock
+.python-version
