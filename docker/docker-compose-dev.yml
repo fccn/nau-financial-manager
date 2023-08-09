@@ -7,7 +7,7 @@ services:
     build:
       context: ../
       dockerfile: dockers/Dockerfile-dev
-    env_file: ../.env
+    env_file: ../sample-dev.env
     ports:
       - 8000:8000
     volumes:
