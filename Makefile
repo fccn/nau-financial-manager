@@ -1,24 +1,15 @@
-
+#Variables
 PYTHON_PATH_ENV_APP=$(shell which python)
-
-# Define the directories where your code and tests are located
 SRC_DIR = src
 TEST_DIR = tests
 POETRY_RUN = poetry run
 DOCKER_COMPOSE = docker-compose
-
-# Define the command to run pytest
 TEST_CMD = $(POETRY_RUN) python manage.py test
-
-# Define the command to format Python code with Black
 LINT_CMD = $(POETRY_RUN) black .
-
 PRE_COMMIT = $(POETRY_RUN) pre-commit run --all-files
-
-# Define the command to run the Django development server
 RUN_CMD = $(DOCKER_COMPOSE) -f docker/docker-compose-dev.yml up -d
-
 RUN_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose-dev.yml up -d
+KILL_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose-dev.yml down
 
 .PHONY: test  #run tests, all or specific test
 test:
@@ -36,10 +27,14 @@ pre-commit:
 run:
 	$(RUN_CMD)
 
-.PHONY: stop #stop django server in your host
-stop:
+.PHONY: kill #stop django server in your host
+kill:
 	killall manage.py
 
-.PHONY: run-docker-dev #run django server in docker in dev mode
-run-docker-dev:
+.PHONY: run-docker #run django server in docker in dev mode
+run-docker:
 	$(RUN_DOCKER_DEV)
+
+.PHONY: kill-docker #stop django server in docker in dev mode
+kill-docker:
+	$(KILL_DOCKER_DEV)
