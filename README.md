@@ -2,6 +2,20 @@
 
 This is a Django application intended to manage billing receipts and also share revenue between partners.
 
+## Running the project
+
+We have two ways to run the project, using docker or using poetry.
+
+## Using Docker (Recommended)
+
+You will need to have docker and docker-compose installed in your machine.
+
+```bash
+make run-docker-dev
+```
+
+OR
+
 ## Preparing enviromnent
 
 This guide is to setup project using `poetry` with Python version 3.11.4 for the project.
