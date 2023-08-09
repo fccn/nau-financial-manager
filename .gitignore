@@ -300,3 +300,4 @@ pyrightconfig.json
 .env
 # End of https://www.toptal.com/developers/gitignore/api/linux,django,python,visualstudiocode
 .python-version
+.env
