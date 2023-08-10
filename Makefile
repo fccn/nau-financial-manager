@@ -7,7 +7,7 @@ DOCKER_COMPOSE = docker-compose
 TEST_CMD = $(POETRY_RUN) python manage.py test
 LINT_CMD = $(POETRY_RUN) black .
 PRE_COMMIT = $(POETRY_RUN) pre-commit run --all-files
-RUN_CMD = $(DOCKER_COMPOSE) -f docker/docker-compose-dev.yml up -d
+RUN_CMD = $(POETRY_RUN) python manage.py runserver
 RUN_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose-dev.yml up -d
 KILL_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose-dev.yml down
 

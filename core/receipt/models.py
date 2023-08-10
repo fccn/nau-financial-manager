@@ -1,5 +1,5 @@
 from django.db import models
-from utils.models import StandardDefaults
+from core.utils.models import StandardDefaults
 
 
 class Receipt(StandardDefaults):
