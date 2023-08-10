@@ -1,7 +1,7 @@
 FROM python:3.11-slim AS base_build
 
 # Create a group and user to run our app
-ARG USER=nau-receipts-manager
+ARG USER=nau-financial-manager
 
 ARG ENV
 ENV ENV=${ENV} \

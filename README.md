@@ -1,6 +1,6 @@
-# Project Nau Receipts Manager
+# Project Nau Financial Manager
 
-This is a Django application intended to manage billing receipts and also share revenue between partners.
+This is a Django application intended to manage financial process and also share revenue between partners.
 
 ## Running the project
 
@@ -63,6 +63,7 @@ brew install poetry
 Navigate to the folder project and execute:
 
 ```bash
+pyenv install 3.11.4
 pyenv local 3.11.4
 ```
 

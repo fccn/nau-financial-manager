@@ -1,4 +1,4 @@
-[unreleased]: https://github.com/fccn/nau-receipts-manager
+[unreleased]: https://github.com/fccn/nau-financial-manager
 [0.0.1] - undefined date
 
 - Create innitial setup for the project
