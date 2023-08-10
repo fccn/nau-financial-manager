@@ -169,3 +169,5 @@ pyrightconfig.json
 .env
 .python-version
 .env
+db.sqlite3
+.vscode/settings.json
