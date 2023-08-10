@@ -1,7 +1,8 @@
 from django.db import models
+from utils.models import StandardDefaults
 
 
-class Receipt(models.Model):
+class Receipt(StandardDefaults):
     """
     Represents a receipt issued for a transaction.
     Each receipt contains details about the payer, items in the receipt, and financial information.
@@ -21,7 +22,7 @@ class Receipt(models.Model):
         return self.name
 
 
-class ReceiptLine(models.Model):
+class ReceiptLine(StandardDefaults):
     """
     One-to-many relationship with ReceiptLine model (related_name='receipt_lines').
     """
