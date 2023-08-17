@@ -564,6 +564,17 @@ files = [
 ]
 
 [[package]]
+name = "unidecode"
+version = "1.3.6"
+description = "ASCII transliterations of Unicode text"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "Unidecode-1.3.6-py3-none-any.whl", hash = "sha256:547d7c479e4f377b430dd91ac1275d593308dce0fc464fb2ab7d41f82ec653be"},
+    {file = "Unidecode-1.3.6.tar.gz", hash = "sha256:fed09cf0be8cf415b391642c2a5addfc72194407caee4f98719e40ec2a72b830"},
+]
+
+[[package]]
 name = "virtualenv"
 version = "20.24.2"
 description = "Virtual Python Environment builder"
@@ -586,4 +597,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10.2"
-content-hash = "2f1d5bd56e862ddb189546adde87542fa4530c439b27ace71fa1436bb320c158"
+content-hash = "712be2eaeb67dbf260284ac7e24b78850782e200a45252b4d0f4c71607505bb8"
