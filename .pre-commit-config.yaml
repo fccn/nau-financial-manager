@@ -1,4 +1,4 @@
-exclude: (.flake8|CHANGELOG.md|mypy.ini|docker/*)
+exclude: (.flake8|CHANGELOG.md|mypy.ini|docker/)
 default_language_version:
   # default language version for each language
   python: python3.11
@@ -9,26 +9,28 @@ repos:
     # See https://pre-commit.com/hooks.html for more hooks
     - id: check-ast
     - id: check-case-conflict
+    - id: check-docstring-first
     - id: check-executables-have-shebangs
       exclude: ^(data/|output/|plugins/|.flake8)`
     - id: check-merge-conflict
     - id: debug-statements
     - id: end-of-file-fixer
     - id: name-tests-test
+      args: [--django]
     - id: trailing-whitespace
 - repo: https://github.com/pycqa/bandit
   rev: 1.7.4
   hooks:
     - id: bandit
       args: ['-iii', '-ll']
--   repo: https://github.com/psf/black
-    rev: 22.3.0
-    hooks:
+- repo: https://github.com/psf/black
+  rev: 22.3.0
+  hooks:
     - id: black
       language_version: python3.11
--   repo: https://github.com/PyCQA/flake8
-    rev: 3.9.2
-    hooks:
+- repo: https://github.com/PyCQA/flake8
+  rev: 3.9.2
+  hooks:
     - id: flake8
 - repo: https://github.com/asottile/seed-isort-config
   rev: v2.2.0
@@ -38,3 +40,7 @@ repos:
   rev: 5.12.0
   hooks:
     - id: isort
+- repo: https://github.com/pre-commit/mirrors-autopep8
+  rev: 'v2.0.2'
+  hooks:
+    - id: autopep8

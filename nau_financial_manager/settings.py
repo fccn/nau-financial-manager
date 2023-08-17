@@ -22,6 +22,7 @@ DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv(), default="localhost")
 
 INSTALLED_APPS = [
+    "safedelete",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -29,6 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "core.receipt",
+    "core.organization",
 ]
 
 MIDDLEWARE = [
