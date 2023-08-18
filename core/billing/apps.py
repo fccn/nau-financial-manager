@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class ReceiptConfig(AppConfig):
+class BillingConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "core.receipt"
+    name = "core.billing"
