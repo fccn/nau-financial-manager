@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "core.billing",
     "core.organization",
+    "core.shared_revenue",
 ]
 
 MIDDLEWARE = [
