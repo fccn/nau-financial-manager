@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import CheckConstraint, Q
 from django.utils.translation import gettext_lazy as _
@@ -14,7 +15,13 @@ class PartnershipLevel(BaseModel):
 
     name = models.CharField(_("Name"), max_length=50, unique=True)
     description = models.CharField(_("Description"), max_length=255, null=True, blank=True)
-    value = models.DecimalField(_("Value"), max_digits=5, decimal_places=2, unique=True)
+    percentage = models.DecimalField(
+        _("Value"),
+        max_digits=3,
+        validators=[MaxValueValidator(1), MinValueValidator(0)],
+        decimal_places=2,
+        unique=True,
+    )
 
     class Meta:
         verbose_name = _("Partnership level")
