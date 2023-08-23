@@ -16,7 +16,7 @@ class PartnershipLevelTestCase(TestCase):
         Test the `__str__` method of the `PartnershipLevel` model.
         """
         self.assertEqual(
-            str(self.partnership_level), f"{self.partnership_level.name} - {self.partnership_level.value}"
+            str(self.partnership_level), f"{self.partnership_level.name} - {self.partnership_level.percentage}"
         )
 
     def test_partnership_level_name_already_exists(self):
@@ -26,12 +26,12 @@ class PartnershipLevelTestCase(TestCase):
         with self.assertRaises(Exception):
             PartnershipLevelFactory(name=self.partnership_level.name)
 
-    def test_value_unique_constraint(self):
+    def test_partnership_level_percentage_unique(self):
         """
         Test that attempting to create a `PartnershipLevel` instance with a duplicate `value` raises an `Exception`.
         """
         with self.assertRaises(Exception):
-            PartnershipLevelFactory(value=self.partnership_level.value)
+            PartnershipLevelFactory(percentage=self.partnership_level.percentage)
 
     def test_name_max_length(self):
         """
@@ -42,7 +42,7 @@ class PartnershipLevelTestCase(TestCase):
         with self.assertRaises(Exception):
             PartnershipLevelFactory(name=long_name)
 
-    def test_percentage_max_digits(self):
+    def test_percentagem_number_is_valid(self):
         """
         Test that attempting to create a `PartnershipLevel` instance with a `percentage`
         that exceeds the maximum number of digits raises a `ValidationError`.
@@ -62,4 +62,20 @@ class PartnershipLevelTestCase(TestCase):
         decimal_places = PartnershipLevel._meta.get_field("percentage").decimal_places
         long_value = Decimal("9" * (max_digits - decimal_places) + "." + "9" * (decimal_places + 1))
         with self.assertRaises(ValidationError):
-            PartnershipLevel.objects.create(name="Test Partnership Level 3", percentage=long_value)
+            PartnershipLevelFactory(name="Test Partnership Level 3", percentage=long_value)
+
+    def test_percentage_max_value(self):
+        """
+        Test that attempting to create a `PartnershipLevel` instance with a `percentage` greater
+        than 1 raises a `ValidationError`.
+        """
+        with self.assertRaises(ValidationError):
+            PartnershipLevelFactory(name="Test Partnership Level 2", percentage=Decimal("1.1"))
+
+    def test_percentage_min_value(self):
+        """
+        Test that attempting to create a `PartnershipLevel` instance with a
+        `percentage` less than 0 raises a `ValidationError`.
+        """
+        with self.assertRaises(ValidationError):
+            PartnershipLevelFactory(name="Test Partnership Level 3", percentage=Decimal("-0.1"))

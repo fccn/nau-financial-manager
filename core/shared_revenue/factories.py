@@ -12,7 +12,7 @@ class PartnershipLevelFactory(DjangoModelFactory):
 
     name = factory.Faker("word")
     description = factory.Faker("sentence")
-    value = factory.Faker("pydecimal", left_digits=2, right_digits=2)
+    percentage = factory.Faker("pydecimal", left_digits=1, right_digits=2)
 
 
 class RevenueConfigurationFactory(DjangoModelFactory):

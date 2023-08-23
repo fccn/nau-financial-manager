@@ -31,7 +31,7 @@ class RevenueConfigurationTestCase(TestCase):
         with self.assertRaises(IntegrityError):
             RevenueConfigurationFactory(organization=None, course_code=None)
 
-    def test_organization_and_course_code_constraint(self):
+    def test_organization_and_course_code_can_not_be_both_filled(self):
         """
         Test that attempting to create a `RevenueConfiguration` instance with both an `organization`
         and a `course_code` raises an `IntegrityError`.
@@ -55,15 +55,7 @@ class RevenueConfigurationTestCase(TestCase):
         with self.assertRaises(ValidationError):
             RevenueConfigurationFactory(partnership_level=self.partnership_level)
 
-    def test_organization_and_course_code_null(self):
-        """
-        Test that attempting to create a `RevenueConfiguration` instance with both `organization`
-        and `course_code` null raises a `ValidationError`.
-        """
-        with self.assertRaises(ValidationError):
-            RevenueConfigurationFactory(partnership_level=self.partnership_level, organization=None, course_code=None)
-
-    def test_start_date_auto_now_add(self):
+    def test_start_date_is_now(self):
         """
         Test that the `start_date` field is automatically set to the current date and time when a
         `RevenueConfiguration` instance is created.

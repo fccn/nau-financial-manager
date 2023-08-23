@@ -28,7 +28,7 @@ class PartnershipLevel(BaseModel):
         verbose_name_plural = _("Partnership levels")
 
     def __str__(self) -> str:
-        return f"{self.name} - {self.value}"
+        return f"{self.name} - {self.percentage}"
 
 
 class RevenueConfiguration(BaseModel):
