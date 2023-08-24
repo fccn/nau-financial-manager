@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     "core.billing",
     "core.organization",
     "rest_framework",
+    "drf_spectacular",
+    "django_filters",
 ]
 
 MIDDLEWARE = [
@@ -74,9 +76,9 @@ DATABASES = {
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
-    "EXCEPTION_HANDLER": "util.exceptions.custom_exception_handler",
     # "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
-    "DEFAULT_PAGINATION_CLASS": "util.pagination.ShortResultsSetPagination",
+    "DEFAULT_PAGINATION_CLASS": "core.util.rest_patterns.ShortResultsSetPagination",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
