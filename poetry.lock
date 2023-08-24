@@ -162,6 +162,35 @@ files = [
 Django = ">=3.2"
 
 [[package]]
+name = "django-pghistory"
+version = "2.8.0"
+description = "History tracking for Django and Postgres"
+optional = false
+python-versions = ">=3.7.0,<4"
+files = [
+    {file = "django_pghistory-2.8.0-py3-none-any.whl", hash = "sha256:1337c897c0ee67c953e082b1f19b5af4a2b2bf9b9db8852c552851529960cfd3"},
+    {file = "django_pghistory-2.8.0.tar.gz", hash = "sha256:80a2eb34f8eeefeb5c5eff5dd57a558a72486aac74ca5a73ed7ac1f89e87678b"},
+]
+
+[package.dependencies]
+django = ">=2"
+django-pgtrigger = ">=4.7.0"
+
+[[package]]
+name = "django-pgtrigger"
+version = "4.7.0"
+description = "Postgres trigger support integrated with Django models."
+optional = false
+python-versions = ">=3.7.0,<4"
+files = [
+    {file = "django_pgtrigger-4.7.0-py3-none-any.whl", hash = "sha256:978e998f5c7bdfaf3edbb01c2075be329ce679bd87a89c5bfdf95405905885bd"},
+    {file = "django_pgtrigger-4.7.0.tar.gz", hash = "sha256:20a4139cccb17b75d065fbfd2cc8f47e3696379d7be4139ef6a67c8d14897a8d"},
+]
+
+[package.dependencies]
+django = ">=2"
+
+[[package]]
 name = "django-safedelete"
 version = "1.3.2"
 description = "Mask your objects instead of deleting them from your database."
@@ -856,4 +885,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10.2"
-content-hash = "57c7b4097051f158ee3671c0744624a7ab91494ef0f205bd7a180e28a0f86c2c"
+content-hash = "fe7b358e9cd7abf02398d02c314582c16c31ffc6e5a8bd2f24212d2054cf0982"
