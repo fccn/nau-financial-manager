@@ -20,6 +20,7 @@ djangorestframework = "^3.14.0"
 drf-spectacular = "^0.26.4"
 django-filter = "^23.2"
 django-pghistory = "^2.8.0"
+django-auditlog = "^2.3.0"
 
 [build-system]
 requires = ["poetry-core"]
