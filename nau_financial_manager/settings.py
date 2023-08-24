@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "core.billing",
     "core.organization",
-    "core.shared_revenue",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -69,6 +69,17 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": config("DATABASE_NAME", default="db.sqlite3"),
     }
+}
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "EXCEPTION_HANDLER": "util.exceptions.custom_exception_handler",
+    # "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
+    "DEFAULT_PAGINATION_CLASS": "util.pagination.ShortResultsSetPagination",
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ],
 }
 
 AUTH_PASSWORD_VALIDATORS = [
