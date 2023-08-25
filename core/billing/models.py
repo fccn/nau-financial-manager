@@ -23,7 +23,7 @@ class Receipt(BaseModel):
         return self.name
 
 
-class ReceiptLine(BaseModel):
+class ReceiptItem(BaseModel):
     """
     One-to-many relationship with ReceiptLine model (related_name='receipt_lines').
     """
@@ -40,3 +40,6 @@ class ReceiptLine(BaseModel):
 
     def __str__(self):
         return self.description
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["receipt"], name="unique_receipt_item")]
