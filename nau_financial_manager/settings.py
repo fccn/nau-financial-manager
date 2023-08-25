@@ -21,23 +21,33 @@ DEBUG = config("DEBUG", default=False, cast=bool)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv(), default="localhost")
 
-INSTALLED_APPS = [
-    "safedelete",
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "core.billing",
-    "core.organization",
+]   
+
+THIRD_PARTY_APPS = [
+    "safedelete",
     "rest_framework",
+    "rest_framework.authtoken",
     "drf_spectacular",
     "django_filters",
     "pghistory",
     "pgtrigger",
     "auditlog",
 ]
+
+LOCAL_APPS = [
+   "core.billing",
+   "core.organization",
+   "core.shared_revenue",
+]
+
+INSTALLED_APPS = [*DJANGO_APPS, *THIRD_PARTY_APPS, *LOCAL_APPS]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
