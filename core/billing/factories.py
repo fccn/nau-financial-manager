@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import factory
 
-from core.billing.models import Receipt, ReceiptLine
+from core.billing.models import Receipt, ReceiptItem
 
 
 class ReceiptFactory(factory.django.DjangoModelFactory):
@@ -22,9 +22,9 @@ class ReceiptFactory(factory.django.DjangoModelFactory):
     receipt_document_id = factory.Faker("uuid4")
 
 
-class ReceiptLineFactory(factory.django.DjangoModelFactory):
+class ReceiptItemFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = ReceiptLine
+        model = ReceiptItem
 
     receipt = factory.SubFactory(ReceiptFactory)
     description = factory.Faker("sentence")

@@ -40,8 +40,6 @@ class ReceiptItem(BaseModel):
 
     def __str__(self):
         return self.description
-    
+
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['receipt'], name='unique_receipt_item')
-        ]
+        constraints = [models.UniqueConstraint(fields=["receipt"], name="unique_receipt_item")]
