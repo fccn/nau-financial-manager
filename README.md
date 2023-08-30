@@ -82,4 +82,9 @@ poetry shell
 cp sample-dev.env .env
 ```
 
+## TROUBLESHOOTING
+
+If dockercompose not work with DB Sqlite3, create a empty file in root folder `db.sqlite3`
+
+```bash
 # TODO: Automate this installation after validation of method and structure
