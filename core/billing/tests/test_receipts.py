@@ -1,4 +1,5 @@
 from decimal import Decimal
+
 from django.db import IntegrityError
 from django.test import TestCase
 

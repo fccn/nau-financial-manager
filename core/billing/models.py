@@ -25,10 +25,10 @@ class Receipt(BaseModel):
 
 class ReceiptItem(BaseModel):
     """
-    One-to-many relationship with ReceiptLine model (related_name='receipt_lines').
+    One-to-many relationship with ReceiptLine model (related_name='receipt_items').
     """
 
-    receipt = models.ForeignKey(Receipt, related_name="receipt_lines", on_delete=models.CASCADE)
+    receipt = models.ForeignKey(Receipt, related_name="receipt_items", on_delete=models.CASCADE)
     description = models.CharField(max_length=255)
     quantity = models.PositiveIntegerField(default=1)
     vat_tax = models.DecimalField(max_digits=5, decimal_places=2)
