@@ -8,7 +8,7 @@ This module is responsible for handling shared revenue between organizations.
 ```mermaid
 classDiagram
     class BaseModel {
-        &lt;&lt;abstract&gt;&gt;
+        <<abstract>>
         -id: Integer
         -created_at: DateTime
         -updated_at: DateTime
@@ -38,10 +38,10 @@ classDiagram
         -response_payload: JSONField
         +__str__(): str
     }
-    PartnershipLevel &lt;|-- RevenueConfiguration
-    BaseModel &lt;|-- PartnershipLevel
-    BaseModel &lt;|-- RevenueConfiguration
-    BaseModel &lt;|-- ShareExecution
+    PartnershipLevel |-- RevenueConfiguration
+    BaseModel |-- PartnershipLevel
+    BaseModel |-- RevenueConfiguration
+    BaseModel |-- ShareExecution
     ShareExecution "1" -- "1" Organization : organization
     RevenueConfiguration "1" -- "1" PartnershipLevel : partnership_level
 ```

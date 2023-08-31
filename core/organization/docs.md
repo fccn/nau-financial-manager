@@ -8,7 +8,7 @@ This modules is responsible for handling informations of organizations.
 ```mermaid
 classDiagram
     class BaseModel {
-        &lt;&lt;abstract&gt;&gt;
+        <<abstract>>
         -id: Integer
         -created_at: DateTime
         -updated_at: DateTime
@@ -43,9 +43,9 @@ classDiagram
         -is_main: BooleanField
         +__str__(): str
     }
-    BaseModel &lt;|-- Organization
-    BaseModel &lt;|-- OrganizationAddress
-    BaseModel &lt;|-- OrganizationContact
+    BaseModel |-- Organization
+    BaseModel |-- OrganizationAddress
+    BaseModel |-- OrganizationContact
     Organization "1" *-- "*" OrganizationAddress : organization_addresses
     Organization "1" *-- "*" OrganizationContact : organization_contacts
 ```
