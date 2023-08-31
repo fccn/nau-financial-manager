@@ -2,8 +2,7 @@ import factory
 from factory.django import DjangoModelFactory
 
 from core.organization.factories import OrganizationFactory
-
-from .models import PartnershipLevel, RevenueConfiguration, ShareExecution
+from core.shared_revenue.models import PartnershipLevel, RevenueConfiguration, ShareExecution
 
 
 class PartnershipLevelFactory(DjangoModelFactory):
