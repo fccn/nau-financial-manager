@@ -23,7 +23,7 @@ classDiagram
         -total_amount_include_vat: DecimalField
         -receipt_link: CharField
         -receipt_document_id: CharField
-        +receipt_lines: ReceiptItem[]
+        +receipt_items: ReceiptItem[]
         +__str__(): str
     }
     class ReceiptItem {
@@ -40,5 +40,5 @@ classDiagram
     }
     BaseModel <|-- Receipt
     BaseModel <|-- ReceiptItem
-    Receipt "1" *-- "*" ReceiptItem : receipt_lines
+    Receipt "1" *-- "*" ReceiptItem : receipt_items
 ```
