@@ -3,9 +3,9 @@ from uuid import uuid4
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from core.util.constants import ADDRESS_TYPES, CONTACT_TYPES, EUROPE_COUNTRIES
-from core.util.models import BaseModel
-from core.util.validators import validate_contact_value
+from apps.util.constants import ADDRESS_TYPES, CONTACT_TYPES, EUROPE_COUNTRIES
+from apps.util.models import BaseModel
+from apps.util.validators import validate_contact_value
 
 
 class Organization(BaseModel):

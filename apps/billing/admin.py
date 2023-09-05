@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from core.billing.models import Receipt, ReceiptItem
+from apps.billing.models import Receipt, ReceiptItem
 
 
 class ReceiptItemInline(admin.TabularInline):

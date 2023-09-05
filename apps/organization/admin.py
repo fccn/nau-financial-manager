@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from core.organization.models import Organization, OrganizationAddress, OrganizationContact
+from apps.organization.models import Organization, OrganizationAddress, OrganizationContact
 
 
 class OrganizationAddressInline(admin.TabularInline):
@@ -18,7 +18,7 @@ class OrganizationAdmin(admin.ModelAdmin):
         OrganizationAddressInline,
         OrganizationContactInline,
     ]
-    list_display = ("name", "description", "created_at", "updated_at", "is_active")
+    list_display = ("name", "short_name", "created_at", "updated_at", "is_active")
     search_fields = ("name", "slug", "short_name")
 
 

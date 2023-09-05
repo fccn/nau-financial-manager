@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.organization.models import Organization, OrganizationAddress, OrganizationContact
+from apps.organization.models import Organization, OrganizationAddress, OrganizationContact
 
 
 class OrganizationSerializer(serializers.ModelSerializer):

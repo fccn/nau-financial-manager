@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from core.organization.factories import OrganizationAddressFactory, OrganizationContactFactory, OrganizationFactory
-from core.organization.models import OrganizationAddress, OrganizationContact
+from apps.organization.factories import OrganizationAddressFactory, OrganizationContactFactory, OrganizationFactory
+from apps.organization.models import OrganizationAddress, OrganizationContact
 
 
 class OrganizationTest(TestCase):

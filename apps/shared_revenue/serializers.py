@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
-from core.billing.serializers import ReceiptSerializer
-from core.organization.serializers import OrganizationSerializer
-from core.shared_revenue.models import PartnershipLevel, RevenueConfiguration, ShareExecution
+from apps.billing.serializers import ReceiptSerializer
+from apps.organization.serializers import OrganizationSerializer
+from apps.shared_revenue.models import PartnershipLevel, RevenueConfiguration, ShareExecution
 
 
 class PartnershipLevelSerializer(serializers.ModelSerializer):

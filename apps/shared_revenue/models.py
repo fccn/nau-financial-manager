@@ -3,9 +3,9 @@ from django.db import models
 from django.db.models import CheckConstraint, Q
 from django.utils.translation import gettext_lazy as _
 
-from core.billing.models import Receipt
-from core.organization.models import Organization
-from core.util.models import BaseModel
+from apps.billing.models import Receipt
+from apps.organization.models import Organization
+from apps.util.models import BaseModel
 
 
 class PartnershipLevel(BaseModel):

@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import factory
 
-from core.billing.models import Receipt, ReceiptItem
+from apps.billing.models import Receipt, ReceiptItem
 
 
 class ReceiptFactory(factory.django.DjangoModelFactory):

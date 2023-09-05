@@ -2,8 +2,8 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from core.organization.factories import OrganizationFactory
-from core.shared_revenue.factories import PartnershipLevelFactory, RevenueConfigurationFactory
+from apps.organization.factories import OrganizationFactory
+from apps.shared_revenue.factories import PartnershipLevelFactory, RevenueConfigurationFactory
 
 
 class RevenueConfigurationTestCase(TestCase):

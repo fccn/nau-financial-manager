@@ -1,8 +1,8 @@
 import factory
 from factory.django import DjangoModelFactory
 
-from core.organization.models import Organization, OrganizationAddress, OrganizationContact
-from core.util.constants import ADDRESS_TYPES, CONTACT_TYPES, EUROPE_COUNTRIES
+from apps.organization.models import Organization, OrganizationAddress, OrganizationContact
+from apps.util.constants import ADDRESS_TYPES, CONTACT_TYPES, EUROPE_COUNTRIES
 
 
 class OrganizationFactory(DjangoModelFactory):

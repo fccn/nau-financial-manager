@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from core.shared_revenue.models import PartnershipLevel, RevenueConfiguration, ShareExecution
+from apps.shared_revenue.models import PartnershipLevel, RevenueConfiguration, ShareExecution
 
 
 class PartnershipLevelAdmin(admin.ModelAdmin):

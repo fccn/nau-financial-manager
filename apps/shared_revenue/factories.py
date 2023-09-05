@@ -1,8 +1,8 @@
 import factory
 from factory.django import DjangoModelFactory
 
-from core.organization.factories import OrganizationFactory
-from core.shared_revenue.models import PartnershipLevel, RevenueConfiguration, ShareExecution
+from apps.organization.factories import OrganizationFactory
+from apps.shared_revenue.models import PartnershipLevel, RevenueConfiguration, ShareExecution
 
 
 class PartnershipLevelFactory(DjangoModelFactory):

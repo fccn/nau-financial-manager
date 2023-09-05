@@ -1,6 +1,6 @@
 from django.db import models
 
-from core.util.models import BaseModel
+from apps.util.models import BaseModel
 
 
 class Receipt(BaseModel):

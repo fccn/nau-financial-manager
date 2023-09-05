@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.billing.models import Receipt, ReceiptItem
+from apps.billing.models import Receipt, ReceiptItem
 
 
 class ReceiptItemSerializer(serializers.ModelSerializer):

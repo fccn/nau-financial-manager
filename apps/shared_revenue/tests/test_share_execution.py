@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from core.organization.factories import OrganizationFactory
-from core.shared_revenue.factories import ShareExecutionFactory
+from apps.organization.factories import OrganizationFactory
+from apps.shared_revenue.factories import ShareExecutionFactory
 
 
 class ShareExecutionTestCase(TestCase):

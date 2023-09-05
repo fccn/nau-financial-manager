@@ -3,8 +3,8 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from core.shared_revenue.factories import PartnershipLevelFactory
-from core.shared_revenue.models import PartnershipLevel
+from apps.shared_revenue.factories import PartnershipLevelFactory
+from apps.shared_revenue.models import PartnershipLevel
 
 
 class PartnershipLevelTestCase(TestCase):

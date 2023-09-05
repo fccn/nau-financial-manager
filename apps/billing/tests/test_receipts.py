@@ -3,8 +3,8 @@ from decimal import Decimal
 from django.db import IntegrityError
 from django.test import TestCase
 
-from core.billing.factories import ReceiptFactory, ReceiptItemFactory
-from core.billing.models import Receipt, ReceiptItem
+from apps.billing.factories import ReceiptFactory, ReceiptItemFactory
+from apps.billing.models import Receipt, ReceiptItem
 
 
 class ReceiptTest(TestCase):
