@@ -55,3 +55,5 @@ EUROPE_COUNTRIES = (
     ("GB", "United Kingdom"),
     ("VA", "Vatican City"),
 )
+
+PER_PAGE = 5
