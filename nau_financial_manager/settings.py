@@ -102,6 +102,13 @@ REST_FRAMEWORK = {
     ],
 }
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": config("SWAGGER_PROJECT_NAME", default="Your project name"),
+    "DESCRIPTION": config("SWAGGER_PROJECT_DESCRIPTION", default="Your project description"),
+    "VERSION": config("SWAGGER_PROJECT_VERSION", default="1.0.0"),
+    "SERVE_INCLUDE_SCHEMA": config("SWAGGER_SERVE_INCLUDE_SCHEMA", default=False, cast=bool),
+}
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
