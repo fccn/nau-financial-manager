@@ -6,7 +6,7 @@ This is a Django application intended to manage financial process and also share
 
 We have two ways to run the project, using docker or using poetry.
 
-## Using Docker (Recommended)
+## Using Docker (Recommended if you will not develop)
 
 You will need to have docker and docker-compose installed in your machine.
 
