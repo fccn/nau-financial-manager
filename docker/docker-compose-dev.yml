@@ -5,11 +5,10 @@ services:
     container_name: nau-database-psql
     restart: always
     image: postgres:15.4
-    env_file: ../sample-dev.env 
+    env_file: ../sample-dev.env
+    hostname: database
     ports:
       - "5432:5432"
-    volumes:
-      - nau_db:/var/lib/postgresql/data
     networks:
         - application_network
   nau-financial-app:
