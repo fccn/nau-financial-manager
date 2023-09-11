@@ -53,4 +53,5 @@ class ReceiptSerializer(serializers.ModelSerializer):
             "receipt_link",
             "receipt_document_id",
             "receipt_items",
+            "organization",
         ]

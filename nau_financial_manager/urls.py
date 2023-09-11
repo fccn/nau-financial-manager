@@ -22,6 +22,11 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("api/docs/", SpectacularSwaggerView.as_view(), name="swagger-ui"),
-    path("api/redocs/", SpectacularRedocView.as_view(), name="redoc"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("api/redocs/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+]
+
+urlpatterns += [
+    # CUSTOM APPS
+    path("api/", include("apps.billing.urls")),
 ]
