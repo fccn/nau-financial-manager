@@ -1,20 +1,34 @@
+import random
+
 import factory
 from factory.django import DjangoModelFactory
 
 from apps.organization.models import Organization, OrganizationAddress, OrganizationContact
-from apps.util.constants import ADDRESS_TYPES, CONTACT_TYPES, EUROPE_COUNTRIES
+from apps.util.constants import ADDRESS_TYPES, CONTACT_TYPES
 
 
 class OrganizationFactory(DjangoModelFactory):
     class Meta:
         model = Organization
 
+    def __select_vat_by_country(self):
+        return {
+            "PT": f"PT{random.randint(100000000, 999999999)}",
+            "ES": f"ES{random.randint(100000000, 999999999)}",
+            "IT": f"IT{random.randint(10000000000, 99999999999)}",
+            "FR": f"FR{random.randint(10000000000, 99999999999)}",
+            "DE": f"DE{random.randint(100000000, 999999999)}",
+        }[self.vat_country]
+
     name = factory.Sequence(lambda n: f"Organization {n}")
     short_name = factory.Sequence(lambda n: f"Org {n}")
     slug = factory.Sequence(lambda n: f"org-{n}")
-    vat_country = factory.Iterator(EUROPE_COUNTRIES)
-    vat_number = factory.Faker("random_number", digits=9)
     iban = factory.Faker("iban")
+    vat_country = factory.Iterator(["PT", "ES", "IT", "FR", "DE"])
+
+    @factory.lazy_attribute
+    def vat_number(self):
+        return self.__select_vat_by_country()
 
 
 class OrganizationAddressFactory(DjangoModelFactory):
@@ -27,7 +41,7 @@ class OrganizationAddressFactory(DjangoModelFactory):
     postal_code = factory.Faker("postcode")
     city = factory.Faker("city")
     district = factory.Faker("state")
-    country = factory.Iterator(EUROPE_COUNTRIES)
+    country = factory.SelfAttribute("organization.vat_country")
 
 
 class OrganizationContactFactory(DjangoModelFactory):
