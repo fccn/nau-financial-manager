@@ -20,6 +20,7 @@ class ReceiptFactory(factory.django.DjangoModelFactory):
     )  # Assuming 20% VAT
     receipt_link = factory.Faker("url")
     receipt_document_id = factory.Faker("uuid4")
+    organization = factory.SubFactory("apps.organization.factories.OrganizationFactory")
 
 
 class ReceiptItemFactory(factory.django.DjangoModelFactory):

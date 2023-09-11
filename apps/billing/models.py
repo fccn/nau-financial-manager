@@ -19,7 +19,7 @@ class Receipt(BaseModel):
     total_amount_include_vat = models.DecimalField(max_digits=10, decimal_places=2)
     receipt_link = models.CharField(max_length=255)
     receipt_document_id = models.CharField(max_length=255)
-    organization = models.ForeignKey(Organization, related_name="receipts", on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, related_name="organization_receipts", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
