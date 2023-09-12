@@ -2,6 +2,7 @@ import random
 
 import factory
 from factory.django import DjangoModelFactory
+from faker.providers.phone_number import Provider
 
 from apps.organization.models import Organization, OrganizationAddress, OrganizationContact
 from apps.util.constants import ADDRESS_TYPES, CONTACT_TYPES
@@ -10,15 +11,7 @@ from apps.util.constants import ADDRESS_TYPES, CONTACT_TYPES
 class OrganizationFactory(DjangoModelFactory):
     class Meta:
         model = Organization
-
-    def __select_vat_by_country(self):
-        return {
-            "PT": f"PT{random.randint(100000000, 999999999)}",
-            "ES": f"ES{random.randint(100000000, 999999999)}",
-            "IT": f"IT{random.randint(10000000000, 99999999999)}",
-            "FR": f"FR{random.randint(10000000000, 99999999999)}",
-            "DE": f"DE{random.randint(100000000, 999999999)}",
-        }[self.vat_country]
+        django_get_or_create = ("slug",)
 
     name = factory.Sequence(lambda n: f"Organization {n}")
     short_name = factory.Sequence(lambda n: f"Org {n}")
@@ -28,7 +21,13 @@ class OrganizationFactory(DjangoModelFactory):
 
     @factory.lazy_attribute
     def vat_number(self):
-        return self.__select_vat_by_country()
+        return {
+            "PT": f"PT{random.randint(100000000, 999999999)}",
+            "ES": f"ES{random.randint(100000000, 999999999)}",
+            "IT": f"IT{random.randint(10000000000, 99999999999)}",
+            "FR": f"FR{random.randint(10000000000, 99999999999)}",
+            "DE": f"DE{random.randint(100000000, 999999999)}",
+        }[self.vat_country]
 
 
 class OrganizationAddressFactory(DjangoModelFactory):
@@ -36,7 +35,7 @@ class OrganizationAddressFactory(DjangoModelFactory):
         model = OrganizationAddress
 
     organization = factory.SubFactory(OrganizationFactory)
-    address_type = factory.Iterator(ADDRESS_TYPES)
+    address_type = factory.Iterator(ADDRESS_TYPES[random.randint(0, 2)][0])
     street = factory.Faker("street_address")
     postal_code = factory.Faker("postcode")
     city = factory.Faker("city")
@@ -49,7 +48,11 @@ class OrganizationContactFactory(DjangoModelFactory):
         model = OrganizationContact
 
     organization = factory.SubFactory(OrganizationFactory)
-    contact_type = factory.Iterator(CONTACT_TYPES)
-    contact_value = factory.LazyAttribute(lambda _: factory.Factory("phone_number"))
+    contact_type = CONTACT_TYPES[random.randint(0, 2)][0]
+
     description = factory.Faker("text", max_nb_chars=255)
     is_main = False
+
+    @factory.lazy_attribute
+    def contact_value(self):
+        return factory.Faker(provider=Provider)
