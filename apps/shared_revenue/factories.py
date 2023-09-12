@@ -1,5 +1,6 @@
 import factory
 from factory.django import DjangoModelFactory
+from faker.providers.date_time import Provider as DateProvider
 
 from apps.organization.factories import OrganizationFactory
 from apps.shared_revenue.models import PartnershipLevel, RevenueConfiguration, ShareExecution
