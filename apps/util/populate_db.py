@@ -3,10 +3,10 @@ import time
 
 import django
 
-from apps.organization.factories import OrganizationAddressFactory, OrganizationContactFactory, OrganizationFactory
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nau_financial_manager.settings")
 django.setup()
+from apps.organization.factories import OrganizationAddressFactory, OrganizationContactFactory, OrganizationFactory
+
 
 
 def populate_organizations(organizations_amount: int) -> None:

@@ -1,4 +1,4 @@
-exclude: (.flake8|CHANGELOG.md|mypy.ini|docker/)
+exclude: (.flake8|CHANGELOG.md|mypy.ini|docker/|apps/util/populate_db.py)
 default_language_version:
   # default language version for each language
   python: python3.11
