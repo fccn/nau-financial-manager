@@ -12,7 +12,7 @@ from apps.shared_revenue.serializers import (
 from apps.util.base_views import DetailDelete, DetailGet, DetailPut, GeneralGet, GeneralPost
 
 
-class PartnershipLevelGeneral(APIView, GeneralGet, GeneralPost):
+class PartnershipLevelGeneral(APIView, GeneralPost, GeneralGet):
     """
     List all PartnershipLevel, or create a new one.
     """

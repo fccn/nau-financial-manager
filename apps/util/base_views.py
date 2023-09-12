@@ -154,7 +154,7 @@ class BaseAPIView:
     custom_prefixes_serializers: list = ["basic"]
 
     @classmethod
-    def get_object(cls, primary_key):
+    def get_object(cls, id):
         """
         Returns an object from the queryset based on the primary key.
         """
@@ -166,7 +166,7 @@ class BaseAPIView:
         if hasattr(cls, "prefetch_related_fields"):
             queryset = queryset.prefetch_related(*cls.prefetch_related_fields)
 
-        return queryset.get(pk=primary_key)
+        return queryset.get(pk=id)
 
     def get_queryset(self, _, **relations):
         """
@@ -180,7 +180,23 @@ class BaseAPIView:
         """
         return {}
 
-    def get_serializer(self) -> serializers.ModelSerializer:
+    # def get_serializer(self) -> serializers.ModelSerializer:
+    #     """
+    #     Returns the serializer instance for the view.
+    #     """
+    #     serializer_name = "serializer"
+
+    #     self.custom_prefixes_serializers.append(self.custom_class_prefix_serializer)
+
+    #     for prefix_serializer in self.custom_prefixes_serializers:
+    #         expected_serializer_name = prefix_serializer + "_custom_serializer"
+
+    #         if hasattr(self, expected_serializer_name):
+    #             serializer_name = expected_serializer_name
+
+    #     return getattr(self, serializer_name)
+
+    def get_serializer(self, *args, **kwargs) -> serializers.ModelSerializer:
         """
         Returns the serializer instance for the view.
         """
@@ -194,7 +210,7 @@ class BaseAPIView:
             if hasattr(self, expected_serializer_name):
                 serializer_name = expected_serializer_name
 
-        return getattr(self, serializer_name)
+        return getattr(self, serializer_name)(*args, **kwargs)
 
 
 class GeneralGet(BaseAPIView):
@@ -216,7 +232,7 @@ class GeneralGet(BaseAPIView):
         if hasattr(self, "prefetch_related_fields"):
             queryset = queryset.prefetch_related(*self.prefetch_related_fields)
 
-        serializer = self.get_serializer()
+        serializer = self.get_serializer
 
         queryset = ApiQuery.filter_queryset(self.filter_backends, self.request, queryset, self)
 
@@ -274,9 +290,9 @@ class DetailGet(BaseAPIView):
 
     custom_class_prefix_serializer = "get"
 
-    def get(self, request, primary_key):
+    def get(self, request, id):
         try:
-            object_instance = self.get_object(primary_key)
+            object_instance = self.get_object(id)
 
             serializer = self.serializer(object_instance, context=self.get_context(request))
 
@@ -287,7 +303,7 @@ class DetailGet(BaseAPIView):
             )
 
         except ObjectDoesNotExist:
-            return Response(status=HTTP_200_OK)
+            return Response(status=HTTP_404_NOT_FOUND)
 
 
 class DetailPut(BaseAPIView):
@@ -297,9 +313,9 @@ class DetailPut(BaseAPIView):
 
     custom_class_prefix_serializer = "put"
 
-    def put(self, request, primary_key):
+    def put(self, request, id):
         try:
-            object_instance = self.get_object(primary_key)
+            object_instance = self.get_object(id)
 
             if hasattr(self, "put_is_valid"):
                 if not self.put_is_valid(request, object_instance):
@@ -331,9 +347,9 @@ class DetailPatch(BaseAPIView):
 
     custom_class_prefix_serializer = "patch"
 
-    def patch(self, request, primary_key):
+    def patch(self, request, id):
         try:
-            object_instance = self.get_object(primary_key)
+            object_instance = self.get_object(id)
             serializer = self.serializer(
                 object_instance,
                 data=request.data,
@@ -361,9 +377,9 @@ class DetailDelete(BaseAPIView):
 
     custom_class_prefix_serializer = "delete"
 
-    def delete(self, request, primary_key):
+    def delete(self, request, id):
         try:
-            object_instance = self.get_object(primary_key)
+            object_instance = self.get_object(id)
 
             if hasattr(self, "delete_is_valid"):
                 if not self.delete_is_valid(request, object_instance):
