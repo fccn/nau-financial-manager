@@ -6,11 +6,11 @@ urlpatterns = [
     path(
         "receipts/",
         views.ReceiptsGeneral.as_view(),
-        name="receipts_general",
+        name="receipts_list",
     ),
     path(
         "receipts/<int:id>/",
         views.ReceiptsDetail.as_view(),
-        name="receipts_detail",
+        name="receipts_retrieve",
     ),
 ]
