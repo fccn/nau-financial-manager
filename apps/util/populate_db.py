@@ -1,6 +1,5 @@
 import os
 import time
-from typing import Any
 
 import django
 
@@ -40,7 +39,7 @@ def populate_billing(organization: OrganizationFactory) -> None:
     print("---Populated billing---")
 
 
-def populate():
+def populate(request):
     try:
         organizations_amount: int = 1
         organizations: list[OrganizationFactory] = OrganizationFactory.create_batch(organizations_amount)

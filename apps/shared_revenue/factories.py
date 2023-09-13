@@ -24,7 +24,7 @@ class RevenueConfigurationFactory(DjangoModelFactory):
     class Meta:
         model = RevenueConfiguration
 
-    organization = factory.SubFactory(OrganizationFactory)
+    organization = None
     partnership_level = factory.SubFactory(PartnershipLevelFactory)
     course_code = None
     start_date = factory.Faker(provider="date_time")
