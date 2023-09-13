@@ -1,6 +1,5 @@
 import os
 import time
-from typing import Any
 
 import django
 
@@ -26,7 +25,7 @@ def populate_shared_revenue(organization: OrganizationFactory) -> None:
     partnership_level: PartnershipLevelFactory = PartnershipLevelFactory.create()
     revenue_configuration: RevenueConfigurationFactory = RevenueConfigurationFactory.create(
         organization=organization,
-        partnership_level=partnership_level
+        partnership_level=partnership_level,
     )
     revenue_configuration = JSONEncoder().encode({k : str(v) for k, v in revenue_configuration.__dict__.items()})
     revenue_configuration = json.dumps(revenue_configuration)
@@ -41,13 +40,13 @@ def populate_billing(organization: OrganizationFactory) -> None:
     print("---Populated billing---")
 
 
-def populate():
+def populate(request):
     try:
         organizations_amount: int = 5
         organizations: list[OrganizationFactory] = OrganizationFactory.create_batch(organizations_amount)
         for organization in organizations:
             populate_organizations_resources(organization=organization)
-            # populate_shared_revenue(organization=organization)
+            populate_shared_revenue(organization=organization)
             populate_billing(organization=organization)
     except Exception as e:
         raise e

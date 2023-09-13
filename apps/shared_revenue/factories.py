@@ -20,9 +20,9 @@ class RevenueConfigurationFactory(DjangoModelFactory):
     class Meta:
         model = RevenueConfiguration
 
-    organization = factory.SubFactory(OrganizationFactory)
+    organization = None
     partnership_level = factory.SubFactory(PartnershipLevelFactory)
-    course_code = factory.Faker("word")
+    course_code = None
     start_date = factory.Faker(provider=DateProvider)
     end_date = factory.Faker(provider=DateProvider)
 
@@ -32,7 +32,7 @@ class ShareExecutionFactory(DjangoModelFactory):
         model = ShareExecution
 
     organization = factory.SubFactory(OrganizationFactory)
-    revenue_configuration = None
+    revenue_configuration = factory.SubFactory(RevenueConfigurationFactory)
     percentage = factory.Faker("pydecimal", left_digits=2, right_digits=2)
     value = factory.Faker("pydecimal", left_digits=2, right_digits=2)
     receipt = factory.Faker("word")
