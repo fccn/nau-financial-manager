@@ -11,30 +11,38 @@ RUN_CMD = $(POETRY_RUN) python manage.py runserver
 RUN_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose-dev.yml up -d
 KILL_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose-dev.yml down
 
-.PHONY: test  #run tests, all or specific test
-test:
+ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
+.DEFAULT_GOAL := help
+
+help:
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+.PHONY: help
+
+test:  ## run tests, all or specific test
 	@args="$(filter-out $@,$(MAKECMDGOALS))" && $(TEST_CMD) $${args:-${1}}
+.PHONY: test
 
-.PHONY: lint #use black to format code
-lint:
+lint: ## use black to format code
 	$(LINT_CMD)
+.PHONY: lint 
 
-.PHONY: pre-commit #use pre-commit to check best practices
-pre-commit:
+pre-commit: ## use pre-commit to check best practices
 	$(PRE_COMMIT)
+.PHONY: pre-commit
 
-.PHONY: run #run django server in your host
-run:
+run: ## run django server in your host
 	$(RUN_CMD)
+.PHONY: run
 
-.PHONY: kill #stop django server in your host
-kill:
+kill: ## stop django server in your host
 	killall manage.py
+.PHONY: kill 
 
-.PHONY: run-docker #run django server in docker in dev mode
-run-docker:
+run-docker: ## run django server in docker in dev mode
 	$(RUN_DOCKER_DEV)
+.PHONY: run-docker
 
-.PHONY: kill-docker #stop django server in docker in dev mode
-kill-docker:
+kill-docker: ## stop django server in docker in dev mode
 	$(KILL_DOCKER_DEV)
+.PHONY: kill-docker
