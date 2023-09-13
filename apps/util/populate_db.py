@@ -34,6 +34,11 @@ def populate_billing(organization: OrganizationFactory) -> None:
     ReceiptItemFactory(receipt=receipt_factory)
     print("---Populated billing---")
 
+def populate_billing(organization: OrganizationFactory) -> None:
+    receipt_factory: ReceiptFactory = ReceiptFactory.create(organization=organization)  
+    ReceiptItemFactory(receipt=receipt_factory)
+    print("---Populated billing---")
+
 
 def populate():
     try:
