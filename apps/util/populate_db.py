@@ -10,6 +10,8 @@ django.setup()
 
 from apps.organization.factories import OrganizationAddressFactory, OrganizationContactFactory, OrganizationFactory
 from apps.shared_revenue.factories import  PartnershipLevelFactory, RevenueConfigurationFactory, ShareExecutionFactory
+from apps.billing.factories import ReceiptFactory, ReceiptItemFactory
+
 
 import json
 from json import JSONEncoder
@@ -18,6 +20,7 @@ from json import JSONEncoder
 def populate_organizations_resources(organization: OrganizationFactory) -> None:
     OrganizationContactFactory.create(organization=organization)
     OrganizationAddressFactory.create(organization=organization)
+    print("---Populated organizations---")
 
 def populate_shared_revenue(organization: OrganizationFactory) -> None:
     partnership_level: PartnershipLevelFactory = PartnershipLevelFactory.create()
@@ -25,12 +28,17 @@ def populate_shared_revenue(organization: OrganizationFactory) -> None:
         organization=organization,
         partnership_level=partnership_level
     )
-    revenue_configuration = JSONEncoder().encode({str(k) : str(v) for k, v in revenue_configuration.__dict__.items()})
+    revenue_configuration = JSONEncoder().encode({k : str(v) for k, v in revenue_configuration.__dict__.items()})
     revenue_configuration = json.dumps(revenue_configuration)
     ShareExecutionFactory.create(
         organization=organization,
         revenue_configuration=revenue_configuration,
     )
+
+def populate_billing(organization: OrganizationFactory) -> None:
+    receipt_factory: ReceiptFactory = ReceiptFactory.create(organization=organization)  
+    ReceiptItemFactory(receipt=receipt_factory)
+    print("---Populated billing---")
 
 
 def populate():
@@ -39,7 +47,8 @@ def populate():
         organizations: list[OrganizationFactory] = OrganizationFactory.create_batch(organizations_amount)
         for organization in organizations:
             populate_organizations_resources(organization=organization)
-            populate_shared_revenue(organization=organization)
+            # populate_shared_revenue(organization=organization)
+            populate_billing(organization=organization)
     except Exception as e:
         raise e
 
