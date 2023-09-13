@@ -4,6 +4,7 @@ CONTACT_TYPES = (
     ("phone", "Phone"),
     ("mobile", "Mobile"),
 )
+# We should use django-countries package
 EUROPE_COUNTRIES = (
     ("AL", "Albania"),
     ("AD", "Andorra"),

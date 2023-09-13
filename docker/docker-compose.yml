@@ -1,6 +1,7 @@
 version: "3.5"
 
 services:
+
   database-psql:
     container_name: nau-database-psql
     restart: always
@@ -9,28 +10,18 @@ services:
     hostname: database
     ports:
       - "5432:5432"
-    networks:
-        - application_network
+
   nau-financial-app:
     container_name: nau-financial-app
     restart: unless-stopped
     command: python manage.py runserver 0.0.0.0:8000
     build:
       context: ../
-      dockerfile: docker/Dockerfile-dev
+      dockerfile: docker/Dockerfile
     env_file: ../sample-dev.env
     ports:
       - 8000:8000
     volumes:
       - ../:/app
-    networks:
-      - application_network
     depends_on:
         - database-psql  
-
-networks:
-  application_network:
-    driver: bridge
-
-volumes:
-    nau_db:

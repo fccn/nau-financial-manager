@@ -11,7 +11,7 @@ We have two ways to run the project, using docker or using poetry.
 You will need to have docker and docker-compose installed in your machine.
 
 ```bash
-make run-docker-dev
+make run-docker
 ```
 
 OR
