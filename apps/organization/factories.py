@@ -2,7 +2,6 @@ import random
 
 import factory
 from factory.django import DjangoModelFactory
-from faker.providers.phone_number import Provider
 
 from apps.organization.models import Organization, OrganizationAddress, OrganizationContact
 from apps.util.constants import ADDRESS_TYPES, CONTACT_TYPES
@@ -55,4 +54,4 @@ class OrganizationContactFactory(DjangoModelFactory):
 
     @factory.lazy_attribute
     def contact_value(self):
-        return factory.Faker(provider=Provider)
+        return factory.Faker(provider="phone_number")
