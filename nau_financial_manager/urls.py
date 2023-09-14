@@ -14,19 +14,33 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from decouple import config
 from django.contrib import admin
 from django.urls import include, path
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title=config("SWAGGER_PROJECT_NAME", default="Your project name"),
+        default_version=config("SWAGGER_PROJECT_VERSION", default="1.0.0"),
+        description=config("SWAGGER_DESCRIPTION", default="Your project description"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("swagger<format>/", schema_view.without_ui(cache_timeout=0), name="schema-json"),
+    path("api/docs/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
+    path("api/redocs/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
     path("api-auth/", include("rest_framework.urls")),
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
-    path("api/redocs/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]
 
 urlpatterns += [
     # CUSTOM APPS
-    path("api/", include("apps.billing.urls")),
+    path("api/billing/", include("apps.billing.urls")),
+    path("api/shared-revenue/", include("apps.shared_revenue.urls")),
 ]

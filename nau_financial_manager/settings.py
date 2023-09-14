@@ -34,10 +34,8 @@ THIRD_PARTY_APPS = [
     "safedelete",
     "rest_framework",
     "rest_framework.authtoken",
-    "drf_spectacular",
+    "drf_yasg",
     "django_filters",
-    "pghistory",
-    "pgtrigger",
     "auditlog",
 ]
 
@@ -82,10 +80,10 @@ WSGI_APPLICATION = "nau_financial_manager.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": config("POSTGRES_DB"),
-        "USER": config("POSTGRES_USER"),
-        "PASSWORD": config("POSTGRES_PASSWORD"),
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": config("MYSQL_DATABASE"),
+        "USER": config("MYSQL_USER"),
+        "PASSWORD": config("MYSQL_PASSWORD"),
         "HOST": config("DB_HOST"),
         "PORT": config("DB_PORT"),
     }
@@ -96,17 +94,9 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     # "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
     "DEFAULT_PAGINATION_CLASS": "apps.util.paginations.ShortResultsSetPagination",
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
-}
-
-SPECTACULAR_SETTINGS = {
-    "TITLE": config("SWAGGER_PROJECT_NAME", default="Your project name"),
-    "DESCRIPTION": config("SWAGGER_PROJECT_DESCRIPTION", default="Your project description"),
-    "VERSION": config("SWAGGER_PROJECT_VERSION", default="1.0.0"),
-    "SERVE_INCLUDE_SCHEMA": config("SWAGGER_SERVE_INCLUDE_SCHEMA", default=False, cast=bool),
 }
 
 AUTH_PASSWORD_VALIDATORS = [

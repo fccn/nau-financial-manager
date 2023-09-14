@@ -51,7 +51,15 @@ class RevenueConfiguration(BaseModel):
         verbose_name_plural = _("Revenue configurations")
         constraints = [
             CheckConstraint(
-                check=Q(organization__isnull=False) | Q(course_code__isnull=False), name="organization_or_course_code"
+                check=(
+                    ~(Q(course_code__isnull=True) & Q(organization__isnull=True))
+                    & ~(Q(course_code__exact="") & Q(organization__exact=""))
+                    & (
+                        (Q(course_code__isnull=True) & Q(organization__isnull=False))
+                        | (Q(course_code__isnull=False) & Q(organization__isnull=True))
+                    )
+                ),
+                name="organization_and_course_code_not_null",
             )
         ]
 
