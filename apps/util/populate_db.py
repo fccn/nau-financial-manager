@@ -39,14 +39,14 @@ def populate_billing(organization: OrganizationFactory) -> None:
     print("---Populated billing---")
 
 
-def populate(request):
+def populate():
     try:
         organizations_amount: int = 1
         organizations: list[OrganizationFactory] = OrganizationFactory.create_batch(organizations_amount)
         for organization in organizations:
             populate_organizations_resources(organization=organization)
             populate_shared_revenue(organization=organization)
-            populate_billing(organization=organization)
+            # populate_billing(organization=organization)
     except Exception as e:
         raise e
 

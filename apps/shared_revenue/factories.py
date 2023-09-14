@@ -1,6 +1,5 @@
 import factory
 from factory.django import DjangoModelFactory
-from faker.providers.date_time import Provider as DateProvider
 
 from apps.organization.factories import OrganizationFactory
 from apps.shared_revenue.models import PartnershipLevel, RevenueConfiguration, ShareExecution
@@ -24,7 +23,7 @@ class RevenueConfigurationFactory(DjangoModelFactory):
     class Meta:
         model = RevenueConfiguration
 
-    organization = None
+    organization = factory.SubFactory(OrganizationFactory)
     partnership_level = factory.SubFactory(PartnershipLevelFactory)
     course_code = None
     start_date = factory.Faker(provider="date_time")
