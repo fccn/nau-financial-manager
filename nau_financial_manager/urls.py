@@ -25,7 +25,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title=config("SWAGGER_PROJECT_NAME", default="Your project name"),
         default_version=config("SWAGGER_PROJECT_VERSION", default="1.0.0"),
-        description=config("SWAGGER_PROJECT_DESCRIPTION", default="Your project description"),
+        description=config("SWAGGER_DESCRIPTION", default="Your project description"),
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
