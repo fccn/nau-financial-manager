@@ -32,6 +32,8 @@ class OrganizationAddressSerializer(serializers.ModelSerializer):
     and `country` fields of the `OrganizationAddress` model.
     """
 
+    organization = OrganizationSerializer()
+
     class Meta:
         model = OrganizationAddress
         fields = [

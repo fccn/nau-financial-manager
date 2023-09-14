@@ -22,18 +22,11 @@ def populate_organizations_resources(organization: OrganizationFactory) -> None:
     print("---Populated organizations---")
 
 def populate_shared_revenue(organization: OrganizationFactory) -> None:
-    partnership_level: PartnershipLevelFactory = PartnershipLevelFactory.create()
-    revenue_configuration: RevenueConfigurationFactory = RevenueConfigurationFactory.create(
-        organization=organization,
-        partnership_level=partnership_level,
-    )
-    revenue_configuration = RevenueConfigurationSerializer(revenue_configuration).data
-    partnership_level_serialized = PartnershipLevelSerializer(partnership_level).data
-    revenue_configuration["partnership_level"] = partnership_level_serialized
-    ShareExecutionFactory.create(
-        organization=organization,
-        revenue_configuration=revenue_configuration,
-    )
+    partnership_level = PartnershipLevelFactory.create()
+    revenue_configuration = RevenueConfigurationSerializer(RevenueConfigurationFactory.create(partnership_level=partnership_level)).data
+    partnership_level = PartnershipLevelSerializer(partnership_level).data
+    revenue_configuration["partnership_level"] = partnership_level
+    ShareExecutionFactory.create(revenue_configuration=revenue_configuration)
 
 def populate_billing(organization: OrganizationFactory) -> None:
     receipt_factory: ReceiptFactory = ReceiptFactory.create(organization=organization)  
@@ -48,7 +41,7 @@ def populate():
         for organization in organizations:
             populate_organizations_resources(organization=organization)
             populate_shared_revenue(organization=organization)
-            # populate_billing(organization=organization)
+            populate_billing(organization=organization)
     except Exception as e:
         raise e
 

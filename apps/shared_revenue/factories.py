@@ -9,11 +9,14 @@ from apps.shared_revenue.serializers import RevenueConfigurationSerializer
 class PartnershipLevelFactory(DjangoModelFactory):
     class Meta:
         model = PartnershipLevel
-        django_get_or_create = ("percentage", "name")
+        django_get_or_create = (
+            "percentage",
+            "name",
+        )
 
     name = factory.Faker("word")
     description = factory.Faker("sentence")
-    percentage = factory.Faker("pydecimal", left_digits=1, right_digits=2)
+    percentage = factory.Faker("pydecimal", min_value=0, max_value=1, left_digits=1, right_digits=2)
 
 
 class RevenueConfigurationFactory(DjangoModelFactory):
@@ -39,10 +42,7 @@ class ShareExecutionFactory(DjangoModelFactory):
     response_payload = factory.DictFactory()
 
     @factory.lazy_attribute
-    def revenue_configuration(self):
-        partnership_level = PartnershipLevelFactory.create()
-        return factory.DictFactory(
-            **RevenueConfigurationSerializer(
-                RevenueConfigurationFactory.create(partnership_level=partnership_level)
-            ).data
-        )
+    def revenue_configuration(self, x):
+        print(RevenueConfigurationSerializer(data=self.revenue_configuration).data)
+        print(RevenueConfigurationSerializer(data=self.revenue_configuration).data)
+        return RevenueConfigurationSerializer(data=self.revenue_configuration).data
