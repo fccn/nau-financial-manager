@@ -2,14 +2,14 @@ version: "3.5"
 
 services:
 
-  database-psql:
-    container_name: nau-database-psql
+  database-mysql:
+    container_name: nau-database-mysql
     restart: always
-    image: postgres:15.4
+    image: mysql:8.1
     env_file: ../sample-dev.env
     hostname: database
     ports:
-      - "5432:5432"
+      - "3306:3306"
 
   nau-financial-app:
     container_name: nau-financial-app
@@ -24,4 +24,4 @@ services:
     volumes:
       - ../:/app
     depends_on:
-        - database-psql  
+        - database-mysql  

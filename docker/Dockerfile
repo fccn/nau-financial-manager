@@ -28,6 +28,8 @@ RUN apt-get update && apt-get upgrade -y \
   curl \
   git \
   build-essential \
+  pkg-config \
+  default-libmysqlclient-dev \
   # Defining build-time-only dependencies:
   $BUILD_ONLY_PACKAGES \
   # Installing `poetry` package manager:

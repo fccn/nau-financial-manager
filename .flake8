@@ -9,5 +9,5 @@ exclude =
     .env,
     static/,
     app/grpc/*
-ignore = E501,
+ignore = E501, W503
 max-line-length = 119

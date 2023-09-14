@@ -25,7 +25,7 @@ test:  ## run tests, all or specific test
 
 lint: ## use black to format code
 	$(LINT_CMD)
-.PHONY: lint 
+.PHONY: lint
 
 pre-commit: ## use pre-commit to check best practices
 	$(PRE_COMMIT)
@@ -37,7 +37,7 @@ run: ## run django server in your host
 
 kill: ## stop django server in your host
 	killall manage.py
-.PHONY: kill 
+.PHONY: kill
 
 run-docker: ## run django server in docker in dev mode
 	$(RUN_DOCKER_DEV)
