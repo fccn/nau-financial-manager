@@ -46,7 +46,7 @@ def populate():
         for organization in organizations:
             populate_organizations_resources(organization=organization)
             populate_shared_revenue(organization=organization)
-            # populate_billing(organization=organization)
+            populate_billing(organization=organization)
     except Exception as e:
         raise e
 
