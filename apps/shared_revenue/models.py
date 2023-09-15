@@ -53,7 +53,7 @@ class RevenueConfiguration(BaseModel):
             CheckConstraint(
                 check=(
                     ~(Q(course_code__isnull=True) & Q(organization__isnull=True))
-                    & ~(Q(course_code__exact="") & Q(organization__exact=""))
+                    & ~(Q(course_code__exact="") & Q(organization__isnull=True))
                     & (
                         (Q(course_code__isnull=True) & Q(organization__isnull=False))
                         | (Q(course_code__isnull=False) & Q(organization__isnull=True))
@@ -86,3 +86,6 @@ class ShareExecution(BaseModel):
 
     def __str__(self) -> str:
         return f"{self.organization} - {self.revenue_configuration} - {self.percentage}"
+
+
+#

@@ -8,8 +8,12 @@ TEST_CMD = $(POETRY_RUN) python manage.py test
 LINT_CMD = $(POETRY_RUN) black .
 PRE_COMMIT = $(POETRY_RUN) pre-commit run --all-files
 RUN_CMD = $(POETRY_RUN) python manage.py runserver
+POPULATE_DB = $(POETRY_RUN) python apps/util/populate_db.py
+MAKE_MIGRATIONS = $(POETRY_RUN) python manage.py makemigrations
+MIGRATE = $(POETRY_RUN) python manage.py migrate
 RUN_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose.yml up -d
 KILL_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose.yml down
+
 
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
@@ -34,6 +38,18 @@ pre-commit: ## use pre-commit to check best practices
 run: ## run django server in your host
 	$(RUN_CMD)
 .PHONY: run
+
+populatedb: ## populate the database initially with fake data
+	$(POPULATE_DB)
+.PHONY: populatedb
+
+migrations: ## create migrations (app is an option parameter | make migrations {app_name})
+	@args="$(filter-out $@,$(MAKECMDGOALS))" && $(MAKE_MIGRATIONS) $${args:-${1}}
+.PHONY: migrations
+
+migrate: ## apply all available migrations
+	$(MIGRATE)
+.PHONY: migrate
 
 kill: ## stop django server in your host
 	killall manage.py

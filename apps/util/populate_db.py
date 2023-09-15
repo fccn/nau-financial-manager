@@ -12,9 +12,6 @@ from apps.shared_revenue.factories import  PartnershipLevelFactory, RevenueConfi
 from apps.billing.factories import ReceiptFactory, ReceiptItemFactory
 from apps.shared_revenue.serializers import PartnershipLevelSerializer, RevenueConfigurationSerializer
 
-import json
-from json import JSONEncoder
-
 
 def populate_organizations_resources(organization: OrganizationFactory) -> None:
     OrganizationContactFactory.create(organization=organization)
@@ -27,6 +24,7 @@ def populate_shared_revenue(organization: OrganizationFactory) -> None:
     partnership_level = PartnershipLevelSerializer(partnership_level).data
     revenue_configuration["partnership_level"] = partnership_level
     ShareExecutionFactory.create(revenue_configuration=revenue_configuration)
+    print("---Populated share_revenue---")
 
 def populate_billing(organization: OrganizationFactory) -> None:
     receipt_factory: ReceiptFactory = ReceiptFactory.create(organization=organization)  
@@ -41,7 +39,7 @@ def populate_billing(organization: OrganizationFactory) -> None:
 
 def populate():
     try:
-        organizations_amount: int = 1
+        organizations_amount: int = 5
         organizations: list[OrganizationFactory] = OrganizationFactory.create_batch(organizations_amount)
         for organization in organizations:
             populate_organizations_resources(organization=organization)

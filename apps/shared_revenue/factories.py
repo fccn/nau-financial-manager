@@ -3,7 +3,6 @@ from factory.django import DjangoModelFactory
 
 from apps.organization.factories import OrganizationFactory
 from apps.shared_revenue.models import PartnershipLevel, RevenueConfiguration, ShareExecution
-from apps.shared_revenue.serializers import RevenueConfigurationSerializer
 
 
 class PartnershipLevelFactory(DjangoModelFactory):
@@ -40,9 +39,4 @@ class ShareExecutionFactory(DjangoModelFactory):
     receipt = factory.Faker("word")
     executed = factory.Faker("boolean")
     response_payload = factory.DictFactory()
-
-    @factory.lazy_attribute
-    def revenue_configuration(self, x):
-        print(RevenueConfigurationSerializer(data=self.revenue_configuration).data)
-        print(RevenueConfigurationSerializer(data=self.revenue_configuration).data)
-        return RevenueConfigurationSerializer(data=self.revenue_configuration).data
+    revenue_configuration = None
