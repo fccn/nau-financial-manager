@@ -57,7 +57,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "auditlog.middleware.AuditlogMiddleware",
 ]
-
+AUTH_USER_MODEL = "apps.util.CustomUser"
 ROOT_URLCONF = "nau_financial_manager.urls"
 
 TEMPLATES = [
