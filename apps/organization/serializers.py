@@ -31,9 +31,6 @@ class OrganizationAddressSerializer(serializers.ModelSerializer):
     This serializer includes the `id`, `organization`, `address_type`, `street`, `postal_code`, `city`, `district`,
     and `country` fields of the `OrganizationAddress` model.
     """
-
-    organization = OrganizationSerializer()
-
     class Meta:
         model = OrganizationAddress
         fields = [

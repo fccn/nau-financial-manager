@@ -8,6 +8,7 @@ TEST_CMD = $(POETRY_RUN) python manage.py test
 LINT_CMD = $(POETRY_RUN) black .
 PRE_COMMIT = $(POETRY_RUN) pre-commit run --all-files
 RUN_CMD = $(POETRY_RUN) python manage.py runserver
+FLUSH_DB = $(POETRY_RUN) python manage.py flush
 POPULATE_DB = $(POETRY_RUN) python apps/util/populate_db.py
 MAKE_MIGRATIONS = $(POETRY_RUN) python manage.py makemigrations
 MIGRATE = $(POETRY_RUN) python manage.py migrate
@@ -39,9 +40,10 @@ run: ## run django server in your host
 	$(RUN_CMD)
 .PHONY: run
 
-populatedb: ## populate the database initially with fake data
+populate: ## populate the database initially with fake data
+	$(FLUSH_DB)
 	$(POPULATE_DB)
-.PHONY: populatedb
+.PHONY: populate
 
 migrations: ## create migrations (app is an option parameter | make migrations {app_name})
 	@args="$(filter-out $@,$(MAKECMDGOALS))" && $(MAKE_MIGRATIONS) $${args:-${1}}

@@ -21,11 +21,11 @@ class OrganizationFactory(DjangoModelFactory):
     @factory.lazy_attribute
     def vat_number(self):
         return {
-            "PT": f"PT{random.randint(100000000, 999999999)}",
-            "ES": f"ES{random.randint(100000000, 999999999)}",
-            "IT": f"IT{random.randint(10000000000, 99999999999)}",
-            "FR": f"FR{random.randint(10000000000, 99999999999)}",
-            "DE": f"DE{random.randint(100000000, 999999999)}",
+            "PT": f"{random.randint(100000000, 999999999)}",
+            "ES": f"{random.randint(100000000, 999999999)}",
+            "IT": f"{random.randint(10000000000, 99999999999)}",
+            "FR": f"{random.randint(10000000000, 99999999999)}",
+            "DE": f"{random.randint(100000000, 999999999)}",
         }[self.vat_country]
 
 
@@ -34,12 +34,16 @@ class OrganizationAddressFactory(DjangoModelFactory):
         model = OrganizationAddress
 
     organization = factory.SubFactory(OrganizationFactory)
-    address_type = factory.Iterator(ADDRESS_TYPES[random.randint(0, 2)][0])
     street = factory.Faker("street_address")
     postal_code = factory.Faker("postcode")
     city = factory.Faker("city")
     district = factory.Faker("state")
     country = factory.SelfAttribute("organization.vat_country")
+    
+    @factory.lazy_attribute
+    def address_type(self):
+        return ADDRESS_TYPES[random.randint(0, 2)][random.randint(0, 1)]
+        
 
 
 class OrganizationContactFactory(DjangoModelFactory):
@@ -47,11 +51,10 @@ class OrganizationContactFactory(DjangoModelFactory):
         model = OrganizationContact
 
     organization = factory.SubFactory(OrganizationFactory)
-    contact_type = CONTACT_TYPES[random.randint(0, 2)][0]
-
+    contact_value = factory.Faker(provider="phone_number")
     description = factory.Faker("text", max_nb_chars=255)
     is_main = False
-
+    
     @factory.lazy_attribute
-    def contact_value(self):
-        return factory.Faker(provider="phone_number")
+    def contact_type(self):
+        return CONTACT_TYPES[random.randint(0, 2)][random.randint(0, 1)]
