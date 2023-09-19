@@ -36,13 +36,15 @@ def generate_revenue_configuration(
             organization=organization,
             partnership_level=partnership_level,
         )
-    else:
-        course_code: str = generate_course_code()
-        revenue_configuration: RevenueConfigurationFactory = RevenueConfigurationFactory.create(
-            course_code=course_code,
-            partnership_level=partnership_level,
-        )
+        return revenue_configuration
+   
+    course_code: str = generate_course_code()
+    revenue_configuration: RevenueConfigurationFactory = RevenueConfigurationFactory.create(
+        course_code=course_code,
+        partnership_level=partnership_level,
+    )
     return revenue_configuration
+    
 
 
 def populate_shared_revenue(organization: OrganizationFactory) -> None:
