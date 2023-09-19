@@ -43,6 +43,7 @@ LOCAL_APPS = [
     "apps.billing",
     "apps.organization",
     "apps.shared_revenue",
+    "apps.util",
 ]
 
 INSTALLED_APPS = [*DJANGO_APPS, *THIRD_PARTY_APPS, *LOCAL_APPS]
@@ -57,7 +58,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "auditlog.middleware.AuditlogMiddleware",
 ]
-AUTH_USER_MODEL = "apps.util.CustomUser"
+AUTH_USER_MODEL = "util.CustomUser"
 ROOT_URLCONF = "nau_financial_manager.urls"
 
 TEMPLATES = [
