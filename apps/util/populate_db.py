@@ -12,10 +12,18 @@ from apps.billing.factories import ReceiptFactory, ReceiptItemFactory
 from apps.shared_revenue.serializers import PartnershipLevelSerializer, RevenueConfigurationSerializer
 
 import random
+import string
+
 
 def populate_organizations_resources(organization: OrganizationFactory) -> None:
     OrganizationContactFactory.create(organization=organization)
     OrganizationAddressFactory.create(organization=organization)
+
+
+def generate_course_code() -> str:
+    letters = f"{string.ascii_uppercase}1234567890" 
+    code = "".join(["".join(random.choices(letters)) for i in range(10)])
+    return code
 
 
 def generate_revenue_configuration(
@@ -29,17 +37,13 @@ def generate_revenue_configuration(
             partnership_level=partnership_level,
         )
     else:
-        def generate_course_code() -> str:
-            import string
-            letters = f"{string.ascii_uppercase}1234567890" 
-            code = "".join(["".join(random.choices(letters)) for i in range(10)])
-            return code
-        
+        course_code: str = generate_course_code()
         revenue_configuration: RevenueConfigurationFactory = RevenueConfigurationFactory.create(
-            course_code=generate_course_code(),
+            course_code=course_code,
             partnership_level=partnership_level,
         )
     return revenue_configuration
+
 
 def populate_shared_revenue(organization: OrganizationFactory) -> None:
     platinum = PartnershipLevelFactory.create(name="platinum")
