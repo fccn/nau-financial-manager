@@ -42,7 +42,7 @@ class OrganizationAddressFactory(DjangoModelFactory):
     
     @factory.lazy_attribute
     def address_type(self):
-        return ADDRESS_TYPES[random.randint(0, 2)][random.randint(0, 1)]
+        return ADDRESS_TYPES[random.randint(0, 2)][0]
         
 
 
@@ -57,4 +57,4 @@ class OrganizationContactFactory(DjangoModelFactory):
     
     @factory.lazy_attribute
     def contact_type(self):
-        return CONTACT_TYPES[random.randint(0, 2)][random.randint(0, 1)]
+        return CONTACT_TYPES[random.randint(0, 2)][0]
