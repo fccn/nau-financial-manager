@@ -1,3 +1,4 @@
+from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
 from apps.billing.models import Receipt, ReceiptItem
@@ -27,7 +28,7 @@ class ReceiptItemSerializer(serializers.ModelSerializer):
         ]
 
 
-class ReceiptSerializer(serializers.ModelSerializer):
+class ReceiptSerializer(CountryFieldMixin, serializers.ModelSerializer):
     """
     A serializer class for the `Receipt` model.
 

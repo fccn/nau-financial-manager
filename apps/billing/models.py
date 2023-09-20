@@ -1,4 +1,5 @@
 from django.db import models
+from django_countries.fields import CountryField
 
 from apps.organization.models import Organization
 from apps.util.models import BaseModel
@@ -13,7 +14,7 @@ class Receipt(BaseModel):
     name = models.CharField(max_length=255)
     email = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
-    vat_identification_country = models.CharField(max_length=255)
+    vat_identification_country = CountryField(max_length=255)
     vat_identification_number = models.CharField(max_length=20)
     total_amount_exclude_vat = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount_include_vat = models.DecimalField(max_digits=10, decimal_places=2)

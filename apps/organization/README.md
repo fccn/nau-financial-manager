@@ -9,43 +9,43 @@ This modules is responsible for handling informations of organizations.
 classDiagram
     class BaseModel {
         <<abstract>>
-        -id: Integer
-        -created_at: DateTime
-        -updated_at: DateTime
+        -id: IntegerField
+        -created_at: DateTimeField
+        -updated_at: DateTimeField
+    }
+    class CountryField {
+        <<external>>
     }
     class Organization {
         -uuid: UUIDField
         -name: CharField
         -short_name: CharField
         -slug: SlugField
-        -vat_country: CharField
+        -vat_country: CountryField
         -vat_number: CharField
         -iban: CharField
-        +organization_addresses: OrganizationAddress[]
-        +organization_contacts: OrganizationContact[]
         +__str__(): str
     }
     class OrganizationAddress {
-        -organization: ForeignKey
+        -organization: ForeignKey(Organization)
         -address_type: CharField
         -street: CharField
         -postal_code: DecimalField
         -city: CharField
         -district: CharField
-        -country: CharField
+        -country: CountryField
         +__str__(): str
     }
     class OrganizationContact {
-        -organization: ForeignKey
+        -organization: ForeignKey(Organization)
         -contact_type: CharField
         -contact_value: CharField
         -description: CharField
         -is_main: BooleanField
         +__str__(): str
+        +Meta: UniqueConstraint
     }
-    BaseModel |-- Organization
-    BaseModel |-- OrganizationAddress
-    BaseModel |-- OrganizationContact
-    Organization "1" *-- "*" OrganizationAddress : organization_addresses
-    Organization "1" *-- "*" OrganizationContact : organization_contacts
+    BaseModel <|-- Organization
+    BaseModel <|-- OrganizationAddress
+    BaseModel <|-- OrganizationContact
 ```
