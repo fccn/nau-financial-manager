@@ -39,11 +39,10 @@ class OrganizationAddressFactory(DjangoModelFactory):
     city = factory.Faker("city")
     district = factory.Faker("state")
     country = factory.SelfAttribute("organization.vat_country")
-    
+
     @factory.lazy_attribute
     def address_type(self):
         return ADDRESS_TYPES[random.randint(0, 2)][0]
-        
 
 
 class OrganizationContactFactory(DjangoModelFactory):
@@ -54,7 +53,7 @@ class OrganizationContactFactory(DjangoModelFactory):
     contact_value = factory.Faker(provider="phone_number")
     description = factory.Faker("text", max_nb_chars=255)
     is_main = False
-    
+
     @factory.lazy_attribute
     def contact_type(self):
         return CONTACT_TYPES[random.randint(0, 2)][0]

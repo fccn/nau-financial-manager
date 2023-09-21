@@ -15,15 +15,16 @@ class PartnershipLevelFactory(DjangoModelFactory):
 
     name = factory.Faker("word")
     description = factory.Faker("sentence")
-    
+
     @factory.lazy_attribute
     def percentage(self):
         return {
             "platinum": 0.8,
             "gold": 0.75,
             "silver": 0.4,
-            "bronze": 0.25,   
+            "bronze": 0.25,
         }[self.name]
+
 
 class RevenueConfigurationFactory(DjangoModelFactory):
     class Meta:

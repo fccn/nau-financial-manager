@@ -14,6 +14,8 @@ MAKE_MIGRATIONS = $(POETRY_RUN) python manage.py makemigrations
 MIGRATE = $(POETRY_RUN) python manage.py migrate
 RUN_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose.yml up -d
 KILL_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose.yml down
+PRUNE_DOCKER = docker system prune -af
+CREATESUPERUSER = $(POETRY_RUN) python manage.py add_superuser --no-input --settings=nau_financial_manager.settings
 
 
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
@@ -41,7 +43,6 @@ run: ## run django server in your host
 .PHONY: run
 
 populate: ## populate the database initially with fake data
-	$(FLUSH_DB)
 	$(POPULATE_DB)
 .PHONY: populate
 
@@ -52,6 +53,14 @@ migrations: ## create migrations (app is an option parameter | make migrations {
 migrate: ## apply all available migrations
 	$(MIGRATE)
 .PHONY: migrate
+
+flush: ## delete all data from database
+	$(FLUSH_DB) --noinput
+.PHONY: flush
+
+superuser: ## create django super user admin (username and password are option parameters | make superuser {username} {password})
+	 @args="$(filter-out $@,$(MAKECMDGOALS))" && $(CREATESUPERUSER) $${args:+--username=$${args%% *} --password=$${args##* }}
+.PHONY: superuser
 
 kill: ## stop django server in your host
 	killall manage.py
@@ -65,3 +74,14 @@ run-docker: ## run django server in docker in dev mode
 kill-docker: ## stop django server in docker in dev mode
 	$(KILL_DOCKER_DEV)
 .PHONY: kill-docker
+
+hr-docker: ## remake complete docker environment (destroy dockers, prune docker, create dockers, migrate, superuser, populate)
+	$(MAKE) kill-docker
+	$(PRUNE_DOCKER)
+	$(RUN_DOCKER_DEV)
+	@echo "Waiting for MySQL server to start..."
+	docker logs -f nau-database-mysql 2>&1 | grep -q "/usr/sbin/mysqld: ready for connections. Version: '8.1.0'  socket: '/var/run/mysqld/mysqld.sock'" && sleep 5 && echo "MySQL server is ready"
+	$(MAKE) migrate
+	$(MAKE) superuser
+	$(MAKE) populate
+.PHONY: hr-docker
