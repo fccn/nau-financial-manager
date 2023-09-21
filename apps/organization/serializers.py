@@ -1,9 +1,10 @@
+from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
 from apps.organization.models import Organization, OrganizationAddress, OrganizationContact
 
 
-class OrganizationSerializer(serializers.ModelSerializer):
+class OrganizationSerializer(CountryFieldMixin, serializers.ModelSerializer):
     """
     A serializer class for the `Organization` model.
 
@@ -24,7 +25,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
         ]
 
 
-class OrganizationAddressSerializer(serializers.ModelSerializer):
+class OrganizationAddressSerializer(CountryFieldMixin, serializers.ModelSerializer):
     """
     A serializer class for the `OrganizationAddress` model.
 

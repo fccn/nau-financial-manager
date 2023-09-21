@@ -2,8 +2,9 @@ from uuid import uuid4
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django_countries.fields import CountryField
 
-from apps.util.constants import ADDRESS_TYPES, CONTACT_TYPES, EUROPE_COUNTRIES
+from apps.util.constants import ADDRESS_TYPES, CONTACT_TYPES
 from apps.util.models import BaseModel
 from apps.util.validators import validate_contact_value
 
@@ -17,7 +18,7 @@ class Organization(BaseModel):
     name = models.CharField(_("Name"), max_length=255)
     short_name = models.CharField(_("Short Name"), max_length=50, db_index=True)
     slug = models.SlugField(_("Slug"), max_length=50, db_index=True, unique=True)
-    vat_country = models.CharField(_("Vat Country"), choices=EUROPE_COUNTRIES, max_length=50, default="PT")
+    vat_country = CountryField()
     vat_number = models.CharField(_("Vat Number"), max_length=50)
     iban = models.CharField(_("Iban"), max_length=50, null=True, blank=True)
 
@@ -40,7 +41,7 @@ class OrganizationAddress(BaseModel):
     postal_code = models.DecimalField(_("Postal Code"), max_digits=7, decimal_places=0, null=True)
     city = models.CharField(_("City"), max_length=50, null=True)
     district = models.CharField(_("District"), max_length=50, null=True)
-    country = models.CharField(_("Country"), choices=EUROPE_COUNTRIES, max_length=50, default="PT")
+    country = CountryField(default="PT")
 
     class Meta:
         verbose_name = _("Organization address")

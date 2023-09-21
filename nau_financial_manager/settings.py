@@ -37,6 +37,7 @@ THIRD_PARTY_APPS = [
     "drf_yasg",
     "django_filters",
     "auditlog",
+    "django_countries",
 ]
 
 LOCAL_APPS = [

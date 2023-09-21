@@ -9,27 +9,32 @@ This module is responsible for handling shared revenue between organizations.
 classDiagram
     class BaseModel {
         <<abstract>>
-        -id: Integer
-        -created_at: DateTime
-        -updated_at: DateTime
+        -id: IntegerField
+        -created_at: DateTimeField
+        -updated_at: DateTimeField
     }
     class PartnershipLevel {
         -name: CharField
         -description: CharField
         -percentage: DecimalField
-        +revenue_partnership_levels: RevenueConfiguration[]
         +__str__(): str
     }
+    class Organization {
+        <<external>>
+    }
     class RevenueConfiguration {
-        -organization: ForeignKey
+        -organization: ForeignKey(Organization)
         -course_code: CharField
-        -partnership_level: ForeignKey
+        -partnership_level: ForeignKey(PartnershipLevel)
         -start_date: DateTimeField
         -end_date: DateTimeField
         +__str__(): str
     }
+    class Receipt {
+        <<external>>
+    }
     class ShareExecution {
-        -organization: ForeignKey
+        -organization: ForeignKey(Organization)
         -revenue_configuration: JSONField
         -percentage: DecimalField
         -value: DecimalField
@@ -38,10 +43,9 @@ classDiagram
         -response_payload: JSONField
         +__str__(): str
     }
-    PartnershipLevel |-- RevenueConfiguration
-    BaseModel |-- PartnershipLevel
-    BaseModel |-- RevenueConfiguration
-    BaseModel |-- ShareExecution
-    ShareExecution "1" -- "1" Organization : organization
-    RevenueConfiguration "1" -- "1" PartnershipLevel : partnership_level
+    BaseModel <|-- PartnershipLevel
+    BaseModel <|-- RevenueConfiguration
+    BaseModel <|-- ShareExecution
+    Organization <.. RevenueConfiguration
+    Receipt <.. ShareExecution
 ```
