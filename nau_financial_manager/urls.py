@@ -42,5 +42,6 @@ urlpatterns = [
 urlpatterns += [
     # CUSTOM APPS
     path("api/billing/", include("apps.billing.urls")),
+    path("api/organization/", include("apps.organization.urls")),
     path("api/shared-revenue/", include("apps.shared_revenue.urls")),
 ]
