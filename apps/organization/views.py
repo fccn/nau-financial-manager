@@ -67,6 +67,11 @@ class OrganizationDetail(APIView, DetailGet, DetailDelete, DetailPut):
 
 
 class OrganizationAddressGeneral(APIView, GeneralGet, GeneralPost):
+
+    """
+    For the post method just the field organization is required
+    """
+
     model = OrganizationAddress
     serializer = OrganizationAddressSerializer
     permission_classes = [IsAuthenticated]
@@ -90,7 +95,7 @@ class OrganizationAddressGeneral(APIView, GeneralGet, GeneralPost):
     ordering = ordering_fields
 
 
-class OrganizationAddressDetail(APIView, GeneralGet, GeneralPost):
+class OrganizationAddressDetail(APIView, DetailGet, DetailDelete, DetailPut):
     model = OrganizationAddress
     serializer = OrganizationAddressSerializer
     permission_classes = [IsAuthenticated]
@@ -106,7 +111,7 @@ class OrganizationAddressDetail(APIView, GeneralGet, GeneralPost):
     ]
 
     ordering = ordering_fields
-    prefetch_related_fields = "organization"
+    prefetch_related_fields = ("organization",)
 
 
 class OrganizationContactGeneral(APIView, GeneralGet, GeneralPost):
@@ -133,7 +138,7 @@ class OrganizationContactGeneral(APIView, GeneralGet, GeneralPost):
     ordering = ordering_fields
 
 
-class OrganizationContactDetail(APIView, GeneralGet, GeneralPost):
+class OrganizationContactDetail(APIView, DetailGet, DetailDelete, DetailPut):
     model = OrganizationContact
     serializer = OrganizationContactSerializer
     permission_classes = [IsAuthenticated]
