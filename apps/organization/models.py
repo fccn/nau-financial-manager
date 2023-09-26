@@ -6,7 +6,6 @@ from django_countries.fields import CountryField
 
 from apps.util.constants import ADDRESS_TYPES, CONTACT_TYPES
 from apps.util.models import BaseModel
-from apps.util.validators import validate_contact_value
 
 
 class Organization(BaseModel):
@@ -72,10 +71,6 @@ class OrganizationContact(BaseModel):
                 name="unique_main_contact_per_type",
             )
         ]
-
-    def save(self, keep_deleted=False, **kwargs):
-        validate_contact_value(self.__dict__)
-        return super().save(keep_deleted, **kwargs)
 
     def __str__(self) -> str:
         return f"{self.organization.name} - {self.contact_type}"

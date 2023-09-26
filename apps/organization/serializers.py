@@ -34,6 +34,8 @@ class OrganizationAddressSerializer(CountryFieldMixin, serializers.ModelSerializ
     and `country` fields of the `OrganizationAddress` model.
     """
 
+    organization = OrganizationSerializer()
+
     class Meta:
         model = OrganizationAddress
         fields = [
@@ -67,3 +69,10 @@ class OrganizationContactSerializer(serializers.ModelSerializer):
             "description",
             "is_main",
         ]
+
+
+class CompleteSerializer(serializers.Serializer):
+
+    organization = OrganizationSerializer()
+    addresses = serializers.ListField()
+    contacts = serializers.ListField()
