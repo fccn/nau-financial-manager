@@ -62,6 +62,10 @@ class OrganizationContact(BaseModel):
     description = models.CharField(_("Description"), max_length=255, null=True, blank=True)
     is_main = models.BooleanField(_("Is Main"), default=False)
 
+    @property
+    def contact_country(self):
+        return self.organization.vat_country.code
+
     class Meta:
         verbose_name = "Organization contact"
         verbose_name_plural = "Organizations contacts"
@@ -74,8 +78,11 @@ class OrganizationContact(BaseModel):
         ]
 
     def save(self, keep_deleted=False, **kwargs):
-        validate_contact_value(self.__dict__)
-        return super().save(keep_deleted, **kwargs)
+        try:
+            self.contact_value = validate_contact_value(self)
+            return super().save(keep_deleted, **kwargs)
+        except Exception as e:
+            raise e
 
     def __str__(self) -> str:
         return f"{self.organization.name} - {self.contact_type}"

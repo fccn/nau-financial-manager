@@ -39,36 +39,26 @@ class OrganizationGeneral(APIView, GeneralGet, GeneralPost):
         "iban",
     ]
 
-    ordering = ordering_fields
+    ordering = ["name", "slug", "vat_number", "iban"]
 
 
 class OrganizationDetail(APIView, DetailGet, DetailDelete, DetailPut):
 
     """
 
-    An organization is filtered by the slug field, who is passed through the url
+    This view deals with a single register of Organization model
+    For filtering a register, though the url as is necessary give the register slug
     """
 
     model = Organization
     serializer = OrganizationSerializer
     permission_classes = [IsAuthenticated]
 
-    ordering_fields = [
-        "uuid",
-        "name",
-        "short_name",
-        "slug",
-        "vat_country",
-        "vat_number",
-        "iban",
-    ]
-
-    ordering = ordering_fields
-
 
 class OrganizationAddressGeneral(APIView, GeneralGet, GeneralPost):
 
     """
+
     For the post method just the field organization is required
     """
 
@@ -92,25 +82,21 @@ class OrganizationAddressGeneral(APIView, GeneralGet, GeneralPost):
         "country",
     ]
 
-    ordering = ordering_fields
+    ordering = ["organization", "postal_code"]
 
 
 class OrganizationAddressDetail(APIView, DetailGet, DetailDelete, DetailPut):
+
+    """
+
+    This view deals with a single register of OrganizationAddress model
+    For filtering a register, though the url as is necessary give the register index number
+    """
+
     model = OrganizationAddress
     serializer = OrganizationAddressSerializer
     permission_classes = [IsAuthenticated]
 
-    ordering_fields = [
-        "organization",
-        "address_type",
-        "street",
-        "postal_code",
-        "city",
-        "district",
-        "country",
-    ]
-
-    ordering = ordering_fields
     prefetch_related_fields = ("organization",)
 
 
@@ -125,7 +111,7 @@ class OrganizationContactGeneral(APIView, GeneralGet, GeneralPost):
     serializer = OrganizationContactSerializer
     permission_classes = [IsAuthenticated]
 
-    search_fields = "contact_value"
+    search_fields = ("contact_value",)
 
     ordering_fields = [
         "organization",
@@ -135,21 +121,19 @@ class OrganizationContactGeneral(APIView, GeneralGet, GeneralPost):
         "is_main",
     ]
 
-    ordering = ordering_fields
+    ordering = ["organization", "contact_value", "is_main"]
 
 
 class OrganizationContactDetail(APIView, DetailGet, DetailDelete, DetailPut):
+
+    """
+
+    This view deals with a single register of OrganizationContact model
+    For filtering a register, through the url is necessary give the register index number
+    """
+
     model = OrganizationContact
     serializer = OrganizationContactSerializer
     permission_classes = [IsAuthenticated]
 
-    ordering_fields = [
-        "organization",
-        "contact_type",
-        "contact_value",
-        "description",
-        "is_main",
-    ]
-
-    ordering = ordering_fields
     prefetch_related_fields = ("organization",)

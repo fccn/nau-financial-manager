@@ -43,16 +43,21 @@ def validate_portuguese_mobile(contact_value) -> str:
 
 
 def validate_contact_value(self) -> str:
-    if self["contact_type"] == "email":
-        return validate_email(self["contact_value"])
-    if self["organization"].__dict__["vat_country"] == "PT":
-        if self["contact_type"] == "phone":
-            return validate_portuguese_phone(self["contact_value"])
-        elif self["contact_type"] == "mobile":
-            return validate_portuguese_mobile(self["contact_value"])
+
+    contact_type = self.contact_type
+    contact_country = self.contact_country
+    contact_value = self.contact_value
+
+    if contact_type == "email":
+        return validate_email(contact_value)
+    if contact_country == "PT":
+        if contact_type == "phone":
+            return validate_portuguese_phone(contact_value)
+        elif contact_type == "mobile":
+            return validate_portuguese_mobile(contact_value)
         else:
             raise ValueError("Invalid contact type")
-    elif self["contact_type"] == "phone" or self["contact_type"] == "mobile":
-        return self["contact_value"]
+    elif contact_type in ["phone", "mobile"]:
+        return contact_value
     else:
         raise ValueError("Invalid contact type")
