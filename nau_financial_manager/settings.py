@@ -33,11 +33,14 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "safedelete",
     "rest_framework",
+    "django_filters",
     "rest_framework.authtoken",
     "drf_yasg",
-    "django_filters",
     "auditlog",
+    "celery",
     "django_countries",
+    "django_celery_results",
+    "django_celery_beat",
 ]
 
 LOCAL_APPS = [
@@ -99,6 +102,32 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
+}
+
+CELERY_APP = "nau_financial_manager"
+CELERY_BROKER_URL = config("CELERY_BROKER_URL", "redis://nau-redis:6379/0")
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", "django-db")
+CELERY_CACHE_BACKEND = "default"
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+# WORKAROUND TO CELERY USING MYSQL
+DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH = 191
+
+
+RESDIS_URL = config("REDIS_URL", "redis://localhost:6379/")
+REDIS_HOST = config("REDIS_HOST", "nau-redis")
+REDIS_PORT = config("REDIS_PORT", 6379)
+REDIS_DB = config("REDIS_DB", 0)
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": config("REDIS_URL", "redis://localhost:6379/"),
+        "KEY_PREFIX": "naufm",
+        "TIMEOUT": 60 * 15,  # in seconds: 60 * 15 (15 minutes)
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [

@@ -16,4 +16,6 @@
 - Add django Admin Billing modules for the project
 - Add audit Logs for the project
 - Add safedelete Feature for the project
-- Add pg-triggers for the project to have last modified informations
+- Add myql database for the project
+- Add django rest framework for the project
+- Add celery for the project
