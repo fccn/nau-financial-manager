@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 
 from apps.organization.models import Organization, OrganizationAddress, OrganizationContact
 from apps.organization.serializers import (
+    CompleteSerializer,
     OrganizationAddressSerializer,
     OrganizationContactSerializer,
     OrganizationSerializer,
@@ -157,66 +158,12 @@ class OrganizationContactDetail(APIView, DetailGet, DetailDelete, DetailPut):
 
 
 class CompleteOrganizationView(APIView):
-
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
 
-        try:
-            organization: OrganizationSerializer = OrganizationSerializer(data=request.data["organization"])
-
-            if not organization.is_valid():
-                return Response(organization.errors, status=403)
-
-            o = organization.save()
-
-            for c in request.data["contacts"]:
-                c["organization"] = OrganizationSerializer(o).data["uuid"]
-
-            contacts: list[OrganizationContactSerializer] = [
-                OrganizationContactSerializer(data=c) for c in request.data["contacts"]
-            ]
-            for c in contacts:
-                if not c.is_valid():
-                    return Response(
-                        {
-                            "contacts_errors": c.errors,
-                            "organization": OrganizationSerializer(o).data,
-                        },
-                        status=403,
-                    )
-
-            for a in request.data["addresses"]:
-                a["organization"] = OrganizationSerializer(o).data["uuid"]
-
-            addresses: list[OrganizationAddressSerializer] = [
-                OrganizationAddressSerializer(data=a) for a in request.data["addresses"]
-            ]
-            for a in addresses:
-                if not a.is_valid():
-                    return Response(
-                        {
-                            "address_errors": a.errors,
-                            "organization": OrganizationSerializer(o).data,
-                        },
-                        status=403,
-                    )
-
-            __contacts = []
-            for c in contacts:
-                __c = c.save()
-                __contacts.append(__c)
-
-            __addresses = []
-            for a in addresses:
-                __a = a.save()
-                __addresses.append(__a)
-
-            response = {
-                "organization": organization.data,
-                "contacts": [OrganizationContactSerializer(c).data for c in __contacts],
-                "addresses": [OrganizationAddressSerializer(a).data for a in __addresses],
-            }
-            return Response(response)
-        except Exception as e:
-            return Response(str(e))
+        data_from_request = request.data
+        data = CompleteSerializer(data=data_from_request)
+        if not data.is_valid():
+            return Response(data.errors)
+        return Response(data.data)

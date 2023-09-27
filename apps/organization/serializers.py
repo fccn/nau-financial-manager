@@ -76,3 +76,19 @@ class CompleteSerializer(serializers.Serializer):
     organization = OrganizationSerializer()
     addresses = serializers.ListField()
     contacts = serializers.ListField()
+
+    def save(self, **kwargs):
+        if not self.organization.is_valid():
+            raise Exception(self.organization.errors)
+
+        contact_list = [OrganizationContactSerializer(data=c) for c in self.contacts]
+        for c in contact_list:
+            if not c.is_valid():
+                raise Exception(self.organization.errors)
+
+        address_list = [OrganizationContactSerializer(data=c) for c in self.contacts]
+        for c in address_list:
+            if not c.is_valid():
+                raise Exception(self.organization.errors)
+
+        return super().save(**kwargs)
