@@ -38,11 +38,18 @@ class ReceiptItem(BaseModel):
     amount_exclude_vat = models.DecimalField(max_digits=10, decimal_places=2)
     amount_include_vat = models.DecimalField(max_digits=10, decimal_places=2)
     organization_code = models.CharField(max_length=255)
-    course_code = models.CharField(max_length=255)
+    # course_code = models.CharField(max_length=255)
     course_id = models.CharField(max_length=255)
+
+    # Foreign key to the default organization of the course
+    # We don't need this foreign key.
+
+    # Add a foreign key to the course
 
     def __str__(self):
         return self.description
-
-    class Meta:
-        constraints = [models.UniqueConstraint(fields=["receipt"], name="unique_receipt_item")]
+    
+    # To remove
+    
+    # class Meta:
+    #     constraints = [models.UniqueConstraint(fields=["receipt"], name="unique_receipt_item")]

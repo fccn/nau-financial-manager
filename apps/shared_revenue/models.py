@@ -15,6 +15,9 @@ class PartnershipLevel(BaseModel):
 
     name = models.CharField(_("Name"), max_length=50, unique=True)
     description = models.CharField(_("Description"), max_length=255, null=True, blank=True)
+    
+    # percentage that the organization will receive by the product/course sold on the receipt item.
+    # Example by default will be read from a setting an the default setting value will be 70%.
     percentage = models.DecimalField(
         _("Value"),
         max_digits=3,
@@ -22,6 +25,9 @@ class PartnershipLevel(BaseModel):
         decimal_places=2,
         unique=True,
     )
+    # add new field
+    # default boolean
+    # only 1 PartnershipLevel can be default at the same time
 
     class Meta:
         verbose_name = _("Partnership level")
@@ -30,16 +36,73 @@ class PartnershipLevel(BaseModel):
     def __str__(self) -> str:
         return f"{self.name} - {self.percentage}"
 
+# Examples PartnershipLevel:
+# id | description  | percentage | default
+# 1  | default 2023 | 0.70       | true
+# 2  | 30%          | 0.30       | false
+# 3  | 40%          | 0.40       | false
 
-class RevenueConfiguration(BaseModel):
+
+
+# Course --> Product - we need to change
+# Organization --> Seller (Entity, )
+# Receipt --> Transaction  |-> rename
+#   type of transaction |-> add this to the specification
+# Receipt item --> line item  |-> rename
+
+# Renames:
+# course_id ==> product_id
+#
+
+class Course(BaseModel):
+    """
+    Course edition
+    Aka Product
+    """
+
+    # default/primary organization
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, related_name="revenue_organizations", null=True, blank=True
+    )
+    # TODO change to course_id
+    course_code = models.CharField(_("Course code"), max_length=50, null=True, blank=True) 
+
+    # create a static method to verify if there isn't a date with the sum of all percentages > 100%
+    # to be called on RevenuueCourseConfiguration.save() via admin
+
+class RevenueCourseConfiguration(BaseModel):
     """
     A model representing a revenue configuration for an organization and partnership level.
+
+    Example, 1 course with only 1 organization (its primary),
+    The INA organization will receive the 70% from all transactions:
+    | organization | course                          | partnership_level
+    | INA          | course-v1:INA+XPTO+2021_T3      | 70%
+    
+    Example, 1 course with 2 organizations,
+    The UNorteX is a consortium of 2 organizations. 
+    The UPorto will receive 40% and its partner UMinho will receive 30%:
+    | organization | course                          | partnership_level
+    | UPorto       | course-v1:UNorteX+ABCD+2023_T3  | 40%
+    | UMinho       | course-v1:UNorteX+ABCD+2023_T3  | 30%
+
+    Example, 1 course with 2 organizations,
+    INA has a course shared with USalamanca.
+    The INA will receive 50% and its partner USalamanca will receive 20%:
+    | organization | course                          | partnership_level
+    | INA          | course-v1:INA+ASDF+2020_T3      | 50%
+    | USalamanca   | course-v1:INA+ASDF+2020_T3      | 20%
     """
 
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="revenue_organizations", null=True, blank=True
     )
-    course_code = models.CharField(_("Course code"), max_length=50, null=True, blank=True)
+
+    # Add foreign key to Course
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, related_name="revenue_courses", null=True, blank=True
+    )
+
     partnership_level = models.ForeignKey(
         PartnershipLevel, on_delete=models.CASCADE, related_name="revenue_partnership_levels"
     )
@@ -50,6 +113,7 @@ class RevenueConfiguration(BaseModel):
         verbose_name = _("Revenue configuration")
         verbose_name_plural = _("Revenue configurations")
         constraints = [
+            # Please comment what this constraint is
             CheckConstraint(
                 check=(
                     ~(Q(course_code__isnull=True) & Q(organization__isnull=True))

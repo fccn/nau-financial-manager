@@ -7,7 +7,7 @@ Note, this integration is similar of the [SAGE X3 integration](sage_x3_integrati
 - [Specification of the integration with the Open edX Ecommerce](#specification-of-the-integration-with-the-open-edx-ecommerce)
   - [Create Receipt](#create-receipt)
     - [Input](#input)
-    - [Transaction id](#transaction-id)
+      - [Transaction id](#transaction-id)
       - [Client Name](#client-name)
       - [Email](#email)
       - [Address](#address)
@@ -22,7 +22,7 @@ Note, this integration is similar of the [SAGE X3 integration](sage_x3_integrati
         - [Amount excluding VAT](#amount-excluding-vat)
         - [Amount including VAT](#amount-including-vat)
         - [Course id](#course-id)
-        - [Organization code](#organization-code)
+        - [Organization](#organization)
         - [Course code](#course-code)
     - [Output](#output)
       - [receipt id](#receipt-id)
@@ -33,7 +33,7 @@ kind of information.
 
 ### Input
 
-### Transaction id
+#### Transaction id
 An identification of this transaction from the upstream system, to prevent the creation of
 duplicate receipts.
 
@@ -82,7 +82,7 @@ In our case will always be the 'EUR'.
 
 #### List of Receipt line's
 Each Receipt has a list of Receipt lines.
-A line on a receipt that represents a quantity of a product bought by a user.
+A line on a receipt that represents a quantity of a product (course) bought by a user.
 
 ##### Description
 The product/line text with a description of what have been bought.
@@ -106,9 +106,11 @@ Example: 149.00
 The course identification in the LMS.
 Example: 'course-v1:UPorto+CBNEEF+2023_T3'
 
-##### Organization code
-The primary organization of that course.
-Example: 'UPorto' or'INA'
+##### Organization
+The primary organization of that course, the value should match the `Organization` `short_name`
+field.
+
+Example: 'UPorto' or 'INA'
 
 Used by the the shared revenue module, if the the course doesn't have a specific multiple
 organizations shared revenue configuration.
