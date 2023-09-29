@@ -1,6 +1,5 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import CheckConstraint, Q
 from django.utils.translation import gettext_lazy as _
 
 from apps.billing.models import Product, Receipt
@@ -50,23 +49,25 @@ class RevenueConfiguration(BaseModel):
     partnership_level = models.ForeignKey(
         PartnershipLevel, on_delete=models.CASCADE, related_name="revenue_partnership_levels"
     )
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="item_product", null=True, blank=True)
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="revenue_product", null=True, blank=True
+    )
 
     class Meta:
         verbose_name = _("Revenue configuration")
         verbose_name_plural = _("Revenue configurations")
         constraints = [
-            CheckConstraint(
-                check=(
-                    ~(Q(course_code__isnull=True) & Q(organization__isnull=True))
-                    & ~(Q(course_code__exact="") & Q(organization__isnull=True))
-                    & (
-                        (Q(course_code__isnull=True) & Q(organization__isnull=False))
-                        | (Q(course_code__isnull=False) & Q(organization__isnull=True))
-                    )
-                ),
-                name="organization_and_course_code_not_null",
-            )
+            # CheckConstraint(
+            #     check=(
+            #         ~(Q(course_code__isnull=True) & Q(organization__isnull=True))
+            #         & ~(Q(course_code__exact="") & Q(organization__isnull=True))
+            #         & (
+            #             (Q(course_code__isnull=True) & Q(organization__isnull=False))
+            #             | (Q(course_code__isnull=False) & Q(organization__isnull=True))
+            #         )
+            #     ),
+            #     name="organization_and_course_code_not_null",
+            # )
         ]
 
     def __str__(self) -> str:
@@ -92,6 +93,3 @@ class ShareExecution(BaseModel):
 
     def __str__(self) -> str:
         return f"{self.organization} - {self.revenue_configuration} - {self.percentage}"
-
-
-#

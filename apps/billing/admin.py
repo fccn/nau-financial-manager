@@ -11,26 +11,38 @@ class ReceiptItemInline(admin.TabularInline):
 class ReceiptAdmin(admin.ModelAdmin):
     inlines = [ReceiptItemInline]
     list_display = (
-        "name",
+        "uuid",
+        "transaction_id",
+        "client_name",
         "email",
-        "address",
-        "vat_identification_country",
+        "address_line_1",
+        "address_line_2",
+        "city",
+        "postal_code",
+        "state",
+        "country_code",
         "vat_identification_number",
+        "vat_identification_country",
         "total_amount_exclude_vat",
         "total_amount_include_vat",
-        "receipt_link",
-        "receipt_document_id",
+        "currency",
     )
     search_fields = (
-        "name",
+        "uuid",
+        "transaction_id",
+        "client_name",
         "email",
-        "address",
-        "vat_identification_country",
+        "address_line_1",
+        "address_line_2",
+        "city",
+        "postal_code",
+        "state",
+        "country_code",
         "vat_identification_number",
+        "vat_identification_country",
         "total_amount_exclude_vat",
         "total_amount_include_vat",
-        "receipt_link",
-        "receipt_document_id",
+        "currency",
     )
 
 
