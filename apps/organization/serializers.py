@@ -15,10 +15,9 @@ class OrganizationSerializer(CountryFieldMixin, serializers.ModelSerializer):
     class Meta:
         model = Organization
         fields = [
-            "uuid",
+            "id",
             "name",
             "short_name",
-            "slug",
             "vat_country",
             "vat_number",
             "iban",

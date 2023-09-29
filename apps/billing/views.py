@@ -43,3 +43,8 @@ class ReceiptsDetail(APIView, DetailDelete, DetailPut, DetailGet):
         IsAuthenticated,
     ]
     prefetch_related_fields = ("organization",)
+
+
+class ReceiptView(APIView, GeneralGet, GeneralPost):
+    serializer = ReceiptSerializer
+    permission_classes = [IsAuthenticated]
