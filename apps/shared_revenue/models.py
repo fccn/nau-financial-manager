@@ -44,8 +44,7 @@ class PartnershipLevel(BaseModel):
 
 
 
-# Course --> Product - we need to change
-# Organization --> Seller (Entity, )
+# Organization
 # Receipt --> Transaction  |-> rename
 #   type of transaction |-> add this to the specification
 # Receipt item --> line item  |-> rename
@@ -54,23 +53,7 @@ class PartnershipLevel(BaseModel):
 # course_id ==> product_id
 #
 
-class Course(BaseModel):
-    """
-    Course edition
-    Aka Product
-    """
-
-    # default/primary organization
-    organization = models.ForeignKey(
-        Organization, on_delete=models.CASCADE, related_name="revenue_organizations", null=True, blank=True
-    )
-    # TODO change to course_id
-    course_code = models.CharField(_("Course code"), max_length=50, null=True, blank=True) 
-
-    # create a static method to verify if there isn't a date with the sum of all percentages > 100%
-    # to be called on RevenuueCourseConfiguration.save() via admin
-
-class RevenueCourseConfiguration(BaseModel):
+class RevenueCourseConfiguration(BaseModel): ## RevenueProductConfiguration
     """
     A model representing a revenue configuration for an organization and partnership level.
 
@@ -94,14 +77,16 @@ class RevenueCourseConfiguration(BaseModel):
     | USalamanca   | course-v1:INA+ASDF+2020_T3      | 20%
     """
 
+    # create a static method to verify if there isn't a date with the sum of all percentages > 100%
+    # to be called on RevenueProductConfiguration.save() via admin
+
+    # getActiveRevenueProductConfiguration(transaction datetime)
+
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="revenue_organizations", null=True, blank=True
     )
 
-    # Add foreign key to Course
-    course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, related_name="revenue_courses", null=True, blank=True
-    )
+    product_id # string
 
     partnership_level = models.ForeignKey(
         PartnershipLevel, on_delete=models.CASCADE, related_name="revenue_partnership_levels"
