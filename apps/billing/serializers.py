@@ -22,7 +22,8 @@ class ReceiptItemSerializer(serializers.ModelSerializer):
             "amount_exclude_vat",
             "amount_include_vat",
             "organization_code",
-            "product_id",
+            "course_id",
+            "course_code",
         ]
 
 
@@ -35,8 +36,6 @@ class ReceiptSerializer(CountryFieldMixin, serializers.ModelSerializer):
     `receipt_document_id`, and `receipt_items` fields of the `Receipt` model. The `receipt_items` field is a nested
     serializer that includes the `ReceiptItem` model fields.
     """
-
-    receipt_items = ReceiptItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = Receipt
@@ -57,33 +56,3 @@ class ReceiptSerializer(CountryFieldMixin, serializers.ModelSerializer):
             "total_amount_include_vat",
             "currency",
         ]
-
-
-class CompleteSerializer(serializers.Serializer):
-    class Meta:
-        fields = [
-            "uuid",
-            "transaction_id",
-            "client_name",
-            "email",
-            "address_line_1",
-            "address_line_2",
-            "city",
-            "postal_code",
-            "state",
-            "country_code",
-            "vat_identification_number",
-            "vat_identification_country",
-            "total_amount_exclude_vat",
-            "total_amount_include_vat",
-            "currency",
-            "item",
-        ]
-
-    def create(self, validated_data):
-
-        item: dict = self.initial_data
-
-        ReceiptItemSerializer(data=item)
-
-        return self

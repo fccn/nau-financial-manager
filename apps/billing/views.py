@@ -4,8 +4,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 from apps.billing.models import Receipt
-from apps.billing.serializers import CompleteSerializer, ReceiptSerializer
+from apps.billing.serializers import ReceiptSerializer
 from apps.util.base_views import DetailDelete, DetailGet, DetailPut, GeneralGet, GeneralPost
+from apps.util.complete_serializer import CompleteSerializer
 
 
 class ReceiptsGeneral(APIView, GeneralGet, GeneralPost):
