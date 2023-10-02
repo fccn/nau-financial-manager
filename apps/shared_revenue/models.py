@@ -2,7 +2,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.billing.models import Product, Receipt
+from apps.billing.models import Receipt
 from apps.organization.models import Organization
 from apps.util.models import BaseModel
 
@@ -49,26 +49,11 @@ class RevenueConfiguration(BaseModel):
     partnership_level = models.ForeignKey(
         PartnershipLevel, on_delete=models.CASCADE, related_name="revenue_partnership_levels"
     )
-    product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="revenue_product", null=True, blank=True
-    )
+    product_id = models.CharField(_("Product Id"), max_length=50, null=False)
 
     class Meta:
         verbose_name = _("Revenue configuration")
         verbose_name_plural = _("Revenue configurations")
-        constraints = [
-            # CheckConstraint(
-            #     check=(
-            #         ~(Q(course_code__isnull=True) & Q(organization__isnull=True))
-            #         & ~(Q(course_code__exact="") & Q(organization__isnull=True))
-            #         & (
-            #             (Q(course_code__isnull=True) & Q(organization__isnull=False))
-            #             | (Q(course_code__isnull=False) & Q(organization__isnull=True))
-            #         )
-            #     ),
-            #     name="organization_and_course_code_not_null",
-            # )
-        ]
 
     def __str__(self) -> str:
         return f"{self.organization} - {self.course_code} - {self.partnership_level}"

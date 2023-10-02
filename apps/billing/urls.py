@@ -13,4 +13,9 @@ urlpatterns = [
         views.ReceiptsDetail.as_view(),
         name="receipts_retrieve",
     ),
+    path(
+        "receipt-complete/",
+        views.CompleteView.as_view(),
+        name="receipt_complete",
+    ),
 ]

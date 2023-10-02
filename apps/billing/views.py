@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 from apps.billing.models import Receipt
-from apps.billing.serializers import ReceiptSerializer
+from apps.billing.serializers import CompleteSerializer, ReceiptSerializer
 from apps.util.base_views import DetailDelete, DetailGet, DetailPut, GeneralGet, GeneralPost
 
 
@@ -43,3 +43,8 @@ class ReceiptsDetail(APIView, DetailDelete, DetailPut, DetailGet):
         IsAuthenticated,
     ]
     prefetch_related_fields = ("organization",)
+
+
+class CompleteView(APIView, GeneralPost):
+    serializer = CompleteSerializer
+    permission_classes = [IsAuthenticated]

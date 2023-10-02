@@ -15,7 +15,6 @@ class ReceiptItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReceiptItem
         fields = [
-            "id",
             "receipt",
             "description",
             "quantity",
@@ -23,8 +22,7 @@ class ReceiptItemSerializer(serializers.ModelSerializer):
             "amount_exclude_vat",
             "amount_include_vat",
             "organization_code",
-            "course_code",
-            "course_id",
+            "product_id",
         ]
 
 
@@ -59,3 +57,33 @@ class ReceiptSerializer(CountryFieldMixin, serializers.ModelSerializer):
             "total_amount_include_vat",
             "currency",
         ]
+
+
+class CompleteSerializer(serializers.Serializer):
+    class Meta:
+        fields = [
+            "uuid",
+            "transaction_id",
+            "client_name",
+            "email",
+            "address_line_1",
+            "address_line_2",
+            "city",
+            "postal_code",
+            "state",
+            "country_code",
+            "vat_identification_number",
+            "vat_identification_country",
+            "total_amount_exclude_vat",
+            "total_amount_include_vat",
+            "currency",
+            "item",
+        ]
+
+    def create(self, validated_data):
+
+        item: dict = self.initial_data
+
+        ReceiptItemSerializer(data=item)
+
+        return self
