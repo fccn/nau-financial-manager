@@ -55,14 +55,14 @@ class RevenueConfiguration(BaseModel):
     partnership_level = models.ForeignKey(
         PartnershipLevel, on_delete=models.CASCADE, related_name="revenue_partnership_levels"
     )
-    course_id = models.CharField(_("Product Id"), max_length=50, null=False)
+    product_id = models.CharField(_("Product Id"), max_length=50, null=False)
 
     class Meta:
         verbose_name = _("Revenue configuration")
         verbose_name_plural = _("Revenue configurations")
 
     def __str__(self) -> str:
-        return f"{self.organization} - {self.course_id} - {self.partnership_level}"
+        return f"{self.organization} - {self.product_id} - {self.partnership_level}"
 
 
 class ShareExecution(BaseModel):
