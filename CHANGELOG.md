@@ -19,3 +19,4 @@
 - Add myql database for the project
 - Add django rest framework for the project
 - Add celery for the project
+- Add populate script

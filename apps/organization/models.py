@@ -19,7 +19,7 @@ class Organization(BaseModel):
     short_name = models.CharField(_("Short Name"), max_length=50, db_index=True)
     slug = models.SlugField(_("Slug"), max_length=50, db_index=True, unique=True)
     vat_country = CountryField()
-    vat_number = models.CharField(_("Vat Number"), max_length=50)
+    vat_number = models.CharField(_("Vat Number"), max_length=50, unique=True)
     iban = models.CharField(_("Iban"), max_length=50, null=True, blank=True)
 
     class Meta:
@@ -58,11 +58,13 @@ class OrganizationContact(BaseModel):
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="organization_contacts")
     contact_type = models.CharField(_("Contact Type"), max_length=6, choices=CONTACT_TYPES, null=False)
-    contact_value = models.CharField(
-        _("Contact Value"), max_length=50, validators=[validate_contact_value], null=False
-    )
+    contact_value = models.CharField(_("Contact Value"), max_length=50, null=False)
     description = models.CharField(_("Description"), max_length=255, null=True, blank=True)
     is_main = models.BooleanField(_("Is Main"), default=False)
+
+    @property
+    def contact_country(self):
+        return self.organization.vat_country.code
 
     class Meta:
         verbose_name = "Organization contact"
@@ -74,6 +76,13 @@ class OrganizationContact(BaseModel):
                 name="unique_main_contact_per_type",
             )
         ]
+
+    def save(self, keep_deleted=False, **kwargs):
+        try:
+            self.contact_value = validate_contact_value(self)
+            return super().save(keep_deleted, **kwargs)
+        except Exception as e:
+            raise e
 
     def __str__(self) -> str:
         return f"{self.organization.name} - {self.contact_type}"
