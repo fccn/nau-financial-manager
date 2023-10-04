@@ -4,7 +4,8 @@ from typing import Callable, Iterable, Tuple
 from django.core import paginator as pg
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Model
-from rest_framework import serializers
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, serializers
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -154,7 +155,7 @@ class BaseAPIView:
     custom_prefixes_serializers: list = ["basic"]
 
     @classmethod
-    def get_object(cls, id):
+    def get_object(cls, **kwargs):
         """
         Returns an object from the queryset based on the primary key.
         """
@@ -166,7 +167,7 @@ class BaseAPIView:
         if hasattr(cls, "prefetch_related_fields"):
             queryset = queryset.prefetch_related(*cls.prefetch_related_fields)
 
-        return queryset.get(pk=id)
+        return queryset.get(**kwargs)
 
     def get_queryset(self, _, **relations):
         """
@@ -179,22 +180,6 @@ class BaseAPIView:
         Returns a dictionary of context data for the view.
         """
         return {}
-
-    # def get_serializer(self) -> serializers.ModelSerializer:
-    #     """
-    #     Returns the serializer instance for the view.
-    #     """
-    #     serializer_name = "serializer"
-
-    #     self.custom_prefixes_serializers.append(self.custom_class_prefix_serializer)
-
-    #     for prefix_serializer in self.custom_prefixes_serializers:
-    #         expected_serializer_name = prefix_serializer + "_custom_serializer"
-
-    #         if hasattr(self, expected_serializer_name):
-    #             serializer_name = expected_serializer_name
-
-    #     return getattr(self, serializer_name)
 
     def get_serializer(self, *args, **kwargs) -> serializers.ModelSerializer:
         """
@@ -218,10 +203,14 @@ class GeneralGet(BaseAPIView):
     Base class for General APIViews for the GET HTTP method
     """
 
-    filter_backends: Tuple
     pagination_class = PageNumberPagination
     paginator = CustomPageNumberPagination()
     custom_class_prefix_serializer = "get"
+    filter_backends = (
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        DjangoFilterBackend,
+    )
 
     def get(self, request, **relations):
         queryset = self.get_queryset(request, **relations)
@@ -290,9 +279,9 @@ class DetailGet(BaseAPIView):
 
     custom_class_prefix_serializer = "get"
 
-    def get(self, request, id):
+    def get(self, request, **kwargs):
         try:
-            object_instance = self.get_object(id)
+            object_instance = self.get_object(**kwargs)
 
             serializer = self.serializer(object_instance, context=self.get_context(request))
 
@@ -313,9 +302,9 @@ class DetailPut(BaseAPIView):
 
     custom_class_prefix_serializer = "put"
 
-    def put(self, request, id):
+    def put(self, request, **kwargs):
         try:
-            object_instance = self.get_object(id)
+            object_instance = self.get_object(**kwargs)
 
             if hasattr(self, "put_is_valid"):
                 if not self.put_is_valid(request, object_instance):
@@ -347,9 +336,9 @@ class DetailPatch(BaseAPIView):
 
     custom_class_prefix_serializer = "patch"
 
-    def patch(self, request, id):
+    def patch(self, request, **kwargs):
         try:
-            object_instance = self.get_object(id)
+            object_instance = self.get_object(**kwargs)
             serializer = self.serializer(
                 object_instance,
                 data=request.data,
@@ -377,9 +366,9 @@ class DetailDelete(BaseAPIView):
 
     custom_class_prefix_serializer = "delete"
 
-    def delete(self, request, id):
+    def delete(self, request, **kwargs):
         try:
-            object_instance = self.get_object(id)
+            object_instance = self.get_object(**kwargs)
 
             if hasattr(self, "delete_is_valid"):
                 if not self.delete_is_valid(request, object_instance):

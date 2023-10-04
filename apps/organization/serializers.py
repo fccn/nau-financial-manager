@@ -2,6 +2,7 @@ from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
 from apps.organization.models import Organization, OrganizationAddress, OrganizationContact
+from apps.util.validators import validate_contact_value
 
 
 class OrganizationSerializer(CountryFieldMixin, serializers.ModelSerializer):
@@ -57,6 +58,7 @@ class OrganizationContactSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrganizationContact
+        validators = [validate_contact_value]
         fields = [
             "id",
             "organization",

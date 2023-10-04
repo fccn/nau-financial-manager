@@ -16,11 +16,23 @@ import string
 
 
 def populate_organizations_resources(organization: OrganizationFactory) -> None:
+    
+    """
+    
+    Populates organizations resources, address and contacts
+    """
+    
     OrganizationContactFactory.create(organization=organization)
     OrganizationAddressFactory.create(organization=organization)
 
 
 def generate_course_code() -> str:
+    
+    """
+    
+    Generates a fake course code of length of 10 chars
+    """
+    
     letters = f"{string.ascii_uppercase}1234567890" 
     code = "".join(["".join(random.choices(letters)) for i in range(10)])
     return code
@@ -30,6 +42,12 @@ def generate_revenue_configuration(
     organization: OrganizationFactory,
     partnership_levels: list[PartnershipLevelFactory],
 ) -> RevenueConfigurationFactory:
+    
+    """
+    
+    Generates and populates RevenueConfiguration model, adding PartnershipLevel selected in a random way
+    """
+
     partnership_level = partnership_levels[random.randint(0, 1)]
     if [True, False][random.randint(0, 1)]:
         revenue_configuration: RevenueConfigurationFactory = RevenueConfigurationFactory.create(
@@ -48,6 +66,12 @@ def generate_revenue_configuration(
 
 
 def populate_shared_revenue(organization: OrganizationFactory) -> None:
+
+    """
+    
+    Starts populate of shared_revenue module, creates PartnershipLevel possibilities, creates RevenueConfiguration and ShareExecution
+    """    
+
     platinum = PartnershipLevelFactory.create(name="platinum")
     gold = PartnershipLevelFactory.create(name="gold")
     silver = PartnershipLevelFactory.create(name="silver")
@@ -68,6 +92,12 @@ def populate_shared_revenue(organization: OrganizationFactory) -> None:
 
 
 def populate_billing(organization: OrganizationFactory) -> None:
+    
+    """
+    
+    Populates billing module, creates five receipts per organization and one ReceiptItem per Receipt
+    """  
+
     amount_of_receipts = 5
     receipts: list[ReceiptFactory] = ReceiptFactory.create_batch(amount_of_receipts, organization=organization)
     for receipt in receipts:
@@ -75,6 +105,12 @@ def populate_billing(organization: OrganizationFactory) -> None:
 
 
 def populate():
+    
+    """
+    
+    Starts the populate feature, creates five organizations
+    """  
+    
     try:
         organizations_amount: int = 5
         organizations: list[OrganizationFactory] = OrganizationFactory.create_batch(organizations_amount)
@@ -87,6 +123,11 @@ def populate():
 
 
 if __name__ == "__main__":
+    """
+    
+    Main method, triggers the populate script and calculate the time to do
+    """ 
+    
     print("Starting population script...")
     start = time.time()
     populate()
