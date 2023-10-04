@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
@@ -14,12 +12,10 @@ class Organization(BaseModel):
     A model representing an organization.
     """
 
-    uuid = models.UUIDField(_("Uuid"), primary_key=True, default=uuid4, editable=False, db_index=True)
-    name = models.CharField(_("Name"), max_length=255)
-    short_name = models.CharField(_("Short Name"), max_length=50, db_index=True)
-    slug = models.SlugField(_("Slug"), max_length=50, db_index=True, unique=True)
-    vat_country = CountryField()
-    vat_number = models.CharField(_("Vat Number"), max_length=50, unique=True)
+    name = models.CharField(_("Name"), max_length=255, null=True)
+    short_name = models.CharField(_("Short Name"), max_length=50, db_index=True, null=True, unique=True)
+    vat_country = CountryField(null=True)
+    vat_number = models.CharField(_("Vat Number"), max_length=50, unique=True, null=True)
     iban = models.CharField(_("Iban"), max_length=50, null=True, blank=True)
 
     class Meta:
