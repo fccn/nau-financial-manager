@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from apps.billing.serializers import ReceiptItemSerializer, ReceiptSerializer
 from apps.organization.models import Organization
+from apps.shared_revenue.models import RevenueConfiguration
+from apps.shared_revenue.serializers import PartnershipLevelSerializer, RevenueConfigurationSerializer
 
 
 class CompleteSerializer(serializers.Serializer):
@@ -41,27 +43,60 @@ class CompleteSerializer(serializers.Serializer):
     currency = serializers.CharField(allow_blank=True)
     item = serializers.JSONField()
 
+    def __create_shared_revenue_resources(
+        self,
+        organization: Organization,
+        course_id: str,
+    ):
+        partnership_level = PartnershipLevelSerializer(data=None).save()
+        revenue_configuration = RevenueConfigurationSerializer(
+            data={
+                "organization": organization,
+                "course_id": course_id,
+                "partnership_level": partnership_level,
+                "start_date": "",
+                "end_date": "",
+            }
+        )
+        if not revenue_configuration.is_valid():
+            return revenue_configuration
+        revenue_configuration = revenue_configuration.save()
+
+    def __create_billing_resources(
+        self,
+        validade_data: dict,
+    ):
+        receipt_data = {k: v for k, v in validade_data.items() if k != "item"}
+        receipt = ReceiptSerializer(data=receipt_data)
+        if receipt.is_valid():
+            receipt = receipt.save()
+
+        receipt_item = validade_data["item"]
+        receipt_item["receipt_id"] = receipt.uuid
+        receipt_item = ReceiptItemSerializer(data=receipt_item)
+        if receipt_item.is_valid():
+            receipt_item = receipt_item.save()
+
+        return ReceiptSerializer(receipt)
+
     def create(self, validade_data):
         try:
-
-            obj, created = Organization.objects.get_or_create(
+            organization, created = Organization.objects.get_or_create(
                 short_name=validade_data["item"]["organization_code"],
                 defaults={"short_name": validade_data["item"]["organization_code"]},
             )
 
-            receipt_data = {k: v for k, v in validade_data.items() if k != "item"}
-            receipt = ReceiptSerializer(data=receipt_data)
+            course_id: str = validade_data["item"]["course_id"]
+            revenue_configuration: RevenueConfiguration = RevenueConfiguration.objects.filter(
+                **{"course_id": course_id, "organization": organization}
+            ).first()
 
-            if receipt.is_valid():
-                receipt = receipt.save()
+            if revenue_configuration is None:
+                self.__create_shared_revenue_resources(
+                    organization=organization,
+                    course_id=course_id,
+                )
 
-            receipt_item = validade_data["item"]
-            receipt_item["receipt_id"] = receipt.uuid
-            receipt_item = ReceiptItemSerializer(data=receipt_item)
-
-            if receipt_item.is_valid():
-                receipt_item = receipt_item.save()
-
-            return ReceiptSerializer(receipt)
+            return self.__create_billing_resources(validade_data=validade_data)
         except Exception as e:
             raise e

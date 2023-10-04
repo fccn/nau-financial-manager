@@ -37,7 +37,7 @@ class RevenueConfigurationSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "organization",
-            "course_code",
+            "course_id",
             "partnership_level",
             "start_date",
             "end_date",

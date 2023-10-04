@@ -17,8 +17,14 @@ class PartnershipLevel(BaseModel):
 
     """
 
-    name = models.CharField(_("Name"), max_length=50, unique=True)
-    description = models.CharField(_("Description"), max_length=255, null=True, blank=True)
+    name = models.CharField(_("Name"), default="Silver", max_length=50, unique=True)
+    description = models.CharField(
+        _("Description"),
+        default="Partnership level default of 70% percent of earning for the course",
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     percentage = models.DecimalField(
         _("Value"),
         default=0.70,
@@ -49,14 +55,14 @@ class RevenueConfiguration(BaseModel):
     partnership_level = models.ForeignKey(
         PartnershipLevel, on_delete=models.CASCADE, related_name="revenue_partnership_levels"
     )
-    product_id = models.CharField(_("Product Id"), max_length=50, null=False)
+    course_id = models.CharField(_("Product Id"), max_length=50, null=False)
 
     class Meta:
         verbose_name = _("Revenue configuration")
         verbose_name_plural = _("Revenue configurations")
 
     def __str__(self) -> str:
-        return f"{self.organization} - {self.course_code} - {self.partnership_level}"
+        return f"{self.organization} - {self.course_id} - {self.partnership_level}"
 
 
 class ShareExecution(BaseModel):
