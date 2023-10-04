@@ -1,9 +1,11 @@
 FROM python:3.11-slim AS base_build
 
+
 # Create a group and user to run our app
 ARG USER=nau-financial-manager
 
 ARG ENV
+
 ENV ENV=${ENV} \
   # build:
   BUILD_ONLY_PACKAGES='' \
@@ -30,6 +32,7 @@ RUN apt-get update && apt-get upgrade -y \
   build-essential \
   pkg-config \
   default-libmysqlclient-dev \
+  mycli \
   # Defining build-time-only dependencies:
   $BUILD_ONLY_PACKAGES \
   # Installing `poetry` package manager:
