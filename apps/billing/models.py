@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from django.db import models
 from django_countries.fields import CountryField
 
@@ -34,23 +32,20 @@ class Receipt(BaseModel):
 
     """
 
-    # The uuid field will be the pair identification with the transaction_id saved in the ecommerce
-    uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
-
-    transaction_id = models.CharField(max_length=150, null=True, unique=True)
-    client_name = models.CharField(max_length=255, null=True)
-    email = models.CharField(max_length=255, null=True)
-    address_line_1 = models.CharField(max_length=150, null=True)
-    address_line_2 = models.CharField(max_length=150, null=True)
-    city = models.CharField(max_length=100, null=True)
-    postal_code = models.CharField(max_length=50, null=True)
-    state = models.CharField(max_length=50, null=True)
-    country_code = models.CharField(max_length=50, null=True)
-    vat_identification_number = models.CharField(max_length=20, null=True)
+    transaction_id = models.CharField(max_length=150, unique=True)
+    client_name = models.CharField(max_length=255, null=True, blank=True)
+    email = models.CharField(max_length=255, null=True, blank=True)
+    address_line_1 = models.CharField(max_length=150, null=True, blank=True)
+    address_line_2 = models.CharField(max_length=150, null=True, blank=True)
+    city = models.CharField(max_length=100, null=True, blank=True)
+    postal_code = models.CharField(max_length=50, null=True, blank=True)
+    state = models.CharField(max_length=50, null=True, blank=True)
+    country_code = models.CharField(max_length=50, null=True, blank=True)
+    vat_identification_number = models.CharField(max_length=20, null=True, blank=True)
     vat_identification_country = CountryField(max_length=255, null=True)
     total_amount_exclude_vat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     total_amount_include_vat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    currency = models.CharField(max_length=7, default="EUR", null=True)
+    currency = models.CharField(max_length=7, default="EUR", null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -81,11 +76,8 @@ class ReceiptItem(BaseModel):
     amount_exclude_vat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     amount_include_vat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     organization_code = models.CharField(max_length=255, null=True)
-    course_code = models.CharField(max_length=255, null=True)
-    course_id = models.CharField(max_length=255, null=True)
+    course_id = models.CharField(max_length=50, null=True, blank=True)
+    course_code = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return self.description
-
-    class Meta:
-        constraints = [models.UniqueConstraint(fields=["receipt"], name="unique_receipt_item")]
