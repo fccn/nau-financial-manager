@@ -6,7 +6,7 @@ urlpatterns = [
     path(
         "receipts/",
         views.ReceiptsGeneral.as_view(),
-        name="receipts_list",
+        name="receipts_general",
     ),
     path(
         "receipts/<int:id>/",

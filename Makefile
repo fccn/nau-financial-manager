@@ -85,7 +85,7 @@ hr-docker: ## remake complete docker environment (destroy dockers, prune docker,
 	$(PRUNE_DOCKER)
 	$(RUN_DOCKER_DEV)
 	@echo "Waiting for MySQL server to start..."
-	docker logs -f nau-database-mysql 2>&1 | grep -q "/usr/sbin/mysqld: ready for connections. Version: '8.1.0'  socket: '/var/run/mysqld/mysqld.sock'" && sleep 5 && echo "MySQL server is ready"
+	docker logs -f nau-database-mysql 2>&1 | grep -q "/usr/sbin/mysqld: ready for connections. Version: '8.1.0'  socket: '/var/run/mysqld/mysqld.sock'" && sleep 15 && echo "MySQL server is ready"
 	$(MAKE) migrate
 	$(MAKE) superuser
 	$(MAKE) populate

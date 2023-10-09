@@ -50,10 +50,15 @@ class OrganizationContactFactory(DjangoModelFactory):
         model = OrganizationContact
 
     organization = factory.SubFactory(OrganizationFactory)
-    contact_value = factory.Faker(provider="phone_number")
     description = factory.Faker("text", max_nb_chars=255)
     is_main = False
+    contact_type = CONTACT_TYPES[random.randint(0, 2)][0]
 
     @factory.lazy_attribute
-    def contact_type(self):
-        return CONTACT_TYPES[random.randint(0, 2)][0]
+    def contact_value(self):
+        country = self.organization.vat_country
+        if self.contact_type == "email":
+            return f"email{random.randint(1000, 9999)}@gmail.com"
+        phone_number: str = factory.faker.faker.Faker(f"{country.code.lower()}_{country}").phone_number()
+
+        return phone_number.replace(" ", "")[-9:]
