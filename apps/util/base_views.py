@@ -272,7 +272,7 @@ class GeneralPost(BaseAPIView):
             serializer = self.serializer(data=request.data, context=self.get_context(request))
 
         if serializer.is_valid():
-            serializer = serializer.save()
+            serializer.save()
 
             return Response(
                 Format.format_success(codeError=HTTP_201_CREATED, data=serializer.data),

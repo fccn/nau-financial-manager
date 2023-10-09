@@ -47,7 +47,7 @@ class RevenueConfiguration(BaseModel):
     A model representing a revenue configuration for an organization and partnership level.
     """
 
-    start_date = models.DateTimeField(_("Start date"), auto_now_add=True)
+    start_date = models.DateTimeField(_("Start date"), null=True, blank=True)
     end_date = models.DateTimeField(_("End date"), null=True, blank=True)
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="revenue_organizations", null=True, blank=True
@@ -60,6 +60,25 @@ class RevenueConfiguration(BaseModel):
     class Meta:
         verbose_name = _("Revenue configuration")
         verbose_name_plural = _("Revenue configurations")
+
+    def __has_concurrent_revenue_configuration(self) -> bool:
+        """
+        Validates if exists a concurrent RevenueConfiguration with the same parameters
+
+        Returns:
+            bool: If not exists it must return False
+        """
+
+        same_revenue_configuration: RevenueConfiguration = self.objects.get(
+            **{
+                "organization": self.organization,
+                "product_id": self.product_id,
+            }
+        )
+
+        # The validation of concurrent RevenueConfiguration for the same parameters must work here
+
+        return same_revenue_configuration is not None
 
     def __str__(self) -> str:
         return f"{self.organization} - {self.product_id} - {self.partnership_level}"

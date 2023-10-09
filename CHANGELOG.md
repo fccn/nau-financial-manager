@@ -17,3 +17,4 @@
 - Add audit Logs for the project
 - Add safedelete Feature for the project
 - Add pg-triggers for the project to have last modified informations
+- Add billing payload process through an endpoint
