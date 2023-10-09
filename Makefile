@@ -10,6 +10,7 @@ PRE_COMMIT = $(POETRY_RUN) pre-commit run --all-files
 RUN_CMD = $(POETRY_RUN) python manage.py runserver
 FLUSH_DB = $(POETRY_RUN) python manage.py flush
 POPULATE_DB = $(POETRY_RUN) python apps/util/populate_db.py
+RESET_MIGRATIONS = find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
 MAKE_MIGRATIONS = $(POETRY_RUN) python manage.py makemigrations
 MIGRATE = $(POETRY_RUN) python manage.py migrate
 RUN_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose.yml up -d
@@ -45,6 +46,10 @@ run: ## run django server in your host
 populate: ## populate the database initially with fake data
 	$(POPULATE_DB)
 .PHONY: populate
+
+reset-migrations: ## reset all migrations from all apps
+	$(RESET_MIGRATIONS)
+.PHONY: reset-migrations
 
 migrations: ## create migrations (app is an option parameter | make migrations {app_name})
 	@args="$(filter-out $@,$(MAKECMDGOALS))" && $(MAKE_MIGRATIONS) $${args:-${1}}
