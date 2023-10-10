@@ -54,24 +54,27 @@ class TransactionSerializer(serializers.ModelSerializer):
         model = Receipt
         fields = "__all__"
 
-    def __create_shared_revenue_resources(
+    def __execute_shared_revenue_resources(
         self,
         organization: Organization,
         product_id: str,
     ):
-        partnership_level, created = PartnershipLevel.objects.get_or_create(percentage=0.70)
-        RevenueConfiguration.objects.create(
-            **{"organization": organization, "product_id": product_id, "partnership_level": partnership_level}
+        revenue_configuration_exists: bool = self.has_concurrent_revenue_configuration(
+            organization=organization,
+            product_id=product_id,
         )
+        if not revenue_configuration_exists:
+            partnership_level, created = PartnershipLevel.objects.get_or_create(percentage=0.70)
+            RevenueConfiguration.objects.create(
+                **{"organization": organization, "product_id": product_id, "partnership_level": partnership_level}
+            )
 
-    def __create_billing_resources(
+    def __execute_billing_resources(
         self,
         validate_data: dict,
     ):
         receipt_data = {k: v for k, v in validate_data.items() if k != "item"}
-        receipt = ReceiptSerializer(data=receipt_data)
-        if receipt.is_valid():
-            receipt = Receipt.objects.create(**receipt.data)
+        receipt = Receipt.objects.create(**receipt_data)
 
         receipt_item_data = deepcopy(validate_data["item"])
         receipt_item_data["receipt"] = receipt
@@ -79,41 +82,32 @@ class TransactionSerializer(serializers.ModelSerializer):
 
         return receipt
 
-    def __check_revenue_configuration_exists(
+    def has_concurrent_revenue_configuration(
         self,
         organization: Organization,
         product_id: str,
     ):
-        same_revenue_configuration: RevenueConfiguration = RevenueConfiguration.objects.filter(
-            **{
-                "organization": organization,
-                "product_id": product_id,
-            }
-        ).first()
-
-        return same_revenue_configuration is not None
+        try:
+            return RevenueConfiguration(
+                organization=organization,
+                product_id=product_id,
+            ).has_concurrent_revenue_configuration()
+        except Exception:
+            return True
 
     def create(self, validate_data):
         try:
-            receipt: Receipt = self.__create_billing_resources(validate_data=validate_data)
-
+            # receipt: Receipt = self.__execute_billing_resources(validate_data=validate_data)
             organization, created = Organization.objects.get_or_create(
                 short_name=validate_data["item"]["organization_code"],
                 defaults={"short_name": validate_data["item"]["organization_code"]},
             )
 
-            product_id: str = validate_data["item"]["course_id"]
-            revenue_configuration_exists: bool = self.__check_revenue_configuration_exists(
+            self.__execute_shared_revenue_resources(
                 organization=organization,
-                product_id=product_id,
+                product_id=validate_data["item"]["course_id"],
             )
 
-            if not revenue_configuration_exists:
-                self.__create_shared_revenue_resources(
-                    organization=organization,
-                    product_id=product_id,
-                )
-
-            return receipt
+            return "receipt"
         except Exception as e:
             raise e
