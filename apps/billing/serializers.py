@@ -46,13 +46,40 @@ class ReceiptSerializer(CountryFieldMixin, serializers.ModelSerializer):
         fields = "__all__"
 
 
+class TransactionItemSerializer(serializers.Serializer):
+
+    description = serializers.CharField(allow_blank=True, allow_null=True)
+    quantity = serializers.IntegerField(allow_null=True)
+    vat_tax = serializers.DecimalField(max_digits=5, decimal_places=2, allow_null=True)
+    amount_exclude_vat = serializers.DecimalField(max_digits=10, decimal_places=2, allow_null=True)
+    amount_include_vat = serializers.DecimalField(max_digits=10, decimal_places=2, allow_null=True)
+    organization_code = serializers.CharField(max_length=255, allow_null=True, allow_blank=True)
+    course_id = serializers.CharField(max_length=50, allow_null=True, allow_blank=True)
+    course_code = serializers.CharField(max_length=50, allow_null=True, allow_blank=True)
+
+
 class TransactionSerializer(serializers.ModelSerializer):
-    item = serializers.JSONField(required=False)
-    transaction_id = serializers.CharField(required=False)
+    item = TransactionItemSerializer()
 
     class Meta:
         model = Receipt
-        fields = "__all__"
+        fields = [
+            "item",
+            "transaction_id",
+            "client_name",
+            "email",
+            "address_line_1",
+            "address_line_2",
+            "city",
+            "postal_code",
+            "state",
+            "country_code",
+            "vat_identification_number",
+            "vat_identification_country",
+            "total_amount_exclude_vat",
+            "total_amount_include_vat",
+            "currency",
+        ]
 
     def _execute_shared_revenue_resources(
         self,
