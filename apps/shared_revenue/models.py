@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -64,9 +64,6 @@ class RevenueConfiguration(BaseModel):
         verbose_name = _("Revenue configuration")
         verbose_name_plural = _("Revenue configurations")
 
-    def make_date_as_comparable(self, date: datetime) -> int:
-        return int(str(date.date()).replace("-", ""))
-
     def has_concurrent_revenue_configuration(self) -> bool:
         """
         Validates if exists a concurrent RevenueConfiguration with the same parameters
@@ -119,9 +116,8 @@ class RevenueConfiguration(BaseModel):
                         # it will save from None/blank to None/blank
                         return True
 
-                    reference_date = self.start_date if not self_start_date_is_empty else datetime.now()
-                    reference_date = self.make_date_as_comparable(date=reference_date)
-                    current_start_date = self.make_date_as_comparable(date=revenue_configuration.start_date)
+                    reference_date = self.start_date if not self_start_date_is_empty else datetime.now(timezone.utc)
+                    current_start_date = revenue_configuration.start_date
 
                     # if future_start_date, it means this RevenueConfiguration is not available to run yet
                     future_start_date: bool = current_start_date > reference_date
@@ -136,9 +132,10 @@ class RevenueConfiguration(BaseModel):
                     if revenue_configuration_end_date_is_empty:
                         return False
 
-                    current_end_date = self.make_date_as_comparable(date=revenue_configuration.end_date)
+                    current_end_date = revenue_configuration.end_date
+
                     # if finished_revenue_configuration, it means this RevenueConfiguration is old
-                    finished_revenue_configuration: bool = future_start_date or current_end_date < reference_date
+                    finished_revenue_configuration: bool = current_end_date < reference_date
 
                     return finished_revenue_configuration
 
@@ -149,7 +146,20 @@ class RevenueConfiguration(BaseModel):
             e
             raise ValidationError("There is a concurrent revenue configuration in this moment")
 
-    validations = [has_concurrent_revenue_configuration]
+    def validate_instance(self) -> None:
+        try:
+            validations = [self.has_concurrent_revenue_configuration]
+            for validation in validations:
+                validation()
+        except Exception as e:
+            raise e
+
+    def save(self, keep_deleted=False, **kwargs):
+        try:
+            self.validate_instance()
+            return super().save(keep_deleted, **kwargs)
+        except Exception as e:
+            raise e
 
     def __str__(self) -> str:
         return f"{self.organization} - {self.product_id} - {self.partnership_level}"

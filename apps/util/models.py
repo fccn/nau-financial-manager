@@ -1,4 +1,3 @@
-from typing import Callable
 from uuid import uuid4
 
 from django.contrib.auth.models import AbstractUser
@@ -15,25 +14,9 @@ class BaseModel(SafeDeleteModel):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
-    validations: list[Callable] = []
 
     class Meta:
         abstract = True
-
-    def validate_instance(self) -> None:
-        try:
-            for validation in self.validations:
-                validation()
-        except Exception as e:
-            raise e
-
-    def save(self, keep_deleted=False, **kwargs):
-        try:
-            self.validate_instance()
-        except Exception as e:
-            raise e
-
-        return super().save(keep_deleted, **kwargs)
 
 
 class CustomUser(AbstractUser):

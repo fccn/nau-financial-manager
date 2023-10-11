@@ -54,12 +54,12 @@ class TransactionSerializer(serializers.ModelSerializer):
         model = Receipt
         fields = "__all__"
 
-    def __execute_shared_revenue_resources(
+    def _execute_shared_revenue_resources(
         self,
         organization: Organization,
         product_id: str,
     ):
-        revenue_configuration_exists: bool = self.has_concurrent_revenue_configuration(
+        revenue_configuration_exists: bool = self._has_concurrent_revenue_configuration(
             organization=organization,
             product_id=product_id,
         )
@@ -69,7 +69,7 @@ class TransactionSerializer(serializers.ModelSerializer):
                 **{"organization": organization, "product_id": product_id, "partnership_level": partnership_level}
             )
 
-    def __execute_billing_resources(
+    def _execute_billing_resources(
         self,
         validate_data: dict,
     ):
@@ -82,7 +82,7 @@ class TransactionSerializer(serializers.ModelSerializer):
 
         return receipt
 
-    def has_concurrent_revenue_configuration(
+    def _has_concurrent_revenue_configuration(
         self,
         organization: Organization,
         product_id: str,
@@ -97,17 +97,17 @@ class TransactionSerializer(serializers.ModelSerializer):
 
     def create(self, validate_data):
         try:
-            # receipt: Receipt = self.__execute_billing_resources(validate_data=validate_data)
+            receipt: Receipt = self._execute_billing_resources(validate_data=validate_data)
             organization, created = Organization.objects.get_or_create(
                 short_name=validate_data["item"]["organization_code"],
                 defaults={"short_name": validate_data["item"]["organization_code"]},
             )
 
-            self.__execute_shared_revenue_resources(
+            self._execute_shared_revenue_resources(
                 organization=organization,
                 product_id=validate_data["item"]["course_id"],
             )
 
-            return "receipt"
+            return receipt
         except Exception as e:
             raise e
