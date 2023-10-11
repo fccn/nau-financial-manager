@@ -23,7 +23,7 @@ class Organization(BaseModel):
         verbose_name_plural = _("Organizations")
 
     def __str__(self) -> str:
-        return self.name
+        return f"{self.name}"
 
 
 class OrganizationAddress(BaseModel):
