@@ -9,17 +9,15 @@ class OrganizationSerializer(CountryFieldMixin, serializers.ModelSerializer):
     """
     A serializer class for the `Organization` model.
 
-    This serializer includes the `uuid`, `name`, `short_name`, `slug`, `vat_country`, `vat_number`, and `iban` fields
+    This serializer includes the `name`, `short_name`, `vat_country`, `vat_number`, and `iban` fields
     of the `Organization` model.
     """
 
     class Meta:
         model = Organization
         fields = [
-            "uuid",
             "name",
             "short_name",
-            "slug",
             "vat_country",
             "vat_number",
             "iban",
