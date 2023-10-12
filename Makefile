@@ -8,6 +8,7 @@ TEST_CMD = $(POETRY_RUN) python manage.py test
 LINT_CMD = $(POETRY_RUN) black .
 PRE_COMMIT = $(POETRY_RUN) pre-commit run --all-files
 RUN_CMD = $(POETRY_RUN) python manage.py runserver
+CREATE_TOKEN = $(POETRY_RUN) python manage.py drf_create_token admin
 FLUSH_DB = $(POETRY_RUN) python manage.py flush
 POPULATE_DB = $(POETRY_RUN) python apps/util/populate_db.py
 RESET_MIGRATIONS = find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
@@ -90,3 +91,7 @@ hr-docker: ## remake complete docker environment (destroy dockers, prune docker,
 	$(MAKE) superuser
 	$(MAKE) populate
 .PHONY: hr-docker
+
+kill-docker: ## create token for admin user
+	$(CREATE_TOKEN)
+.PHONY: create-token
