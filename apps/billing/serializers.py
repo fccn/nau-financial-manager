@@ -12,7 +12,7 @@ class ReceiptItemSerializer(serializers.ModelSerializer):
     """
     A serializer class for the `ReceiptItem` model.
 
-    This serializer includes the `id`, `receipt`, `description`, `quantity`, `vat_tax`, `amount_exclude_vat`,
+    This serializer includes the `receipt`, `description`, `quantity`, `vat_tax`, `amount_exclude_vat`,
     `amount_include_vat`, `organization_code`, `course_code`, and `course_id` fields of the `ReceiptItem` model.
     """
 

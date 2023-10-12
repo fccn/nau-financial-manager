@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.forms import ValidationError
@@ -64,10 +65,28 @@ class RevenueConfiguration(BaseModel):
         verbose_name = _("Revenue configuration")
         verbose_name_plural = _("Revenue configurations")
 
+    @property
+    def status(self) -> bool:
+        """
+        Check if the revenue configuration is still in vigency.
+        """
+        today = datetime.now()
+        if today <= self.end_date:
+            try:
+                self.objects.get(
+                    organization=self.organization,
+                    product_id=self.product_id,
+                    start_date__lte=self.end_date,
+                    end_date__gte=self.start_date,
+                )
+
+                return True
+            except ObjectDoesNotExist:
+                return False
+        return False
+
     def has_concurrent_revenue_configuration(self) -> bool:
         """
-        Validates if exists a concurrent RevenueConfiguration with the same parameters
-
         A councurrent RevenueConfiguration is checked by the available period of running
         based on the product_id and organization parameters
 
@@ -89,6 +108,8 @@ class RevenueConfiguration(BaseModel):
                 if start_date < self.start_date and end_date < self.end_date
 
         """
+        if self.start_date is None or self.end_date is None:
+            return True
 
         try:
             same_configurations: list[RevenueConfiguration] = RevenueConfiguration.objects.filter(
