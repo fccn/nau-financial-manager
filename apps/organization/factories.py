@@ -10,11 +10,10 @@ from apps.util.constants import ADDRESS_TYPES, CONTACT_TYPES
 class OrganizationFactory(DjangoModelFactory):
     class Meta:
         model = Organization
-        django_get_or_create = ("slug",)
+        django_get_or_create = ("short_name",)
 
     name = factory.Sequence(lambda n: f"Organization {n}")
     short_name = factory.Sequence(lambda n: f"Org {n}")
-    slug = factory.Sequence(lambda n: f"org-{n}")
     iban = factory.Faker("iban")
     vat_country = factory.Iterator(["PT", "ES", "IT", "FR", "DE"])
 

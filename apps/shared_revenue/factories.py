@@ -1,3 +1,6 @@
+import random
+import string
+
 import factory
 from factory.django import DjangoModelFactory
 
