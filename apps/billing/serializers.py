@@ -19,6 +19,7 @@ class ReceiptItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReceiptItem
         fields = [
+            "id",
             "receipt",
             "description",
             "quantity",
@@ -46,20 +47,8 @@ class ReceiptSerializer(CountryFieldMixin, serializers.ModelSerializer):
         fields = "__all__"
 
 
-class TransactionItemSerializer(serializers.Serializer):
-
-    description = serializers.CharField(allow_blank=True, allow_null=True)
-    quantity = serializers.IntegerField(allow_null=True)
-    vat_tax = serializers.DecimalField(max_digits=5, decimal_places=2, allow_null=True)
-    amount_exclude_vat = serializers.DecimalField(max_digits=10, decimal_places=2, allow_null=True)
-    amount_include_vat = serializers.DecimalField(max_digits=10, decimal_places=2, allow_null=True)
-    organization_code = serializers.CharField(max_length=255, allow_null=True, allow_blank=True)
-    course_id = serializers.CharField(max_length=50, allow_null=True, allow_blank=True)
-    course_code = serializers.CharField(max_length=50, allow_null=True, allow_blank=True)
-
-
 class TransactionSerializer(serializers.ModelSerializer):
-    item = TransactionItemSerializer()
+    item = ReceiptItemSerializer()
 
     class Meta:
         model = Receipt
@@ -105,9 +94,9 @@ class TransactionSerializer(serializers.ModelSerializer):
 
         receipt_item_data = deepcopy(validate_data["item"])
         receipt_item_data["receipt"] = receipt
-        ReceiptItem.objects.create(**receipt_item_data)
+        item = ReceiptItem.objects.create(**receipt_item_data)
 
-        return receipt
+        return receipt, item
 
     def _has_concurrent_revenue_configuration(
         self,
@@ -124,17 +113,23 @@ class TransactionSerializer(serializers.ModelSerializer):
 
     def create(self, validate_data):
         try:
-            receipt: Receipt = self._execute_billing_resources(validate_data=validate_data)
             organization, created = Organization.objects.get_or_create(
                 short_name=validate_data["item"]["organization_code"],
                 defaults={"short_name": validate_data["item"]["organization_code"]},
             )
-
             self._execute_shared_revenue_resources(
                 organization=organization,
                 product_id=validate_data["item"]["course_id"],
             )
-
-            return receipt
+            return validate_data
         except Exception as e:
             raise e
+
+    def to_internal_value(self, data):
+        receipt, item = self._execute_billing_resources(validate_data=data)
+        data = ReceiptSerializer(receipt).data
+        data["item"] = ReceiptItemSerializer(item).data
+        return data
+
+    def to_representation(self, instance):
+        return instance
