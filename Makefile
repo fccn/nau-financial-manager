@@ -92,6 +92,6 @@ hr-docker: ## remake complete docker environment (destroy dockers, prune docker,
 	$(MAKE) populate
 .PHONY: hr-docker
 
-kill-docker: ## create token for admin user
+create-token: ## create token for admin user
 	$(CREATE_TOKEN)
 .PHONY: create-token
