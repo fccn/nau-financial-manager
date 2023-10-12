@@ -21,3 +21,4 @@
 - Add celery for the project
 - Add populate script
 - Add billing payload process through an endpoint
+- Add Token Authentication Feature of DRF
