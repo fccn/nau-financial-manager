@@ -125,4 +125,3 @@ still need to be sent.
 
 #### receipt id
 An Identification of this receipt inside the NAU Financial manager.
-
