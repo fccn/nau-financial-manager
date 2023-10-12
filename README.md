@@ -82,9 +82,31 @@ poetry shell
 cp sample-dev.env .env
 ```
 
-## TROUBLESHOOTING
+## GENERATING AND USING TOKEN
 
-If dockercompose not work with DB Sqlite3, create a empty file in root folder `db.sqlite3`
+To generate a token you should use one of this two commands:
+```bash
+make create-token # will create a token for admin user
+```
+OR
+```bash
+manage.py drf_create_token user_who_you_want  # will create a token for indicated user
+```
+
+# IN YOUR CODE
+To use token you need import he class ```from rest_framework.authentication import TokenAuthentication ```
+then in your view declare a variable ```authentication_classes``` as list with ```TokenAuthentication``` class.
+
+# IN YOUR CLIENT OR REQUEST
+In Headers of request you need to declare a key 'Authorization' with the value 'Token generated_token'
+
+Here is a example:
+```bash
+headers = { "Authorization": "Token generated_token" }
+```
+
+## TROUBLESHOOTING
 
 ```bash
 # TODO: Automate this installation after validation of method and structure
+```
