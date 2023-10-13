@@ -7,9 +7,9 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nau_financial_manager.settings"
 django.setup()
 
 from apps.organization.factories import OrganizationAddressFactory, OrganizationContactFactory, OrganizationFactory
-from apps.shared_revenue.factories import PartnershipLevelFactory, RevenueConfigurationFactory, ShareExecutionFactory
+from apps.shared_revenue.factories import RevenueConfigurationFactory, ShareExecutionFactory
 from apps.billing.factories import ReceiptFactory, ReceiptItemFactory
-from apps.shared_revenue.serializers import PartnershipLevelSerializer, RevenueConfigurationSerializer
+from apps.shared_revenue.serializers import RevenueConfigurationSerializer
 
 import random
 import string
@@ -39,27 +39,23 @@ def generate_course_code() -> str:
 
 
 def generate_revenue_configuration(
-    organization: OrganizationFactory,
-    partnership_levels: list[PartnershipLevelFactory],
+    organization: OrganizationFactory
 ) -> RevenueConfigurationFactory:
     
     """
     
-    Generates and populates RevenueConfiguration model, adding PartnershipLevel selected in a random way
+    Generates and populates RevenueConfiguration model
     """
 
-    partnership_level = partnership_levels[random.randint(0, 1)]
     if [True, False][random.randint(0, 1)]:
         revenue_configuration: RevenueConfigurationFactory = RevenueConfigurationFactory.create(
-            organization=organization,
-            partnership_level=partnership_level,
+            organization=organization
         )
         return revenue_configuration
    
     course_code: str = generate_course_code()
     revenue_configuration: RevenueConfigurationFactory = RevenueConfigurationFactory.create(
-        course_code=course_code,
-        partnership_level=partnership_level,
+        course_code=course_code
     )
     return revenue_configuration
     
@@ -69,24 +65,14 @@ def populate_shared_revenue(organization: OrganizationFactory) -> None:
 
     """
     
-    Starts populate of shared_revenue module, creates PartnershipLevel possibilities, creates RevenueConfiguration and ShareExecution
+    Starts populate of shared_revenue module, creates RevenueConfiguration and ShareExecution
     """    
-
-    platinum = PartnershipLevelFactory.create(name="platinum")
-    gold = PartnershipLevelFactory.create(name="gold")
-    silver = PartnershipLevelFactory.create(name="silver")
-    bronze = PartnershipLevelFactory.create(name="bronze")
     
     revenue_configuration = generate_revenue_configuration(
         organization=organization,
-        partnership_levels=[platinum, gold, silver, bronze],
     )
-    partnership_level: PartnershipLevelFactory = revenue_configuration.partnership_level
     revenue_configuration = RevenueConfigurationSerializer(revenue_configuration).data
-    partnership_level = PartnershipLevelSerializer(partnership_level).data
-    revenue_configuration["partnership_level"] = partnership_level
     ShareExecutionFactory.create(
-        percentage=partnership_level["percentage"],
         revenue_configuration=revenue_configuration,
     )
 

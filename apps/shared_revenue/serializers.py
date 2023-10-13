@@ -2,31 +2,14 @@ from rest_framework import serializers
 
 from apps.billing.serializers import ReceiptSerializer
 from apps.organization.serializers import OrganizationSerializer
-from apps.shared_revenue.models import PartnershipLevel, RevenueConfiguration, ShareExecution
-
-
-class PartnershipLevelSerializer(serializers.ModelSerializer):
-    """
-    A serializer class for the `PartnershipLevel` model.
-
-    This serializer includes the `id`, `name`, `description`, and `percentage` fields of the `PartnershipLevel` model.
-    """
-
-    class Meta:
-        model = PartnershipLevel
-        fields = [
-            "id",
-            "name",
-            "description",
-            "percentage",
-        ]
+from apps.shared_revenue.models import RevenueConfiguration, ShareExecution
 
 
 class RevenueConfigurationSerializer(serializers.ModelSerializer):
     """
     A serializer class for the `RevenueConfiguration` model.
 
-    This serializer includes the `id`, `organization`, `course_code`, `partnership_level`, `start_date`, and `end_date`
+    This serializer includes the `id`, `organization`, `course_code`, `partner_percentage`, `start_date`, and `end_date`
     fields of the `RevenueConfiguration` model.
     """
 
@@ -38,7 +21,7 @@ class RevenueConfigurationSerializer(serializers.ModelSerializer):
             "id",
             "organization",
             "product_id",
-            "partnership_level",
+            "partner_percentage",
             "start_date",
             "end_date",
         ]

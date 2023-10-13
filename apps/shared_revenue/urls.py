@@ -4,16 +4,6 @@ from apps.shared_revenue import views
 
 urlpatterns = [
     path(
-        "partnership-levels/",
-        views.PartnershipLevelGeneral.as_view(),
-        name="partnership_levels_general",
-    ),
-    path(
-        "partnership-levels/<int:id>/",
-        views.PartnershipLevelDetail.as_view(),
-        name="partnership_levels_detail",
-    ),
-    path(
         "revenue-configurations/",
         views.RevenueConfigurationGeneral.as_view(),
         name="revenue_configurations_general",

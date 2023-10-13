@@ -3,49 +3,9 @@ from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
-from apps.shared_revenue.models import PartnershipLevel, RevenueConfiguration, ShareExecution
-from apps.shared_revenue.serializers import (
-    PartnershipLevelSerializer,
-    RevenueConfigurationSerializer,
-    ShareExecutionSerializer,
-)
+from apps.shared_revenue.models import RevenueConfiguration, ShareExecution
+from apps.shared_revenue.serializers import RevenueConfigurationSerializer, ShareExecutionSerializer
 from apps.util.base_views import DetailDelete, DetailGet, DetailPut, GeneralGet, GeneralPost
-
-
-class PartnershipLevelGeneral(APIView, GeneralPost, GeneralGet):
-    """
-    List all PartnershipLevel, or create a new one.
-    """
-
-    model = PartnershipLevel
-    serializer = PartnershipLevelSerializer
-    permission_classes = [
-        IsAuthenticated,
-    ]
-    filter_backends = (
-        filters.SearchFilter,
-        filters.OrderingFilter,
-        DjangoFilterBackend,
-    )
-    search_fields = ("name", "description", "percentage")
-    ordering_fields = [
-        "name",
-        "description",
-        "percentage",
-    ]
-    ordering = ["name", "description", "percentage"]
-
-
-class PartnershipLevelDetail(APIView, DetailDelete, DetailPut, DetailGet):
-    """
-    List single PartnershipLevel, update or delete.
-    """
-
-    model = PartnershipLevel
-    serializer = PartnershipLevelSerializer
-    permission_classes = [
-        IsAuthenticated,
-    ]
 
 
 class RevenueConfigurationGeneral(APIView, GeneralGet, GeneralPost):
@@ -83,7 +43,7 @@ class RevenueConfigurationDetail(APIView, DetailDelete, DetailPut, DetailGet):
         IsAuthenticated,
     ]
 
-    prefetch_related_fields = ("organization", "partnership_level")
+    prefetch_related_fields = "organization"
 
 
 class ShareExecutionGeneral(APIView, GeneralGet, GeneralPost):

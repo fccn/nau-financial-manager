@@ -11,44 +11,9 @@ from apps.organization.models import Organization
 from apps.util.models import BaseModel
 
 
-class PartnershipLevel(BaseModel):
-    """
-    A model representing a partnership level.
-
-    The field percentage is the product price amount divided for each organization, the default percentage
-    is 70% and if there are more than one organzation for this product, the value of 70% will be divided
-    as the business partnership contract works
-
-    """
-
-    name = models.CharField(_("Name"), default="Silver", max_length=50, unique=True)
-    description = models.CharField(
-        _("Description"),
-        default="Partnership level default of 70% percent of earning for the course",
-        max_length=255,
-        null=True,
-        blank=True,
-    )
-    percentage = models.DecimalField(
-        _("Value"),
-        default=0.70,
-        max_digits=3,
-        validators=[MaxValueValidator(1), MinValueValidator(0)],
-        decimal_places=2,
-        unique=True,
-    )
-
-    class Meta:
-        verbose_name = _("Partnership level")
-        verbose_name_plural = _("Partnership levels")
-
-    def __str__(self) -> str:
-        return f"{self.name} - {self.percentage}"
-
-
 class RevenueConfiguration(BaseModel):
     """
-    A model representing a revenue configuration for an organization and partnership level.
+    A model representing a revenue configuration for an organization.
     """
 
     start_date = models.DateTimeField(_("Start date"), null=True, blank=True)
@@ -56,9 +21,14 @@ class RevenueConfiguration(BaseModel):
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="revenue_organizations", null=True, blank=True
     )
-    partnership_level = models.ForeignKey(
-        PartnershipLevel, on_delete=models.CASCADE, related_name="revenue_partnership_levels"
+    partner_percentage = models.DecimalField(
+        _("Value"),
+        default=0.70,
+        max_digits=3,
+        validators=[MaxValueValidator(1), MinValueValidator(0)],
+        decimal_places=2,
     )
+
     product_id = models.CharField(_("Product Id"), max_length=50, null=False)
 
     class Meta:
@@ -183,12 +153,12 @@ class RevenueConfiguration(BaseModel):
             raise e
 
     def __str__(self) -> str:
-        return f"{self.organization} - {self.product_id} - {self.partnership_level}"
+        return f"{self.organization} - {self.product_id} - {self.partner_percentage}"
 
 
 class ShareExecution(BaseModel):
     """
-    A model representing a share execution for an organization and partnership level.
+    A model representing a share execution for an organization.
     """
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="share_organizations")
