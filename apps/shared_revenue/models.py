@@ -22,11 +22,12 @@ class RevenueConfiguration(BaseModel):
         Organization, on_delete=models.CASCADE, related_name="revenue_organizations", null=True, blank=True
     )
     partner_percentage = models.DecimalField(
-        _("Value"),
+        _("Partner percentage"),
         default=0.70,
         max_digits=3,
         validators=[MaxValueValidator(1), MinValueValidator(0)],
         decimal_places=2,
+        unique=True,
     )
 
     product_id = models.CharField(_("Product Id"), max_length=50, null=False)
@@ -40,6 +41,9 @@ class RevenueConfiguration(BaseModel):
         """
         Check if the revenue configuration is still in vigency.
         """
+        if self.start_date is None or self.end_date is None:
+            return True
+
         today = datetime.now()
         if today <= self.end_date:
             try:
@@ -54,6 +58,34 @@ class RevenueConfiguration(BaseModel):
             except ObjectDoesNotExist:
                 return False
         return False
+
+    def check_each_configuration(
+        self,
+        configuration,
+    ) -> bool:
+
+        self_id = self.id if self.id is not None else -1
+        if configuration.id is self_id:
+            return True
+
+        now = datetime.now(timezone.utc)
+        saved_start_date = configuration.start_date
+        saved_end_date = configuration.end_date
+        start_date_to_save = self.start_date
+        end_date_to_save = self.end_date
+
+        if saved_start_date is None:
+            if start_date_to_save is None or start_date_to_save > now:
+                return False
+
+            if end_date_to_save is None or end_date_to_save > now:
+                return False
+
+        if start_date_to_save is None:
+            if saved_start_date < now and saved_end_date > now:
+                return False
+
+        return True
 
     def has_concurrent_revenue_configuration(self) -> bool:
         """
@@ -78,8 +110,6 @@ class RevenueConfiguration(BaseModel):
                 if start_date < self.start_date and end_date < self.end_date
 
         """
-        if self.start_date is None or self.end_date is None:
-            return True
 
         try:
             same_configurations: list[RevenueConfiguration] = RevenueConfiguration.objects.filter(
@@ -88,51 +118,9 @@ class RevenueConfiguration(BaseModel):
                     "product_id": self.product_id,
                 }
             )
+            for configuration in same_configurations:
+                assert self.check_each_configuration(configuration=configuration)
 
-            self_start_date_is_empty: bool = str(self.start_date).lstrip() in ["", "None"]
-            for revenue_configuration in same_configurations:
-
-                def check_each_configuration() -> bool:
-                    start_date_is_empty: bool = str(revenue_configuration.start_date).lstrip() in ["", "None"]
-
-                    # validade if the attempt is to insert more than one None or blank start_date
-                    # if pass, it means the attempt is to edit the current register
-                    if start_date_is_empty:
-                        self_id: int = self.id if self.id is not None else -1
-                        self_is_loop_current_instance: bool = revenue_configuration.id is self_id
-                        if self_start_date_is_empty and not self_is_loop_current_instance:
-                            return False
-
-                        # if self.start_date is None or blank it can continue because it's saving in the same register
-                        # it will save from None/blank to None/blank
-                        return True
-
-                    reference_date = self.start_date if not self_start_date_is_empty else datetime.now(timezone.utc)
-                    current_start_date = revenue_configuration.start_date
-
-                    # if future_start_date, it means this RevenueConfiguration is not available to run yet
-                    future_start_date: bool = current_start_date > reference_date
-                    if future_start_date:
-                        return True
-
-                    # if revenue_configuration_end_date_is_empty, it means this RevenueConfiguration is concurrent
-                    revenue_configuration_end_date_is_empty: bool = str(revenue_configuration.end_date).lstrip() in [
-                        "",
-                        "None",
-                    ]
-                    if revenue_configuration_end_date_is_empty:
-                        return False
-
-                    current_end_date = revenue_configuration.end_date
-
-                    # if finished_revenue_configuration, it means this RevenueConfiguration is old
-                    finished_revenue_configuration: bool = current_end_date < reference_date
-
-                    return finished_revenue_configuration
-
-                assert check_each_configuration()
-
-            return False
         except Exception as e:
             e
             raise ValidationError("There is a concurrent revenue configuration in this moment")
