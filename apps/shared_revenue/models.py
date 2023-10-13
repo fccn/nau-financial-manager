@@ -27,7 +27,6 @@ class RevenueConfiguration(BaseModel):
         max_digits=3,
         validators=[MaxValueValidator(1), MinValueValidator(0)],
         decimal_places=2,
-        unique=True,
     )
 
     product_id = models.CharField(_("Product Id"), max_length=50, null=False)
@@ -64,8 +63,8 @@ class RevenueConfiguration(BaseModel):
         configuration,
     ) -> bool:
 
-        self_id = self.id if self.id is not None else -1
-        if configuration.id is self_id:
+        id = self.id if self.id is not None else -1
+        if configuration.id == id:
             return True
 
         now = datetime.now(timezone.utc)
@@ -82,8 +81,12 @@ class RevenueConfiguration(BaseModel):
                 return False
 
         if start_date_to_save is None:
-            if saved_start_date < now and saved_end_date > now:
+            invalid_saved_end_date = saved_end_date is None or saved_end_date > now
+            if saved_start_date < now and invalid_saved_end_date:
                 return False
+
+        if saved_end_date is None or saved_end_date > start_date_to_save:
+            return False
 
         return True
 
@@ -121,6 +124,7 @@ class RevenueConfiguration(BaseModel):
             for configuration in same_configurations:
                 assert self.check_each_configuration(configuration=configuration)
 
+            return False
         except Exception as e:
             e
             raise ValidationError("There is a concurrent revenue configuration in this moment")
