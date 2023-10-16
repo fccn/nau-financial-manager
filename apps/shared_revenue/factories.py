@@ -13,10 +13,12 @@ class RevenueConfigurationFactory(DjangoModelFactory):
         model = RevenueConfiguration
 
     organization = None
-    partner_percentage = factory.Faker("pydecimal", min_value=0, max_value=1, left_digits=1, right_digits=2)
-    course_code = None
-    start_date = factory.Faker(provider="date_time")
-    end_date = factory.Faker(provider="date_time")
+    partner_percentage = 0.70
+    product_id = (
+        f"course-v1:UPorto+CBN{random.choice(string.ascii_uppercase)}{random.choice(string.ascii_uppercase)}F+2023_T3"
+    )
+    start_date = factory.Faker("date_between", start_date="now", end_date="+30d")
+    end_date = factory.Faker("date_between", start_date="+40d", end_date="+70d")
 
 
 class ShareExecutionFactory(DjangoModelFactory):

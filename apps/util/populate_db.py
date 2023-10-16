@@ -11,62 +11,44 @@ from apps.shared_revenue.factories import RevenueConfigurationFactory, ShareExec
 from apps.billing.factories import ReceiptFactory, ReceiptItemFactory
 from apps.shared_revenue.serializers import RevenueConfigurationSerializer
 
-import random
-
-
-
-
-def populate_organizations_resources(organization: OrganizationFactory) -> None:
-    """
-    Populates organizations resources, address and contacts
-    """
-    
-    OrganizationContactFactory.create(organization=organization)
-    OrganizationAddressFactory.create(organization=organization)
-
 
 def generate_revenue_configuration(
-    organization: OrganizationFactory
+    organization,
 ) -> RevenueConfigurationFactory:
     """
-    
-    Generates and populates RevenueConfiguration model
+    Generates and populates RevenueConfiguration model.
     """
-
-    if [True, False][random.randint(0, 1)]:
-        revenue_configuration: RevenueConfigurationFactory = RevenueConfigurationFactory.create(
-            organization=organization
+    
+    revenue_configuration = RevenueConfigurationFactory.create(
+            organization=organization,
+            partner_percentage=0.70
         )
-        return revenue_configuration
-   
-    revenue_configuration: RevenueConfigurationFactory = RevenueConfigurationFactory.create(
-        course_code=course_code
-    )
     return revenue_configuration
     
 
-def populate_shared_revenue(organization: OrganizationFactory) -> None:
+def populate_shared_revenue(organization) -> None:
     """
     
     Starts populate of shared_revenue module, creates RevenueConfiguration and ShareExecution
     """    
     
     revenue_configuration = generate_revenue_configuration(
-        organization=organization,
+        organization,
     )
-    revenue_configuration = RevenueConfigurationSerializer(revenue_configuration).data
+    revenue_configuration_json = RevenueConfigurationSerializer(revenue_configuration).data
     ShareExecutionFactory.create(
-        revenue_configuration=revenue_configuration,
+        percentage=70.0,
+        revenue_configuration=revenue_configuration_json,
     )
 
 
-def populate_billing(organization: OrganizationFactory) -> None:
+def populate_billing(organization) -> None:
     """
     Populates billing module, creates five receipts per organization and one ReceiptItem per Receipt
     """  
 
     amount_of_receipts = 5
-    receipts: list[ReceiptFactory] = ReceiptFactory.create_batch(amount_of_receipts)
+    receipts = ReceiptFactory.create_batch(amount_of_receipts)
     for receipt in receipts:
         ReceiptItemFactory.create(receipt=receipt)
 
@@ -77,10 +59,11 @@ def populate():
     """  
     
     try:
-        organizations_amount: int = 5
-        organizations: list[OrganizationFactory] = OrganizationFactory.create_batch(organizations_amount)
+        organizations_amount = 5
+        organizations = OrganizationFactory.create_batch(organizations_amount)
         for organization in organizations:
-            populate_organizations_resources(organization=organization)
+            OrganizationContactFactory.create(organization=organization)
+            OrganizationAddressFactory.create(organization=organization)
             populate_shared_revenue(organization=organization)
             populate_billing(organization=organization)
     except Exception as e:
