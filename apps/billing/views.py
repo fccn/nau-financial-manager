@@ -28,9 +28,8 @@ class ReceiptsGeneral(APIView, GeneralGet, GeneralPost):
     ordering_fields = [
         "name",
         "email",
-        "organization",
     ]
-    ordering = ["name", "email", "organization"]
+    ordering = ["name", "email"]
 
 
 class ReceiptsDetail(APIView, DetailDelete, DetailPut, DetailGet):
@@ -43,7 +42,6 @@ class ReceiptsDetail(APIView, DetailDelete, DetailPut, DetailGet):
     permission_classes = [
         IsAuthenticated,
     ]
-    prefetch_related_fields = ("organization",)
 
 
 class ProcessTransaction(APIView, GeneralPost):
