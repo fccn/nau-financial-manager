@@ -15,6 +15,7 @@ class Receipt(BaseModel):
 
 
     - Transaction id
+    - Transaction date
     - Payment Type
     - Client Name
     - Email
@@ -48,6 +49,7 @@ class Receipt(BaseModel):
     total_amount_include_vat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     currency = models.CharField(max_length=7, default="EUR", null=True, blank=True)
     payment_type = models.CharField(max_length=7, null=True, blank=True)
+    transaction_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.name
