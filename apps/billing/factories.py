@@ -1,8 +1,10 @@
 from decimal import Decimal
 
 import factory
+import factory.fuzzy
 
 from apps.billing.models import Receipt, ReceiptItem
+from apps.util.constants import PAYMENT_TYPE
 
 
 class ReceiptFactory(factory.django.DjangoModelFactory):
@@ -20,6 +22,7 @@ class ReceiptFactory(factory.django.DjangoModelFactory):
     vat_identification_country = factory.Faker("country_code")
     vat_identification_number = factory.Faker("ssn")
     total_amount_exclude_vat = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=5, right_digits=2)
+    payment_type = factory.fuzzy.FuzzyChoice(PAYMENT_TYPE)
 
     # Assuming 20% VAT
     @factory.lazy_attribute

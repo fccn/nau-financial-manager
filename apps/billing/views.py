@@ -24,12 +24,9 @@ class ReceiptsGeneral(APIView, GeneralGet, GeneralPost):
         filters.OrderingFilter,
         DjangoFilterBackend,
     )
-    search_fields = ("email", "name")
-    ordering_fields = [
-        "name",
-        "email",
-    ]
-    ordering = ["name", "email"]
+    search_fields = ("email", "name", "payment_type")
+    ordering_fields = ["name", "email", "payment_type"]
+    ordering = ["payment_type", "name", "email"]
 
 
 class ReceiptsDetail(APIView, DetailDelete, DetailPut, DetailGet):
