@@ -13,19 +13,13 @@ classDiagram
         -created_at: DateTimeField
         -updated_at: DateTimeField
     }
-    class PartnershipLevel {
-        -name: CharField
-        -description: CharField
-        -percentage: DecimalField
-        +__str__(): str
-    }
     class Organization {
         <<external>>
     }
     class RevenueConfiguration {
         -organization: ForeignKey(Organization)
         -course_code: CharField
-        -partnership_level: ForeignKey(PartnershipLevel)
+        -partner_percentage: DecimalField
         -start_date: DateTimeField
         -end_date: DateTimeField
         +__str__(): str
@@ -43,7 +37,6 @@ classDiagram
         -response_payload: JSONField
         +__str__(): str
     }
-    BaseModel <|-- PartnershipLevel
     BaseModel <|-- RevenueConfiguration
     BaseModel <|-- ShareExecution
     Organization <.. RevenueConfiguration

@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from apps.billing.models import Receipt, ReceiptItem
 from apps.organization.models import Organization
-from apps.shared_revenue.models import PartnershipLevel, RevenueConfiguration
+from apps.shared_revenue.models import RevenueConfiguration
 
 
 class ReceiptItemSerializer(serializers.ModelSerializer):
@@ -80,10 +80,7 @@ class TransactionSerializer(serializers.ModelSerializer):
             product_id=product_id,
         )
         if not revenue_configuration_exists:
-            partnership_level, created = PartnershipLevel.objects.get_or_create(percentage=0.70)
-            RevenueConfiguration.objects.create(
-                **{"organization": organization, "product_id": product_id, "partnership_level": partnership_level}
-            )
+            RevenueConfiguration.objects.create(**{"organization": organization, "product_id": product_id})
 
     def _execute_billing_resources(
         self,
