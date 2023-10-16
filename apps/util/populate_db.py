@@ -10,7 +10,7 @@ from apps.organization.factories import OrganizationAddressFactory, Organization
 from apps.shared_revenue.factories import RevenueConfigurationFactory, ShareExecutionFactory
 from apps.billing.factories import ReceiptFactory, ReceiptItemFactory
 from apps.shared_revenue.serializers import RevenueConfigurationSerializer
-
+from django.utils import timezone
 
 def generate_revenue_configuration(
     organization,
@@ -23,6 +23,7 @@ def generate_revenue_configuration(
             organization=organization,
             partner_percentage=0.70
         )
+    
     return revenue_configuration
     
 
