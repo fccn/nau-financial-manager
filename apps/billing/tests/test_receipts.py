@@ -131,9 +131,9 @@ class TransactionItemTest(TestCase):
             vat_tax=Decimal("10.00"),
             amount_exclude_vat=Decimal("50.00"),
             amount_include_vat=Decimal("55.00"),
-            organization_code="ORG1",
-            course_code="COURSE1",
-            course_id="123456",
+            organization="ORG1",
+            product_code="COURSE1",
+            product_id="123456",
         )
         with self.assertRaises(IntegrityError):
             TransactionItemFactory(
@@ -143,7 +143,7 @@ class TransactionItemTest(TestCase):
                 vat_tax=Decimal("5.00"),
                 amount_exclude_vat=Decimal("25.00"),
                 amount_include_vat=Decimal("27.50"),
-                organization_code="ORG2",
-                course_code="COURSE2",
-                course_id="654321",
+                organization="ORG2",
+                product_code="COURSE2",
+                product_id="654321",
             )

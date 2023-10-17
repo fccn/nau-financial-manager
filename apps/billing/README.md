@@ -39,9 +39,9 @@ classDiagram
         -vat_tax: DecimalField
         -amount_exclude_vat: DecimalField
         -amount_include_vat: DecimalField
-        -organization_code: CharField
-        -course_id: CharField
-        -course_code: CharField
+        -organization: CharField
+        -product_id: CharField
+        -product_code: CharField
         --
         +transaction: Transaction [1]
     }

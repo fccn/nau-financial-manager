@@ -67,9 +67,9 @@ class TransactionItem(BaseModel):
     - Quantity
     - Amount excluding VAT
     - Amount including VAT
-    - Course id
-    - Organization code
-    - Course code
+    - Product id
+    - Organization
+    - Product code
 
     """
 
@@ -79,9 +79,9 @@ class TransactionItem(BaseModel):
     vat_tax = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     amount_exclude_vat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     amount_include_vat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    organization_code = models.CharField(max_length=255, null=True)
-    course_id = models.CharField(max_length=50, null=True, blank=True)
-    course_code = models.CharField(max_length=50, null=True, blank=True)
+    organization = models.CharField(max_length=255, null=True)
+    product_id = models.CharField(max_length=50, null=True, blank=True)
+    product_code = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return self.description

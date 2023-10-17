@@ -23,13 +23,13 @@ class RevenueConfigurationGeneral(APIView, GeneralGet, GeneralPost):
         filters.OrderingFilter,
         DjangoFilterBackend,
     )
-    search_fields = ("course_code", "start_date", "end_date")
+    search_fields = ("product_code", "start_date", "end_date")
     ordering_fields = [
-        "course_code",
+        "product_code",
         "start_date",
         "end_date",
     ]
-    ordering = ["course_code", "start_date", "end_date"]
+    ordering = ["product_code", "start_date", "end_date"]
 
 
 class RevenueConfigurationDetail(APIView, DetailDelete, DetailPut, DetailGet):
