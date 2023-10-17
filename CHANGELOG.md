@@ -1,7 +1,7 @@
 [unreleased]: https://github.com/fccn/nau-financial-manager
 [0.0.1] - undefined date
 
-- Create innitial setup for the project
+- Create initial setup for the project
 - Add docker files for instance application to development
 - Add ERD Diagrams for the project models
 - Add documentation for the project
@@ -13,12 +13,13 @@
 - Add tests for the project
 - Add standards and designs for the project
 - Add swagger for the project
-- Add django Admin Billing modules for the project
-- Add audit Logs for the project
-- Add safedelete Feature for the project
-- Add myql database for the project
-- Add django rest framework for the project
-- Add celery for the project
+- Add Django Admin Billing modules for the project
+- Add audit logs for the project
+- Add safedelete feature for the project
+- Add MySQL database for the project
+- Add Django REST framework for the project
+- Add Celery for the project
 - Add populate script
-- Add billing payload process through an endpoint
-- Add Token Authentication Feature of DRF
+- Add billing payload processing through an endpoint
+- Add token authentication feature of DRF
+- Add custom exceptions class for the project

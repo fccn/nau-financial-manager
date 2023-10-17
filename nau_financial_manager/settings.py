@@ -97,6 +97,7 @@ DATABASES = {
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "EXCEPTION_HANDLER": "util.exceptions.custom_exception_handler",
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
     "DEFAULT_PAGINATION_CLASS": "apps.util.paginations.ShortResultsSetPagination",
     "DEFAULT_RENDERER_CLASSES": [
