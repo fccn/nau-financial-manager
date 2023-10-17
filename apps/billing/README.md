@@ -1,7 +1,7 @@
 # Billing Module
 
 Descripton:
-This module is responsible for handling billing and receipts.
+This module is responsible for handling billing and transactions.
 
 ## ERD of models
 
@@ -13,7 +13,7 @@ classDiagram
         -created_at: DateTime
         -updated_at: DateTime
     }
-    class Receipt {
+    class Transaction {
         -transaction_id: CharField
         -client_name: CharField
         -email: CharField
@@ -31,9 +31,9 @@ classDiagram
         -payment_type: CharField
         -transaction_date: DateTime
         --
-        +receipt_items: ReceiptItem [1-*]
+        +transaction_items: TransactionItem [1-*]
     }
-    class ReceiptItem {
+    class TransactionItem {
         -description: CharField
         -quantity: PositiveIntegerField
         -vat_tax: DecimalField
@@ -43,8 +43,8 @@ classDiagram
         -course_id: CharField
         -course_code: CharField
         --
-        +receipt: Receipt [1]
+        +transaction: Transaction [1]
     }
-    BaseModel <|-- Receipt
-    BaseModel <|-- ReceiptItem
+    BaseModel <|-- Transaction
+    BaseModel <|-- TransactionItem
 ```

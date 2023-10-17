@@ -3,117 +3,117 @@ from decimal import Decimal
 from django.db import IntegrityError
 from django.test import TestCase
 
-from apps.billing.factories import ReceiptFactory, ReceiptItemFactory
-from apps.billing.models import Receipt, ReceiptItem
+from apps.billing.factories import TransactionFactory, TransactionItemFactory
+from apps.billing.models import Transaction, TransactionItem
 
 
-class ReceiptTest(TestCase):
+class TransactionTest(TestCase):
     """
-    Test case for the Receipt model.
+    Test case for the Transaction model.
     """
 
-    def test_receipt_creation(self):
+    def test_transaction_creation(self):
         """
-        Test if a Receipt instance can be created.
+        Test if a Transaction instance can be created.
         """
-        receipt = ReceiptFactory()
-        self.assertIsInstance(receipt, Receipt)
+        transaction = TransactionFactory()
+        self.assertIsInstance(transaction, Transaction)
 
-    def test_receipt_str_representation(self):
+    def test_transaction_str_representation(self):
         """
-        Test the string representation of a Receipt instance.
+        Test the string representation of a Transaction instance.
         """
-        receipt = ReceiptFactory(name="John Doe")
-        self.assertEqual(str(receipt), "John Doe")
+        transaction = TransactionFactory(name="John Doe")
+        self.assertEqual(str(transaction), "John Doe")
 
-    def test_receipt_update(self):
+    def test_transaction_update(self):
         """
-        Test updating the name of a Receipt instance.
+        Test updating the name of a Transaction instance.
         """
-        receipt = ReceiptFactory(name="Initial Name")
+        transaction = TransactionFactory(name="Initial Name")
         new_name = "Updated Name"
-        receipt.name = new_name
-        receipt.save()
-        updated_receipt = Receipt.objects.get(pk=receipt.pk)
-        self.assertEqual(updated_receipt.name, new_name)
+        transaction.name = new_name
+        transaction.save()
+        updated_transaction = Transaction.objects.get(pk=transaction.pk)
+        self.assertEqual(updated_transaction.name, new_name)
 
-    def test_receipt_delete(self):
+    def test_transaction_delete(self):
         """
-        Test deleting a Receipt instance.
+        Test deleting a Transaction instance.
         """
-        receipt = ReceiptFactory()
-        receipt_pk = receipt.pk
-        receipt.delete()
-        with self.assertRaises(Receipt.DoesNotExist):
-            Receipt.objects.get(pk=receipt_pk)
+        transaction = TransactionFactory()
+        transaction_pk = transaction.pk
+        transaction.delete()
+        with self.assertRaises(Transaction.DoesNotExist):
+            Transaction.objects.get(pk=transaction_pk)
 
-    def test_receipt_read(self):
+    def test_transaction_read(self):
         """
-        Test reading a Receipt instance from the database.
+        Test reading a Transaction instance from the database.
         """
-        receipt = ReceiptFactory()
-        retrieved_receipt = Receipt.objects.get(pk=receipt.pk)
-        self.assertEqual(receipt, retrieved_receipt)
+        transaction = TransactionFactory()
+        retrieved_transaction = Transaction.objects.get(pk=transaction.pk)
+        self.assertEqual(transaction, retrieved_transaction)
 
 
-class ReceiptItemTest(TestCase):
+class TransactionItemTest(TestCase):
     """
-    Test case for the ReceiptItem model.
+    Test case for the TransactionItem model.
     """
 
-    def test_receipt_item_creation(self):
+    def test_transaction_item_creation(self):
         """
-        Test if a ReceiptItem instance can be created.
+        Test if a TransactionItem instance can be created.
         """
-        receipt_line = ReceiptItemFactory()
-        self.assertIsInstance(receipt_line, ReceiptItem)
+        transaction_item = TransactionItemFactory()
+        self.assertIsInstance(transaction_item, TransactionItem)
 
-    def test_receipt_item_str_representation(self):
+    def test_transaction_item_str_representation(self):
         """
-        Test the string representation of a ReceiptItem instance.
+        Test the string representation of a TransactionItem instance.
         """
-        receipt_line = ReceiptItemFactory(description="Product A")
-        self.assertEqual(str(receipt_line), "Product A")
+        transaction_item = TransactionItemFactory(description="Product A")
+        self.assertEqual(str(transaction_item), "Product A")
 
-    def test_receipt_item_update(self):
+    def test_transaction_item_update(self):
         """
-        Test updating the description of a ReceiptItem instance.
+        Test updating the description of a TransactionItem instance.
         """
-        receipt_line = ReceiptItemFactory(description="Initial Description")
+        transaction_item = TransactionItemFactory(description="Initial Description")
         new_description = "Updated Description"
-        receipt_line.description = new_description
-        receipt_line.save()
-        updated_receipt_line = ReceiptItem.objects.get(pk=receipt_line.pk)
-        self.assertEqual(updated_receipt_line.description, new_description)
+        transaction_item.description = new_description
+        transaction_item.save()
+        updated_transaction_item = TransactionItem.objects.get(pk=transaction_item.pk)
+        self.assertEqual(updated_transaction_item.description, new_description)
 
-    def test_receipt_item_delete(self):
+    def test_transaction_item_delete(self):
         """
-        Test deleting a ReceiptItem instance.
+        Test deleting a TransactionItem instance.
         """
-        receipt_line = ReceiptItemFactory()
-        receipt_line_pk = receipt_line.pk
-        receipt_line.delete()
-        with self.assertRaises(ReceiptItem.DoesNotExist):
-            ReceiptItem.objects.get(pk=receipt_line_pk)
+        transaction_item = TransactionItemFactory()
+        transaction_item_pk = transaction_item.pk
+        transaction_item.delete()
+        with self.assertRaises(TransactionItem.DoesNotExist):
+            TransactionItem.objects.get(pk=transaction_item_pk)
 
-    def test_receipt_item_read(self):
+    def test_transaction_item_read(self):
         """
-        Test reading a ReceiptItem instance from the database.
+        Test reading a TransactionItem instance from the database.
         """
-        receipt_line = ReceiptItemFactory()
-        retrieved_receipt_line = ReceiptItem.objects.get(pk=receipt_line.pk)
-        self.assertEqual(receipt_line, retrieved_receipt_line)
+        transaction_item = TransactionItemFactory()
+        retrieved_transaction_item = TransactionItem.objects.get(pk=transaction_item.pk)
+        self.assertEqual(transaction_item, retrieved_transaction_item)
 
-    def test_unique_receipt_item_constraint(self):
+    def test_unique_transaction_item_constraint(self):
         """
-        Test that a `ReceiptItem` object cannot be associated with more than one `Receipt`.
+        Test that a `TransactionItem` object cannot be associated with more than one `Transaction`.
 
-        This test creates a `Receipt` object and associates it with a `ReceiptItem` object. It then attempts to create
-        another `ReceiptItem` object with the same `Receipt`, which should raise an `IntegrityError` due to the
-        `UniqueConstraint` on the `ReceiptItem` model. We use the `assertRaises` method to check that the `IntegrityError`
-        is raised when attempting to create the new `ReceiptItem` object.
+        This test creates a `Transaction` object and associates it with a `TransactionItem` object. It then attempts to create
+        another `TransactionItem` object with the same `Transaction`, which should raise an `IntegrityError` due to the
+        `UniqueConstraint` on the `TransactionItem` model. We use the `assertRaises` method to check that the `IntegrityError`
+        is raised when attempting to create the new `TransactionItem` object.
         """
-        receipt = ReceiptFactory(
+        transaction = TransactionFactory(
             name="John Doe",
             email="johndoe@example.com",
             address="123 Main St",
@@ -121,11 +121,11 @@ class ReceiptItemTest(TestCase):
             vat_identification_number="123456789",
             total_amount_exclude_vat=Decimal("100.00"),
             total_amount_include_vat=Decimal("110.00"),
-            receipt_link="https://example.com/receipt",
-            receipt_document_id="123456789",
+            transaction_link="https://example.com/transaction",
+            transaction_document_id="123456789",
         )
-        ReceiptItemFactory(
-            receipt=receipt,
+        TransactionItemFactory(
+            transaction=transaction,
             description="Item 1",
             quantity=2,
             vat_tax=Decimal("10.00"),
@@ -136,8 +136,8 @@ class ReceiptItemTest(TestCase):
             course_id="123456",
         )
         with self.assertRaises(IntegrityError):
-            ReceiptItemFactory(
-                receipt=receipt,
+            TransactionItemFactory(
+                transaction=transaction,
                 description="Item 2",
                 quantity=1,
                 vat_tax=Decimal("5.00"),

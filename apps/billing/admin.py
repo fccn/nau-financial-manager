@@ -1,15 +1,15 @@
 from django.contrib import admin
 
-from apps.billing.models import Receipt, ReceiptItem
+from apps.billing.models import Transaction, TransactionItem
 
 
-class ReceiptItemInline(admin.TabularInline):
-    model = ReceiptItem
+class TransactionItemInline(admin.TabularInline):
+    model = TransactionItem
     extra = 0
 
 
-class ReceiptAdmin(admin.ModelAdmin):
-    inlines = [ReceiptItemInline]
+class TransactionAdmin(admin.ModelAdmin):
+    inlines = [TransactionItemInline]
     list_display = (
         "transaction_id",
         "client_name",
@@ -44,4 +44,4 @@ class ReceiptAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(Receipt, ReceiptAdmin)
+admin.site.register(Transaction, TransactionAdmin)

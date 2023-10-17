@@ -4,7 +4,7 @@ from django_countries.fields import CountryField
 from apps.util.models import BaseModel
 
 
-class Receipt(BaseModel):
+class Transaction(BaseModel):
     """
     Represents a receipt issued for a transaction.
     Each receipt contains details about the payer, items in the receipt, and financial information.
@@ -55,9 +55,9 @@ class Receipt(BaseModel):
         return self.name
 
 
-class ReceiptItem(BaseModel):
+class TransactionItem(BaseModel):
     """
-    One-to-many relationship with ReceiptLine model (related_name='receipt_items').
+    One-to-many relationship with Transaction model (related_name='transaction_items').
 
     The fields for this model was defined in the following documentation:
         ecommerce_integration_specification
@@ -73,7 +73,7 @@ class ReceiptItem(BaseModel):
 
     """
 
-    receipt = models.ForeignKey(Receipt, related_name="receipt_items", on_delete=models.CASCADE)
+    transaction = models.ForeignKey(Transaction, related_name="transaction_items", on_delete=models.CASCADE)
     description = models.CharField(max_length=255, null=True)
     quantity = models.PositiveIntegerField(default=1, null=True)
     vat_tax = models.DecimalField(max_digits=5, decimal_places=2, null=True)

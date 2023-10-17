@@ -3,24 +3,24 @@ from copy import deepcopy
 from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
-from apps.billing.models import Receipt, ReceiptItem
+from apps.billing.models import Transaction, TransactionItem
 from apps.organization.models import Organization
 from apps.shared_revenue.models import RevenueConfiguration
 
 
-class ReceiptItemSerializer(serializers.ModelSerializer):
+class TransactionItemSerializer(serializers.ModelSerializer):
     """
-    A serializer class for the `ReceiptItem` model.
+    A serializer class for the `TransactionItem` model.
 
-    This serializer includes the `receipt`, `description`, `quantity`, `vat_tax`, `amount_exclude_vat`,
-    `amount_include_vat`, `organization_code`, `course_code`, and `course_id` fields of the `ReceiptItem` model.
+    This serializer includes the `transaction`, `description`, `quantity`, `vat_tax`, `amount_exclude_vat`,
+    `amount_include_vat`, `organization_code`, `course_code`, and `course_id` fields of the `TransactionItem` model.
     """
 
     class Meta:
-        model = ReceiptItem
+        model = TransactionItem
         fields = [
             "id",
-            "receipt",
+            "transaction",
             "description",
             "quantity",
             "vat_tax",
@@ -32,26 +32,26 @@ class ReceiptItemSerializer(serializers.ModelSerializer):
         ]
 
 
-class ReceiptSerializer(CountryFieldMixin, serializers.ModelSerializer):
+class TransactionSerializer(CountryFieldMixin, serializers.ModelSerializer):
     """
-    A serializer class for the `Receipt` model.
+    A serializer class for the `Transaction` model.
 
     This serializer includes the `id`, `client_name`, `email`, `address_line_1`, `address_line_2,` `vat_identification_country`,
     `vat_identification_number`, `city`, `postal_code`, `state`, `country_code`, `total_amount_exclude_vat`, `total_amount_include_vat`, `payment_type`,
-    `transaction_id`, `currency`, `transaction_date` and `receipt_items` fields of the `Receipt` model. The `receipt_items` field is a nested
-    serializer that includes the `ReceiptItem` model fields.
+    `transaction_id`, `currency`, `transaction_date` and `transaction_items` fields of the `Transaction` model. The `transaction_items` field is a nested
+    serializer that includes the `TransactionItem` model fields.
     """
 
     class Meta:
-        model = Receipt
+        model = Transaction
         fields = "__all__"
 
 
-class TransactionSerializer(serializers.ModelSerializer):
-    item = ReceiptItemSerializer()
+class ProcessTransactionSerializer(serializers.ModelSerializer):
+    item = TransactionItemSerializer()
 
     class Meta:
-        model = Receipt
+        model = Transaction
         fields = [
             "item",
             "transaction_id",
@@ -88,14 +88,14 @@ class TransactionSerializer(serializers.ModelSerializer):
         self,
         validate_data: dict,
     ):
-        receipt_data = {k: v for k, v in validate_data.items() if k != "item"}
-        receipt = Receipt.objects.create(**receipt_data)
+        transaction_data = {k: v for k, v in validate_data.items() if k != "item"}
+        transaction = Transaction.objects.create(**transaction_data)
 
-        receipt_item_data = deepcopy(validate_data["item"])
-        receipt_item_data["receipt"] = receipt
-        item = ReceiptItem.objects.create(**receipt_item_data)
+        transaction_item_data = deepcopy(validate_data["item"])
+        transaction_item_data["transaction"] = transaction
+        item = TransactionItem.objects.create(**transaction_item_data)
 
-        return receipt, item
+        return transaction, item
 
     def _has_concurrent_revenue_configuration(
         self,
@@ -125,9 +125,9 @@ class TransactionSerializer(serializers.ModelSerializer):
             raise e
 
     def to_internal_value(self, data):
-        receipt, item = self._execute_billing_resources(validate_data=data)
-        data = ReceiptSerializer(receipt).data
-        data["item"] = ReceiptItemSerializer(item).data
+        transaction, item = self._execute_billing_resources(validate_data=data)
+        data = TransactionSerializer(transaction).data
+        data["item"] = TransactionItemSerializer(item).data
         return data
 
     def to_representation(self, instance):

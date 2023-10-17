@@ -4,8 +4,8 @@ from apps.billing import views
 
 urlpatterns = [
     path(
-        "receipt-complete/",
+        "transaction-complete/",
         views.ProcessTransaction.as_view(),
-        name="receipt_complete",
+        name="transaction_complete",
     ),
 ]
