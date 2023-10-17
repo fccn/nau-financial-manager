@@ -22,3 +22,5 @@
 - Add populate script
 - Add billing payload process through an endpoint
 - Add Token Authentication Feature of DRF
+- Add Transaction Date on Receipt
+- Add Payment Type on Transaction
