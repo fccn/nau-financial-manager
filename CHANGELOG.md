@@ -23,3 +23,7 @@
 - Add billing payload processing through an endpoint
 - Add token authentication feature of DRF
 - Add custom exceptions class for the project
+- Add billing payload process through an endpoint
+- Add Token Authentication Feature of DRF
+- Add Transaction Date on Receipt
+- Add Payment Type on Transaction

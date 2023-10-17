@@ -2,6 +2,7 @@ from decimal import Decimal
 
 import factory
 import factory.fuzzy
+from django.utils import timezone
 
 from apps.billing.models import Receipt, ReceiptItem
 from apps.util.constants import PAYMENT_TYPE
@@ -23,6 +24,9 @@ class ReceiptFactory(factory.django.DjangoModelFactory):
     vat_identification_number = factory.Faker("ssn")
     total_amount_exclude_vat = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=5, right_digits=2)
     payment_type = factory.fuzzy.FuzzyChoice(PAYMENT_TYPE)
+    transaction_date = factory.Faker(
+        "date_between", start_date="-1d", end_date="-5d", tzinfo=timezone.get_current_timezone()
+    )
 
     # Assuming 20% VAT
     @factory.lazy_attribute

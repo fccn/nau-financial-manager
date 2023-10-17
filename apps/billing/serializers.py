@@ -38,7 +38,7 @@ class ReceiptSerializer(CountryFieldMixin, serializers.ModelSerializer):
 
     This serializer includes the `id`, `client_name`, `email`, `address_line_1`, `address_line_2,` `vat_identification_country`,
     `vat_identification_number`, `city`, `postal_code`, `state`, `country_code`, `total_amount_exclude_vat`, `total_amount_include_vat`, `payment_type`,
-    `transaction_id`, `currency` and `receipt_items` fields of the `Receipt` model. The `receipt_items` field is a nested
+    `transaction_id`, `currency`, `transaction_date` and `receipt_items` fields of the `Receipt` model. The `receipt_items` field is a nested
     serializer that includes the `ReceiptItem` model fields.
     """
 
@@ -69,6 +69,7 @@ class TransactionSerializer(serializers.ModelSerializer):
             "total_amount_include_vat",
             "currency",
             "payment_type",
+            "transaction_date",
         ]
 
     def _execute_shared_revenue_resources(
