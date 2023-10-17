@@ -24,21 +24,6 @@ classDiagram
         -end_date: DateTimeField
         +__str__(): str
     }
-    class Receipt {
-        <<external>>
-    }
-    class ShareExecution {
-        -organization: ForeignKey(Organization)
-        -revenue_configuration: JSONField
-        -percentage: DecimalField
-        -value: DecimalField
-        -receipt: CharField
-        -executed: BooleanField
-        -response_payload: JSONField
-        +__str__(): str
-    }
     BaseModel <|-- RevenueConfiguration
-    BaseModel <|-- ShareExecution
     Organization <.. RevenueConfiguration
-    Receipt <.. ShareExecution
 ```

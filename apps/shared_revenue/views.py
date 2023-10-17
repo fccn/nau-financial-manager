@@ -3,8 +3,8 @@ from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
-from apps.shared_revenue.models import RevenueConfiguration, ShareExecution
-from apps.shared_revenue.serializers import RevenueConfigurationSerializer, ShareExecutionSerializer
+from apps.shared_revenue.models import RevenueConfiguration
+from apps.shared_revenue.serializers import RevenueConfigurationSerializer
 from apps.util.base_views import DetailDelete, DetailGet, DetailPut, GeneralGet, GeneralPost
 
 
@@ -44,37 +44,3 @@ class RevenueConfigurationDetail(APIView, DetailDelete, DetailPut, DetailGet):
     ]
 
     prefetch_related_fields = "organization"
-
-
-class ShareExecutionGeneral(APIView, GeneralGet, GeneralPost):
-    """
-    List all ShareExecution, or create a new one.
-    """
-
-    model = ShareExecution
-    serializer = ShareExecutionSerializer
-    permission_classes = [
-        IsAuthenticated,
-    ]
-    filter_backends = (
-        filters.SearchFilter,
-        filters.OrderingFilter,
-        DjangoFilterBackend,
-    )
-    search_fields = ("organization", "percentage", "executed", "receipt")
-    ordering_fields = ["organization", "percentage", "executed", "receipt"]
-    ordering = ["course_code", "start_date", "end_date"]
-
-
-class ShareExecutionDetail(APIView, DetailDelete, DetailPut, DetailGet):
-    """
-    List single ShareExecution, update or delete.
-    """
-
-    model = ShareExecution
-    serializer = ShareExecutionSerializer
-    permission_classes = [
-        IsAuthenticated,
-    ]
-
-    prefetch_related_fields = ("organization",)

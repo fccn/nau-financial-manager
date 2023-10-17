@@ -25,7 +25,7 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     total_amount_exclude_vat = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=5, right_digits=2)
     payment_type = factory.fuzzy.FuzzyChoice(PAYMENT_TYPE)
     transaction_date = factory.Faker(
-        "date_between", start_date="-1d", end_date="-5d", tzinfo=timezone.get_current_timezone()
+        "date_time_between", start_date="-1d", end_date="-5d", tzinfo=timezone.get_current_timezone()
     )
 
     # Assuming 20% VAT

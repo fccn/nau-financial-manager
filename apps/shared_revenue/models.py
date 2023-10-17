@@ -6,7 +6,6 @@ from django.db import models
 from django.forms import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from apps.billing.models import Transaction
 from apps.organization.models import Organization
 from apps.util.models import BaseModel
 
@@ -146,24 +145,3 @@ class RevenueConfiguration(BaseModel):
 
     def __str__(self) -> str:
         return f"{self.organization} - {self.product_id} - {self.partner_percentage}"
-
-
-class ShareExecution(BaseModel):
-    """
-    A model representing a share execution for an organization.
-    """
-
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="share_organizations")
-    revenue_configuration = models.JSONField(_("Revenue Configuration"))
-    percentage = models.DecimalField(_("Percentage"), max_digits=5, decimal_places=2)
-    value = models.DecimalField(_("Value"), max_digits=5, decimal_places=2)
-    transaction = models.CharField(Transaction, max_length=50)
-    executed = models.BooleanField(_("Executed"), default=False)
-    response_payload = models.JSONField(_("Response Payload"))
-
-    class Meta:
-        verbose_name = _("Share exectution")
-        verbose_name_plural = _("Share exectutions")
-
-    def __str__(self) -> str:
-        return f"{self.organization} - {self.revenue_configuration} - {self.percentage}"
