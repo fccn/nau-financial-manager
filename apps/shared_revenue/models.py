@@ -6,7 +6,7 @@ from django.db import models
 from django.forms import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from apps.billing.models import Receipt
+from apps.billing.models import Transaction
 from apps.organization.models import Organization
 from apps.util.models import BaseModel
 
@@ -157,7 +157,7 @@ class ShareExecution(BaseModel):
     revenue_configuration = models.JSONField(_("Revenue Configuration"))
     percentage = models.DecimalField(_("Percentage"), max_digits=5, decimal_places=2)
     value = models.DecimalField(_("Value"), max_digits=5, decimal_places=2)
-    receipt = models.CharField(Receipt, max_length=50)
+    transaction = models.CharField(Transaction, max_length=50)
     executed = models.BooleanField(_("Executed"), default=False)
     response_payload = models.JSONField(_("Response Payload"))
 

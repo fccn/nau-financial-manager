@@ -8,7 +8,7 @@ django.setup()
 
 from apps.organization.factories import OrganizationAddressFactory, OrganizationContactFactory, OrganizationFactory
 from apps.shared_revenue.factories import RevenueConfigurationFactory, ShareExecutionFactory
-from apps.billing.factories import ReceiptFactory, ReceiptItemFactory
+from apps.billing.factories import TransactionFactory, TransactionItemFactory
 from apps.shared_revenue.serializers import RevenueConfigurationSerializer
 from django.utils import timezone
 
@@ -45,13 +45,13 @@ def populate_shared_revenue(organization) -> None:
 
 def populate_billing(organization) -> None:
     """
-    Populates billing module, creates five receipts per organization and one ReceiptItem per Receipt
+    Populates billing module, creates five transactions per organization and one TransactionItem per Transaction
     """  
 
-    amount_of_receipts = 5
-    receipts = ReceiptFactory.create_batch(amount_of_receipts)
-    for receipt in receipts:
-        ReceiptItemFactory.create(receipt=receipt)
+    amount_of_transactions = 5
+    transactions = TransactionFactory.create_batch(amount_of_transactions)
+    for transaction in transactions:
+        TransactionItemFactory.create(transaction=transaction)
 
 
 def populate():

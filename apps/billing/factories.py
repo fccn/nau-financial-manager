@@ -4,13 +4,13 @@ import factory
 import factory.fuzzy
 from django.utils import timezone
 
-from apps.billing.models import Receipt, ReceiptItem
+from apps.billing.models import Transaction, TransactionItem
 from apps.util.constants import PAYMENT_TYPE
 
 
-class ReceiptFactory(factory.django.DjangoModelFactory):
+class TransactionFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = Receipt
+        model = Transaction
 
     transaction_id = factory.Faker(
         "pystr_format",
@@ -34,11 +34,11 @@ class ReceiptFactory(factory.django.DjangoModelFactory):
         return self.total_amount_exclude_vat * Decimal("1.20")
 
 
-class ReceiptItemFactory(factory.django.DjangoModelFactory):
+class TransactionItemFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = ReceiptItem
+        model = TransactionItem
 
-    receipt = factory.SubFactory(ReceiptFactory)
+    transaction = factory.SubFactory(TransactionFactory)
     description = factory.Faker("sentence")
     quantity = factory.Faker("pyint", min_value=1, max_value=10)
     vat_tax = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=3, right_digits=2)

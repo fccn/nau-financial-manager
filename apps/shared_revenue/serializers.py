@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.billing.serializers import ReceiptSerializer
+from apps.billing.serializers import TransactionSerializer
 from apps.organization.serializers import OrganizationSerializer
 from apps.shared_revenue.models import RevenueConfiguration, ShareExecution
 
@@ -31,14 +31,14 @@ class ShareExecutionSerializer(serializers.ModelSerializer):
     """
     A serializer class for the `ShareExecution` model.
 
-    This serializer includes the `id`, `organization`, `revenue_configuration`, `percentage`, `value`, `receipt`,
-    `executed`, `response_payload`, and `receipt_details` fields of the `ShareExecution` model. The `receipt_details`
-    field is a nested serializer that includes the `Receipt` model fields.
+    This serializer includes the `id`, `organization`, `revenue_configuration`, `percentage`, `value`, `transaction`,
+    `executed`, `response_payload`, and `transaction_details` fields of the `ShareExecution` model. The `transaction_details`
+    field is a nested serializer that includes the `Transaction` model fields.
     """
 
     organization = OrganizationSerializer()
     revenue_configuration = RevenueConfigurationSerializer()
-    receipt_details = ReceiptSerializer(source="receipt")
+    transaction_details = TransactionSerializer(source="transaction")
 
     class Meta:
         model = ShareExecution
@@ -48,8 +48,8 @@ class ShareExecutionSerializer(serializers.ModelSerializer):
             "revenue_configuration",
             "percentage",
             "value",
-            "receipt",
+            "transaction",
             "executed",
             "response_payload",
-            "receipt_details",
+            "transaction_details",
         ]
