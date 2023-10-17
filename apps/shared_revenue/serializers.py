@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
-from apps.billing.serializers import TransactionSerializer
 from apps.organization.serializers import OrganizationSerializer
-from apps.shared_revenue.models import RevenueConfiguration, ShareExecution
+from apps.shared_revenue.models import RevenueConfiguration
 
 
 class RevenueConfigurationSerializer(serializers.ModelSerializer):
@@ -24,32 +23,4 @@ class RevenueConfigurationSerializer(serializers.ModelSerializer):
             "partner_percentage",
             "start_date",
             "end_date",
-        ]
-
-
-class ShareExecutionSerializer(serializers.ModelSerializer):
-    """
-    A serializer class for the `ShareExecution` model.
-
-    This serializer includes the `id`, `organization`, `revenue_configuration`, `percentage`, `value`, `transaction`,
-    `executed`, `response_payload`, and `transaction_details` fields of the `ShareExecution` model. The `transaction_details`
-    field is a nested serializer that includes the `Transaction` model fields.
-    """
-
-    organization = OrganizationSerializer()
-    revenue_configuration = RevenueConfigurationSerializer()
-    transaction_details = TransactionSerializer(source="transaction")
-
-    class Meta:
-        model = ShareExecution
-        fields = [
-            "id",
-            "organization",
-            "revenue_configuration",
-            "percentage",
-            "value",
-            "transaction",
-            "executed",
-            "response_payload",
-            "transaction_details",
         ]
