@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.db import IntegrityError
 from django.test import TestCase
 
@@ -23,19 +21,19 @@ class TransactionTest(TestCase):
         """
         Test the string representation of a Transaction instance.
         """
-        transaction = TransactionFactory(name="John Doe")
+        transaction = TransactionFactory(client_name="John Doe")
         self.assertEqual(str(transaction), "John Doe")
 
     def test_transaction_update(self):
         """
         Test updating the name of a Transaction instance.
         """
-        transaction = TransactionFactory(name="Initial Name")
+        transaction = TransactionFactory(client_name="Initial Name")
         new_name = "Updated Name"
-        transaction.name = new_name
+        transaction.client_name = new_name
         transaction.save()
         updated_transaction = Transaction.objects.get(pk=transaction.pk)
-        self.assertEqual(updated_transaction.name, new_name)
+        self.assertEqual(updated_transaction.client_name, new_name)
 
     def test_transaction_delete(self):
         """
@@ -104,7 +102,7 @@ class TransactionItemTest(TestCase):
         retrieved_transaction_item = TransactionItem.objects.get(pk=transaction_item.pk)
         self.assertEqual(transaction_item, retrieved_transaction_item)
 
-    def test_unique_transaction_item_constraint(self):
+    def test_unique_transaction(self):
         """
         Test that a `TransactionItem` object cannot be associated with more than one `Transaction`.
 
@@ -114,36 +112,12 @@ class TransactionItemTest(TestCase):
         is raised when attempting to create the new `TransactionItem` object.
         """
         transaction = TransactionFactory(
-            name="John Doe",
-            email="johndoe@example.com",
-            address="123 Main St",
-            vat_identification_country="US",
-            vat_identification_number="123456789",
-            total_amount_exclude_vat=Decimal("100.00"),
-            total_amount_include_vat=Decimal("110.00"),
-            transaction_link="https://example.com/transaction",
-            transaction_document_id="123456789",
+            transaction_id="123456789",
         )
         TransactionItemFactory(
             transaction=transaction,
-            description="Item 1",
-            quantity=2,
-            vat_tax=Decimal("10.00"),
-            amount_exclude_vat=Decimal("50.00"),
-            amount_include_vat=Decimal("55.00"),
-            organization="ORG1",
-            product_code="COURSE1",
-            product_id="123456",
         )
         with self.assertRaises(IntegrityError):
-            TransactionItemFactory(
-                transaction=transaction,
-                description="Item 2",
-                quantity=1,
-                vat_tax=Decimal("5.00"),
-                amount_exclude_vat=Decimal("25.00"),
-                amount_include_vat=Decimal("27.50"),
-                organization="ORG2",
-                product_code="COURSE2",
-                product_id="654321",
+            transaction = TransactionFactory(
+                transaction_id="123456789",
             )
