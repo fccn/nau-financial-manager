@@ -6,8 +6,8 @@ from apps.util.models import BaseModel
 
 class Transaction(BaseModel):
     """
-    Represents a receipt issued for a transaction.
-    Each receipt contains details about the payer, items in the receipt, and financial information.
+    Represents a transaction.
+    Each transaction contains details about the payer, items in the transaction, and financial information.
 
     The fields for this model was defined in the following documentation:
         ecommerce_integration_specification
@@ -52,7 +52,7 @@ class Transaction(BaseModel):
     transaction_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.client_name
 
 
 class TransactionItem(BaseModel):
@@ -79,7 +79,7 @@ class TransactionItem(BaseModel):
     vat_tax = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     amount_exclude_vat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     amount_include_vat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    organization = models.CharField(max_length=255, null=True)
+    organization_code = models.CharField(max_length=255, null=True)
     product_id = models.CharField(max_length=50, null=True, blank=True)
     product_code = models.CharField(max_length=50, null=True, blank=True)
 
