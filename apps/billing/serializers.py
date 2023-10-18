@@ -13,7 +13,7 @@ class TransactionItemSerializer(serializers.ModelSerializer):
     A serializer class for the `TransactionItem` model.
 
     This serializer includes the `transaction`, `description`, `quantity`, `vat_tax`, `amount_exclude_vat`,
-    `amount_include_vat`, `organization_code`, `course_code`, and `course_id` fields of the `TransactionItem` model.
+    `amount_include_vat`, `organization`, `product_code`, and `product_id` fields of the `TransactionItem` model.
     """
 
     class Meta:
@@ -26,9 +26,9 @@ class TransactionItemSerializer(serializers.ModelSerializer):
             "vat_tax",
             "amount_exclude_vat",
             "amount_include_vat",
-            "organization_code",
-            "course_id",
-            "course_code",
+            "organization",
+            "product_id",
+            "product_code",
         ]
 
 
@@ -113,12 +113,12 @@ class ProcessTransactionSerializer(serializers.ModelSerializer):
     def create(self, validate_data):
         try:
             organization, created = Organization.objects.get_or_create(
-                short_name=validate_data["item"]["organization_code"],
-                defaults={"short_name": validate_data["item"]["organization_code"]},
+                short_name=validate_data["item"]["organization"],
+                defaults={"short_name": validate_data["item"]["organization"]},
             )
             self._execute_shared_revenue_resources(
                 organization=organization,
-                product_id=validate_data["item"]["course_id"],
+                product_id=validate_data["item"]["product_id"],
             )
             return validate_data
         except Exception as e:

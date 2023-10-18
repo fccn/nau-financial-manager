@@ -8,7 +8,7 @@ class RevenueConfigurationSerializer(serializers.ModelSerializer):
     """
     A serializer class for the `RevenueConfiguration` model.
 
-    This serializer includes the `id`, `organization`, `course_code`, `partner_percentage`, `start_date`, and `end_date`
+    This serializer includes the `id`, `organization`, `product_code`, `partner_percentage`, `start_date`, and `end_date`
     fields of the `RevenueConfiguration` model.
     """
 

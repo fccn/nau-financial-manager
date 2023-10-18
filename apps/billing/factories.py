@@ -43,9 +43,9 @@ class TransactionItemFactory(factory.django.DjangoModelFactory):
     quantity = factory.Faker("pyint", min_value=1, max_value=10)
     vat_tax = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=3, right_digits=2)
     amount_exclude_vat = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=5, right_digits=2)
-    organization_code = factory.Faker("ean13")
-    course_code = factory.Faker("ean13")
-    course_id = factory.Faker("uuid4")
+    organization = factory.Faker("ean13")
+    product_code = factory.Faker("ean13")
+    product_id = factory.Faker("uuid4")
 
     # Assuming 20% VAT
     @factory.lazy_attribute

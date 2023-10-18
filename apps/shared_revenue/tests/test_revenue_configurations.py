@@ -16,36 +16,36 @@ class RevenueConfigurationTestCase(TestCase):
         Test the `__str__` method of the `RevenueConfiguration` model.
         """
         self.assertEqual(
-            str(self.revenue_configuration), f"{self.organization} - {self.revenue_configuration.course_code}"
+            str(self.revenue_configuration), f"{self.organization} - {self.revenue_configuration.product_code}"
         )
 
-    def test_organization_or_course_code_without_course_or_organization(self):
+    def test_organization_or_product_code_without_course_or_organization(self):
         """
         Test that attempting to create a `RevenueConfiguration` instance without an `organization`
-        or `course_code` raises an `IntegrityError`.
+        or `product_code` raises an `IntegrityError`.
         """
         with self.assertRaises(IntegrityError):
-            RevenueConfigurationFactory(organization=None, course_code=None)
+            RevenueConfigurationFactory(organization=None, product_code=None)
 
-    def test_organization_and_course_code_can_not_be_both_filled(self):
+    def test_organization_and_product_code_can_not_be_both_filled(self):
         """
         Test that attempting to create a `RevenueConfiguration` instance with both an `organization`
-        and a `course_code` raises an `IntegrityError`.
+        and a `product_code` raises an `IntegrityError`.
         """
         with self.assertRaises(IntegrityError):
-            RevenueConfigurationFactory(organization=self.organization, course_code="ABC123")
+            RevenueConfigurationFactory(organization=self.organization, product_code="ABC123")
 
     def test_organization_null(self):
         """
         Test that attempting to create a `RevenueConfiguration` instance with a null `organization`
-        and null `course_code` raises a `ValidationError`.
+        and null `product_code` raises a `ValidationError`.
         """
         with self.assertRaises(ValidationError):
-            RevenueConfigurationFactory(course_code="ABC123")
+            RevenueConfigurationFactory(product_code="ABC123")
 
-    def test_course_code_null(self):
+    def test_product_code_null(self):
         """
-        Test that attempting to create a `RevenueConfiguration` instance with a null `course_code`
+        Test that attempting to create a `RevenueConfiguration` instance with a null `product_code`
         and null `organization` raises a `ValidationError`.
         """
         with self.assertRaises(ValidationError):
@@ -73,29 +73,29 @@ class RevenueConfigurationTestCase(TestCase):
         with self.assertRaises(IntegrityError):
             RevenueConfigurationFactory(organization=self.organization, end_date=None)
 
-    def test_course_code_max_length(self):
+    def test_product_code_max_length(self):
         """
-        Test that attempting to create a `RevenueConfiguration` instance with a `course_code`
+        Test that attempting to create a `RevenueConfiguration` instance with a `product_code`
         that exceeds the maximum length raises a `ValidationError`.
         """
-        long_course_code = "a" * 51
+        long_product_code = "a" * 51
         with self.assertRaises(ValidationError):
-            RevenueConfigurationFactory(organization=self.organization, course_code=long_course_code)
+            RevenueConfigurationFactory(organization=self.organization, product_code=long_product_code)
 
-    def test_course_code_blank(self):
+    def test_product_code_blank(self):
         """
-        Test that the `course_code` field can be blank when creating a `RevenueConfiguration` instance.
+        Test that the `product_code` field can be blank when creating a `RevenueConfiguration` instance.
         """
-        revenue_configuration = RevenueConfigurationFactory(organization=self.organization, course_code="")
-        self.assertEqual(revenue_configuration.course_code, "")
+        revenue_configuration = RevenueConfigurationFactory(organization=self.organization, product_code="")
+        self.assertEqual(revenue_configuration.product_code, "")
 
-    def test_course_code_and_organization_null(self):
+    def test_product_code_and_organization_null(self):
         """
-        Test that attempting to create a `RevenueConfiguration` instance with both `course_code`
+        Test that attempting to create a `RevenueConfiguration` instance with both `product_code`
         and `organization` null raises a `ValidationError`.
         """
         with self.assertRaises(ValidationError):
-            RevenueConfigurationFactory(organization=None, course_code=None)
+            RevenueConfigurationFactory(organization=None, product_code=None)
 
     def test_organization_foreign_key(self):
         """
@@ -110,12 +110,12 @@ class RevenueConfigurationTestCase(TestCase):
         """
         self.assertIn(self.organization)
 
-    def test_organization_or_course_code_constraint(self):
+    def test_organization_or_product_code_constraint(self):
         """
-        Test that the `organization_or_course_code` constraint is enforced.
+        Test that the `organization_or_product_code` constraint is enforced.
         """
         with self.assertRaises(IntegrityError):
-            RevenueConfigurationFactory(organization=None, course_code=None)
+            RevenueConfigurationFactory(organization=None, product_code=None)
 
     def test_end_date_equal_to_start_date(self):
         """

@@ -18,7 +18,7 @@ classDiagram
     }
     class RevenueConfiguration {
         -organization: ForeignKey(Organization)
-        -course_code: CharField
+        -product_code: CharField
         -partner_percentage: DecimalField
         -start_date: DateTimeField
         -end_date: DateTimeField
