@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict
 
-from apps.billing.models import ReceiptItem
+from apps.billing.models import TransactionItem
 from apps.shared_revenue.models import RevenueConfiguration
 
 
@@ -17,37 +17,37 @@ class SplitExecutionService:
     start_date: datetime
     end_date: datetime
 
-    def _fetch_all_transaction_items(self, **kwargs) -> list[ReceiptItem]:
+    def _fetch_all_transaction_items(self, **kwargs) -> list[TransactionItem]:
         try:
-            transction_items = ReceiptItem.objects.filter(**kwargs).all()
+            transction_items = TransactionItem.objects.filter(**kwargs)
             return transction_items
         except Exception as e:
             raise e
 
     def _fetch_all_revenue_configurations(self, **kwargs) -> list[RevenueConfiguration]:
         try:
-            configurations = RevenueConfiguration.objects.filter(**kwargs).all()
+            configurations = RevenueConfiguration.objects.filter(**kwargs)
             return configurations
         except Exception as e:
             raise e
 
     def _assembly_each_result(
         self,
-        item: ReceiptItem,
+        item: TransactionItem,
         configuration: RevenueConfiguration,
     ) -> dict:
         return {
             "product_name": item.description,
-            "transaction_date": item.receipt.transaction_date,
-            "total_amount_include_vat": item.receipt.total_amount_include_vat,
-            "total_amount_exclude_vat": item.receipt.total_amount_exclude_vat,
-            "organization": configuration.organization,
-            "amount_for_organization": item.receipt.total_amount_exclude_vat * configuration.partner_percentage,
+            "transaction_date": item.transaction.transaction_date,
+            "total_amount_include_vat": item.transaction.total_amount_include_vat,
+            "total_amount_exclude_vat": item.transaction.total_amount_exclude_vat,
+            "organization_code": configuration.organization,
+            "amount_for_organization": item.transaction.total_amount_exclude_vat * configuration.partner_percentage,
         }
 
     def _calculate_transactions(
         self,
-        transaction_items: list[ReceiptItem],
+        transaction_items: list[TransactionItem],
         configurations: list[RevenueConfiguration],
     ) -> list[Dict]:
         split_results: list[Dict] = {}
@@ -61,7 +61,7 @@ class SplitExecutionService:
 
     def execute_split_steps(self, **kwargs) -> dict:
         try:
-            transaction_items: list[ReceiptItem] = self._fetch_all_transaction_items(**kwargs)
+            transaction_items: list[TransactionItem] = self._fetch_all_transaction_items(**kwargs)
             configurations: list[RevenueConfiguration] = self._fetch_all_revenue_configurations(**kwargs)
             split_results = self._calculate_transactions(
                 transaction_items=transaction_items,
