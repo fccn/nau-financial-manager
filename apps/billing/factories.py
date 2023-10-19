@@ -20,6 +20,7 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     email = factory.Faker("email")
     address_line_1 = factory.Faker("address")
     address_line_2 = factory.Faker("address")
+    country_code = factory.Faker("country_code")
     vat_identification_country = factory.Faker("country_code")
     vat_identification_number = factory.Faker("ssn")
     total_amount_exclude_vat = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=5, right_digits=2)

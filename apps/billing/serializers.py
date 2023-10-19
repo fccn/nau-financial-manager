@@ -8,7 +8,7 @@ from apps.organization.models import Organization
 from apps.shared_revenue.models import RevenueConfiguration
 
 
-class TransactionItemSerializer(serializers.ModelSerializer):
+class TransactionItemSerializer(CountryFieldMixin, serializers.ModelSerializer):
     """
     A serializer class for the `TransactionItem` model.
 
@@ -47,7 +47,7 @@ class TransactionSerializer(CountryFieldMixin, serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ProcessTransactionSerializer(serializers.ModelSerializer):
+class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerializer):
     item = TransactionItemSerializer()
 
     class Meta:

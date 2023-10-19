@@ -22,7 +22,7 @@ classDiagram
         -city: CharField
         -postal_code: CharField
         -state: CharField
-        -country_code: CharField
+        -country_code: CountryField
         -vat_identification_number: CharField
         -vat_identification_country: CountryField
         -total_amount_exclude_vat: DecimalField
