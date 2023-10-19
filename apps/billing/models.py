@@ -1,6 +1,7 @@
 from django.db import models
 from django_countries.fields import CountryField
 
+from apps.util.constants import TRANSACTION_TYPE
 from apps.util.models import BaseModel
 
 
@@ -16,6 +17,7 @@ class Transaction(BaseModel):
 
     - Transaction id
     - Transaction date
+    - Transaction type
     - Payment Type
     - Client Name
     - Email
@@ -49,6 +51,7 @@ class Transaction(BaseModel):
     total_amount_include_vat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     currency = models.CharField(max_length=7, default="EUR", null=True, blank=True)
     payment_type = models.CharField(max_length=20, null=True, blank=True)
+    transaction_type = models.CharField(max_length=15, choices=TRANSACTION_TYPE)
     transaction_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):

@@ -15,6 +15,7 @@ classDiagram
     }
     class Transaction {
         -transaction_id: CharField
+        -transaction_type: CharField
         -client_name: CharField
         -email: CharField
         -address_line_1: CharField
