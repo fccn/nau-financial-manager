@@ -1,11 +1,14 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.shared_revenue.models import RevenueConfiguration
 from apps.shared_revenue.serializers import RevenueConfigurationSerializer
 from apps.util.base_views import DetailDelete, DetailGet, DetailPut, GeneralGet, GeneralPost
+
+from .services.split_export import SplitExportService
 
 
 class RevenueConfigurationGeneral(APIView, GeneralGet, GeneralPost):
@@ -44,3 +47,9 @@ class RevenueConfigurationDetail(APIView, DetailDelete, DetailPut, DetailGet):
     ]
 
     prefetch_related_fields = "organization"
+
+
+class GenerateFile(APIView):
+    def post(self, request, *args, **kwargs):
+        SplitExportService.export_split_to_xlsx(**kwargs)
+        return Response({"triggered"}, status=200)

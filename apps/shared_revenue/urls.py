@@ -13,4 +13,5 @@ urlpatterns = [
         views.RevenueConfigurationDetail.as_view(),
         name="revenue_configurations_detail",
     ),
+    path("generate-file/", views.GenerateFile.as_view(), name="generate_file"),
 ]
