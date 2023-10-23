@@ -38,7 +38,7 @@ class TransactionSerializer(CountryFieldMixin, serializers.ModelSerializer):
 
     This serializer includes the `id`, `client_name`, `email`, `address_line_1`, `address_line_2,` `vat_identification_country`,
     `vat_identification_number`, `city`, `postal_code`, `state`, `country_code`, `total_amount_exclude_vat`, `total_amount_include_vat`, `payment_type`,
-    `transaction_id`, `currency`, `transaction_date` and `transaction_items` fields of the `Transaction` model. The `transaction_items` field is a nested
+    `transaction_id`, `currency`, `transaction_date`, `transaction_type` and `transaction_items` fields of the `Transaction` model. The `transaction_items` field is a nested
     serializer that includes the `TransactionItem` model fields.
     """
 
@@ -55,6 +55,7 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
         fields = [
             "item",
             "transaction_id",
+            "transaction_type",
             "client_name",
             "email",
             "address_line_1",

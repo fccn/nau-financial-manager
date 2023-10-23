@@ -7,3 +7,4 @@ CONTACT_TYPES = (
 
 PER_PAGE = 5
 PAYMENT_TYPE = ["VISA", "MASTERCARD", "PAYPAL", "MBWAY", "REFMB"]
+TRANSACTION_TYPE = [("credit", "Credit"), ("debit", "Debit")]
