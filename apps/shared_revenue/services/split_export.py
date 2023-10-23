@@ -15,7 +15,7 @@ class SplitExportService:
             FileGenerator().generate_xlsx(
                 file_name=split_result.file_name,
                 columns=split_result.columns,
-                values=split_result.values,
+                values=split_result.results,
             )
         except Exception as e:
             raise e

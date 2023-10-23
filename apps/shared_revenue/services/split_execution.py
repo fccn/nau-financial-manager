@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Dict
 
-from apps.billing.models import TransactionItem
+from django.db.models import Q
+
+from apps.billing.models import Transaction, TransactionItem
 from apps.shared_revenue.models import RevenueConfiguration
 
 
@@ -35,22 +37,25 @@ class SplitExecutionService:
 
     def _filter_transaction_items(self, **kwargs) -> list[TransactionItem]:
         try:
-            if kwargs:
-                transction_items = TransactionItem.objects.filter(**kwargs)
-                return transction_items
+            transactions = Transaction.objects.filter(transaction_date__range=[self.start_date, self.end_date])
+            transaction_items: list[TransactionItem] = []
+            for transaction in transactions:
+                kwargs["transaction":transaction]
+                transaction_items.append(TransactionItem.objects.filter(**kwargs))
 
-            transction_items = TransactionItem.objects.all()
-            return transction_items
+            return transaction_items
         except Exception as e:
             raise e
 
     def _filter_revenue_configurations(self, **kwargs) -> list[RevenueConfiguration]:
         try:
+            configurations = RevenueConfiguration.objects.filter(
+                Q(start_date__isnull=True) | Q(start_date__range=[self.start_date, self.end_date])
+            )
             if kwargs:
-                configurations = RevenueConfiguration.objects.filter(**kwargs)
+                configurations = configurations.filter(**kwargs)
                 return configurations
 
-            configurations = RevenueConfiguration.objects.all()
             return configurations
         except Exception as e:
             raise e
@@ -65,8 +70,9 @@ class SplitExecutionService:
             "transaction_date": item.transaction.transaction_date,
             "total_amount_include_vat": item.transaction.total_amount_include_vat,
             "total_amount_exclude_vat": item.transaction.total_amount_exclude_vat,
-            "organization_code": configuration.organization,
-            "amount_for_organization": item.transaction.total_amount_exclude_vat * configuration.partner_percentage,
+            "organization_code": configuration.organization.short_name,
+            "amount_for_nau": item.transaction.total_amount_include_vat * (1 - configuration.partner_percentage),
+            "amount_for_organization": item.transaction.total_amount_include_vat * configuration.partner_percentage,
         }
 
     def _calculate_transactions(
@@ -74,12 +80,13 @@ class SplitExecutionService:
         transaction_items: list[TransactionItem],
         configurations: list[RevenueConfiguration],
     ) -> list[Dict]:
-        split_results: list[Dict] = {}
+        split_results: list[Dict] = []
 
         for item in transaction_items:
             for configuration in configurations:
                 result = self._assembly_each_result(item=item, configuration=configuration)
                 split_results.append(result)
+
         return split_results
 
     def execute_split_steps(self, **kwargs) -> SplitResult:
@@ -92,7 +99,7 @@ class SplitExecutionService:
             )
 
             split_result = SplitResult(
-                file_name="teste",
+                file_name="excel_organizations",
                 results=split_results,
                 columns=[
                     "product_name",
@@ -100,9 +107,11 @@ class SplitExecutionService:
                     "total_amount_include_vat",
                     "total_amount_exclude_vat",
                     "organization_code",
+                    "amount_for_nau",
                     "amount_for_organization",
                 ],
             )
+
             return split_result
         except Exception as e:
             raise e
