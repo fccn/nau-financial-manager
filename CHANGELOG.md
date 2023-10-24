@@ -29,3 +29,4 @@
 - Add Payment Type on Transaction
 - Add Document Id on Transaction
 - Add Transaction Type on Transaction
+- Set required fields on Transaction
