@@ -4,6 +4,7 @@ from typing import Dict
 from django.db.models import Q
 
 from apps.billing.models import Transaction, TransactionItem
+from apps.organization.models import Organization
 from apps.shared_revenue.models import RevenueConfiguration
 
 
@@ -40,8 +41,8 @@ class SplitExecutionService:
             transactions = Transaction.objects.filter(transaction_date__range=[self.start_date, self.end_date])
             transaction_items: list[TransactionItem] = []
             for transaction in transactions:
-                kwargs["transaction":transaction]
-                transaction_items.append(TransactionItem.objects.filter(**kwargs))
+                kwargs["transaction"] = transaction
+                transaction_items += TransactionItem.objects.filter(**kwargs)
 
             return transaction_items
         except Exception as e:
@@ -50,10 +51,16 @@ class SplitExecutionService:
     def _filter_revenue_configurations(self, **kwargs) -> list[RevenueConfiguration]:
         try:
             configurations = RevenueConfiguration.objects.filter(
-                Q(start_date__isnull=True) | Q(start_date__range=[self.start_date, self.end_date])
+                Q(start_date__isnull=True) | Q(end_date__isnull=True) | Q(end_date__gte=self.start_date),
             )
             if kwargs:
-                configurations = configurations.filter(**kwargs)
+                new_kwargs = kwargs
+                if kwargs["organization_code"]:
+                    organization = Organization.objects.filter(short_name=kwargs["organization_code"]).first()
+                    del new_kwargs["organization_code"]
+                    new_kwargs["organization"] = organization
+
+                configurations = configurations.filter(**new_kwargs)
                 return configurations
 
             return configurations

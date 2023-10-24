@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.permissions import IsAuthenticated
@@ -51,5 +53,10 @@ class RevenueConfigurationDetail(APIView, DetailDelete, DetailPut, DetailGet):
 
 class GenerateFile(APIView):
     def post(self, request, *args, **kwargs):
-        SplitExportService.export_split_to_xlsx(**kwargs)
+        start_date = datetime.now() - timedelta(days=5, hours=15)
+        SplitExportService.export_split_to_xlsx(
+            start_date=start_date,
+            end_date=datetime.now(),
+            **{"organization_code": "Org 0"},
+        )
         return Response({"triggered"}, status=200)
