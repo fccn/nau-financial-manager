@@ -87,7 +87,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": config("MYSQL_DATABASE"),
-        "USER": config("MYSQL_USER"),
+        "USER": config("MYSQL_USER_ROOT"),
         "PASSWORD": config("MYSQL_PASSWORD"),
         "HOST": config("DB_HOST"),
         "PORT": config("DB_PORT"),
@@ -97,7 +97,7 @@ DATABASES = {
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
-    "EXCEPTION_HANDLER": "util.exceptions.custom_exception_handler",
+    "EXCEPTION_HANDLER": "apps.util.exceptions.custom_exception_handler",
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
     "DEFAULT_PAGINATION_CLASS": "apps.util.paginations.ShortResultsSetPagination",
     "DEFAULT_RENDERER_CLASSES": [

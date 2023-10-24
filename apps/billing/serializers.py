@@ -13,7 +13,7 @@ class TransactionItemSerializer(CountryFieldMixin, serializers.ModelSerializer):
     A serializer class for the `TransactionItem` model.
 
     This serializer includes the `transaction`, `description`, `quantity`, `vat_tax`, `amount_exclude_vat`,
-    `amount_include_vat`, `organization`, `product_code`, and `product_id` fields of the `TransactionItem` model.
+    `amount_include_vat`, `organization_code`, `product_code`, and `product_id` fields of the `TransactionItem` model.
     """
 
     class Meta:
@@ -26,7 +26,7 @@ class TransactionItemSerializer(CountryFieldMixin, serializers.ModelSerializer):
             "vat_tax",
             "amount_exclude_vat",
             "amount_include_vat",
-            "organization",
+            "organization_code",
             "product_id",
             "product_code",
         ]
@@ -115,8 +115,8 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
     def create(self, validate_data):
         try:
             organization, created = Organization.objects.get_or_create(
-                short_name=validate_data["item"]["organization"],
-                defaults={"short_name": validate_data["item"]["organization"]},
+                short_name=validate_data["item"]["organization_code"],
+                defaults={"short_name": validate_data["item"]["organization_code"]},
             )
             self._execute_shared_revenue_resources(
                 organization=organization,
@@ -130,6 +130,7 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
         transaction, item = self._execute_billing_resources(validate_data=data)
         data = TransactionSerializer(transaction).data
         data["item"] = TransactionItemSerializer(item).data
+
         return data
 
     def to_representation(self, instance):
