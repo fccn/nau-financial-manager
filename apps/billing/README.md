@@ -29,6 +29,7 @@ classDiagram
         -total_amount_exclude_vat: DecimalField
         -total_amount_include_vat: DecimalField
         -currency: CharField
+        -document_id: CharField
         -payment_type: CharField
         -transaction_date: DateTime
         --
