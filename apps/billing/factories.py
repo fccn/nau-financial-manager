@@ -3,6 +3,7 @@ from decimal import Decimal
 import factory
 import factory.fuzzy
 from django.utils import timezone
+from django.utils.text import slugify
 
 from apps.billing.models import Transaction, TransactionItem
 from apps.util.constants import PAYMENT_TYPE, TRANSACTION_TYPE
@@ -46,7 +47,7 @@ class TransactionItemFactory(factory.django.DjangoModelFactory):
     quantity = factory.Faker("pyint", min_value=1, max_value=10)
     vat_tax = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=3, right_digits=2)
     amount_exclude_vat = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=5, right_digits=2)
-    organization = factory.Faker("ean13")
+    organization_code = factory.LazyAttribute(lambda obj: slugify(obj.description))
     product_code = factory.Faker("ean13")
     product_id = factory.Faker("uuid4")
 
