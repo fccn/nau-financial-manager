@@ -10,21 +10,31 @@ class Command(BaseCommand):
     help = "Based on the given informations, this command will generate a xlsx file with the split configurations"
 
     def add_arguments(self, parser: CommandParser) -> None:
-        parser.add_argument("start_date", type=datetime, nargs="+")
-        parser.add_argument("end_date", type=datetime, nargs="+")
-        parser.add_argument("organization_code", type=str, nargs="?")
-        parser.add_argument("product_id", type=str, nargs="?")
+        parser.add_argument("start_date", type=str)
+        parser.add_argument("end_date", type=str)
+        parser.add_argument("--product_id", dest="product_id", type=str)
+        parser.add_argument("--organization_code", dest="organization_code", type=str)
+
+    def _convert_date(self, date: str) -> datetime:
+        splitted_date = [int(parameter) for parameter in date.split("/")]
+        return datetime(splitted_date[2], splitted_date[1], splitted_date[0])
 
     def handle(self, *args, **options) -> str | None:
         try:
-            start_date = options["start_date"]
-            end_date = options["end_date"]
-            kwargs = {k: v for k, v in options.items() if k not in ["start_date", "end_date"]}
+            start_date = self._convert_date(options["start_date"])
+            end_date = self._convert_date(options["end_date"])
+            product_id = options.get("product_id")
+            organization_code = options.get("organization_code")
+            kwargs = {
+                k: v
+                for k, v in {"product_id": product_id, "organization_code": organization_code}.items()
+                if v not in ["", None]
+            }
             SplitExportService().export_split_to_xlsx(
                 start_date=start_date,
                 end_date=end_date,
                 **kwargs,
             )
-            self.stdout.write("exported")
+            self.stdout.write("\n-----GENERATED FILE-----\n")
         except Exception as e:
             raise CommandError(f"{e}")

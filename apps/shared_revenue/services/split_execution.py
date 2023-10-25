@@ -55,8 +55,8 @@ class SplitExecutionService:
             )
             if kwargs:
                 new_kwargs = kwargs
-                if kwargs["organization_code"]:
-                    organization = Organization.objects.filter(short_name=kwargs["organization_code"]).first()
+                if "organization_code" in new_kwargs.keys():
+                    organization = Organization.objects.filter(short_name=new_kwargs["organization_code"]).first()
                     del new_kwargs["organization_code"]
                     new_kwargs["organization"] = organization
 
