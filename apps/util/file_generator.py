@@ -105,29 +105,4 @@ class FileGenerator(XlsxGenerator, PdfGenerator, CsvGenerator):
 
     """
 
-    def generate_xlsx(
-        self,
-        file_name: str,
-        columns: list[str],
-        values: list[Dict],
-    ):
-        try:
-            super().generate_xlsx(
-                file_name=file_name,
-                columns=columns,
-                values=values,
-            )
-        except Exception as e:
-            raise e
-
-    def generate_pdf(self, file_name: str, data):
-        try:
-            super().generate_pdf(file_name=file_name, data=data)
-        except Exception as e:
-            raise e
-
-    def generate_csv(self, file_name: str, data):
-        try:
-            super().generate_csv(file_name=file_name, data=data)
-        except Exception as e:
-            raise e
+    pass

@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 from django.core.management.base import BaseCommand, CommandError, CommandParser
@@ -15,14 +16,12 @@ class Command(BaseCommand):
         parser.add_argument("--product_id", dest="product_id", type=str)
         parser.add_argument("--organization_code", dest="organization_code", type=str)
 
-    def _convert_date(self, date: str) -> datetime:
-        splitted_date = [int(parameter) for parameter in date.split("/")]
-        return datetime(splitted_date[2], splitted_date[1], splitted_date[0])
-
     def handle(self, *args, **options) -> str | None:
         try:
-            start_date = self._convert_date(options["start_date"])
-            end_date = self._convert_date(options["end_date"])
+            start = time.time()
+            self.stdout.write("\nStarting file export...\n")
+            start_date = datetime.strptime(options["start_date"], "%d/%m/%Y")
+            end_date = datetime.strptime(options["end_date"], "%d/%m/%Y")
             product_id = options.get("product_id")
             organization_code = options.get("organization_code")
             kwargs = {
@@ -35,6 +34,8 @@ class Command(BaseCommand):
                 end_date=end_date,
                 **kwargs,
             )
-            self.stdout.write("\n-----GENERATED FILE-----\n")
+            finish = time.time() - start
+            self.stdout.write("\n-----FILE GENERATED SUCCESSFULLY-----\n")
+            self.stdout.write(f"\nThe time to the file export was {finish}\n")
         except Exception as e:
-            raise CommandError(f"{e}")
+            raise CommandError(f"\n-----AN ERROR HAS BEEN RAISED RUNNING THE FILE EXPORT: {e}")
