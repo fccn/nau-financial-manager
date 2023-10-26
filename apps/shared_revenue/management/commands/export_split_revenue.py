@@ -7,6 +7,23 @@ from apps.shared_revenue.services.split_export import SplitExportService
 
 
 class Command(BaseCommand):
+    """
+
+    This command triggers the export of all the transactions splitted based on the given parameters.
+
+    Required parameters:
+        - start_date: d/m/y
+        - end_date: d/m/y
+
+    Optional parameters:
+        - product_id
+        - organization_code
+
+    How to use:
+
+        python manage.py export_split_revenue  {start_date} {end_date} --product_id={product_id} --organization_code={organization_code}
+
+    """
 
     help = "Based on the given informations, this command will generate a xlsx file with the split configurations"
 
