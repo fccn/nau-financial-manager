@@ -15,7 +15,7 @@ class TransactionFactory(factory.django.DjangoModelFactory):
 
     transaction_id = factory.Faker(
         "pystr_format",
-        string_format="NAU-######{random_int}",
+        string_format="NAU-######{{random_int}}",
     )
     client_name = factory.Faker("name")
     email = factory.Faker("email")
@@ -30,7 +30,7 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     transaction_date = factory.Faker(
         "date_time_between", start_date="-1d", end_date="-5d", tzinfo=timezone.get_current_timezone()
     )
-    document_id = factory.Faker("pystr_format", string_format="DCI-######{random_int}")
+    document_id = factory.Faker("pystr_format", string_format="DCI-######{{random_int}}")
 
     # Assuming 20% VAT
     @factory.lazy_attribute
