@@ -1,6 +1,3 @@
-import random
-import string
-
 import factory
 from django.utils import timezone
 from factory.django import DjangoModelFactory
@@ -14,8 +11,9 @@ class RevenueConfigurationFactory(DjangoModelFactory):
 
     organization = None
     partner_percentage = 0.70
-    product_id = (
-        f"course-v1:UPorto+CBN{random.choice(string.ascii_uppercase)}{random.choice(string.ascii_uppercase)}F+2023_T3"
+    product_id = factory.Faker(
+        "pystr_format",
+        string_format="course-v%:?????+CBN???F+2023_T3",
     )
     start_date = factory.Faker(
         "date_time_between", start_date="-10d", end_date="+30d", tzinfo=timezone.get_current_timezone()
