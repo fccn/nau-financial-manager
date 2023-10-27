@@ -125,36 +125,13 @@ class RevenueConfiguration(BaseModel):
                 assert self.check_each_configuration(configuration=configuration)
 
             return False
-        except Exception:
+        except Exception as e:
+            e
             raise ValidationError("There is a concurrent revenue configuration in this moment")
-
-    def _check_partner_percentage(self) -> None:
-        try:
-            same_configurations: list[RevenueConfiguration] = RevenueConfiguration.objects.filter(
-                **{
-                    "organization": self.organization,
-                    "product_id": self.product_id,
-                }
-            )
-
-            percentages = self.partner_percentage
-            for configuration in same_configurations:
-                if configuration.id == self.id:
-                    continue
-
-                percentages = percentages + configuration.partner_percentage
-
-            assert percentages <= 1
-        except Exception:
-            raise ValidationError("The partner percentage exceeds 100%")
 
     def validate_instance(self) -> None:
         try:
-            validations = [
-                self.has_concurrent_revenue_configuration,
-                self._check_partner_percentage,
-            ]
-
+            validations = [self.has_concurrent_revenue_configuration]
             for validation in validations:
                 validation()
         except Exception as e:
