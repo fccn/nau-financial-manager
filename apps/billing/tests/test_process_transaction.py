@@ -1,3 +1,5 @@
+import json
+
 import factory
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -67,7 +69,12 @@ class ProcessTransactionTest(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
 
         response = self.client.post(self.endpoint, self.payload, format="json")
+        response_data_message = json.loads(response.content)
+
         self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response_data_message["transaction_id"][0], "transaction with this transaction id already exists."
+        )
 
     def test_create_transaction_with_invalid_fields(self):
         """
