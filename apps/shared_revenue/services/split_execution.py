@@ -8,23 +8,11 @@ from apps.organization.models import Organization
 from apps.shared_revenue.models import RevenueConfiguration
 
 
-class SplitResult:
-    def __init__(
-        self,
-        columns,
-        results,
-        file_name,
-    ) -> None:
-        self.file_name = file_name
-        self.results = results
-        self.columns = columns
-
-    file_name: str = None
-    columns: list[str] = None
-    values: list[Dict] = None
-
-
 class SplitExecutionService:
+    """
+    This is the class whose executes the split revenue based on the `start_date` and `end_date` parameters
+    """
+
     def __init__(
         self,
         start_date: datetime,
@@ -37,6 +25,13 @@ class SplitExecutionService:
     end_date: datetime
 
     def _filter_transaction_items(self, **kwargs) -> list[TransactionItem]:
+        """
+        Filter the transactions based on the `start_date` and `end_date` parameters.
+
+        The kwargs might also contains filters, `organization_code` and `product_id`
+        are optional filters for this function.
+        """
+
         try:
             transactions = Transaction.objects.filter(transaction_date__range=[self.start_date, self.end_date])
             transaction_items: list[TransactionItem] = []
@@ -49,6 +44,13 @@ class SplitExecutionService:
             raise e
 
     def _filter_revenue_configurations(self, **kwargs) -> list[RevenueConfiguration]:
+        """
+        Filter the revenue configurations based on the `start_date` and `end_date` parameters.
+
+        The kwargs might also contains filters, `organization_code` and `product_id`
+        are optional filters for this function.
+        """
+
         try:
             configurations = RevenueConfiguration.objects.filter(
                 Q(start_date__isnull=True) | Q(end_date__isnull=True) | Q(end_date__gte=self.start_date),
@@ -72,6 +74,20 @@ class SplitExecutionService:
         item: TransactionItem,
         configuration: RevenueConfiguration,
     ) -> dict:
+        """
+        This function makes the assembly of each result that makes sense in the revenue configuration split.
+
+        Based on the business logic register returned from here, needs to represent the expeceted
+        relevant information of each split result.
+
+        Args:
+            item (TransactionItem): The transaction item is the parameter whose has the relevant information about the transaction
+            configuration (RevenueConfiguration): The configuration available to be calculated for each transaction
+
+        Returns:
+            dict: The split revenue result
+        """
+
         return {
             "product_name": item.description,
             "transaction_date": item.transaction.transaction_date,
@@ -87,6 +103,17 @@ class SplitExecutionService:
         transaction_items: list[TransactionItem],
         configurations: list[RevenueConfiguration],
     ) -> list[Dict]:
+        """
+        Execute the calculation step of each transaction and revenue configuration.
+
+        Args:
+            transaction_items (list[TransactionItem]): The filtered list of trasactions items
+            configurations (list[RevenueConfiguration]): The filtered list of configurations
+
+        Returns:
+            list[Dict]: The results list of calculated transactions
+        """
+
         split_results: list[Dict] = []
 
         for item in transaction_items:
@@ -96,7 +123,13 @@ class SplitExecutionService:
 
         return split_results
 
-    def execute_split_steps(self, **kwargs) -> SplitResult:
+    def execute_split_steps(self, **kwargs) -> list[Dict]:
+        """
+        Start the split steps executions
+
+        Returns:
+            list[Dict]: All the calculated split results
+        """
         try:
             transaction_items: list[TransactionItem] = self._filter_transaction_items(**kwargs)
             configurations: list[RevenueConfiguration] = self._filter_revenue_configurations(**kwargs)
@@ -105,20 +138,6 @@ class SplitExecutionService:
                 configurations=configurations,
             )
 
-            split_result = SplitResult(
-                file_name="excel_organizations",
-                results=split_results,
-                columns=[
-                    "product_name",
-                    "transaction_date",
-                    "total_amount_include_vat",
-                    "total_amount_exclude_vat",
-                    "organization_code",
-                    "amount_for_nau",
-                    "amount_for_organization",
-                ],
-            )
-
-            return split_result
+            return split_results
         except Exception as e:
             raise e
