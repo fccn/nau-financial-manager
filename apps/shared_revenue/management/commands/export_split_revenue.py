@@ -37,10 +37,10 @@ class Command(BaseCommand):
         try:
             start = time.time()
             self.stdout.write("\nStarting file export...\n")
-            start_date = datetime.strptime(options["start_date"], "%d/%m/%Y")
-            end_date = datetime.strptime(options["end_date"], "%d/%m/%Y") + (
-                timedelta(days=1) - timedelta(milliseconds=1)
-            )
+            start_date = datetime.strptime(options["start_date"], "%Y/%m/%d").isoformat()
+            end_date = (
+                datetime.strptime(options["end_date"], "%Y/%m/%d") + (timedelta(days=1) - timedelta(milliseconds=1))
+            ).isoformat()
             product_id = options.get("product_id")
             organization_code = options.get("organization_code")
             kwargs = {

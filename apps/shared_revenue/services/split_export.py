@@ -65,6 +65,9 @@ class SplitExportService:
                     "organization_code",
                     "amount_for_nau",
                     "amount_for_organization",
+                    "partner_percentage",
+                    "configuration_start_date",
+                    "configuration_end_date",
                 ],
             )
         except Exception as e:
