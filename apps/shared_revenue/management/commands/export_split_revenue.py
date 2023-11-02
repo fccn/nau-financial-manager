@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 
@@ -38,7 +38,9 @@ class Command(BaseCommand):
             start = time.time()
             self.stdout.write("\nStarting file export...\n")
             start_date = datetime.strptime(options["start_date"], "%d/%m/%Y")
-            end_date = datetime.strptime(options["end_date"], "%d/%m/%Y")
+            end_date = datetime.strptime(options["end_date"], "%d/%m/%Y") + (
+                timedelta(days=1) - timedelta(milliseconds=1)
+            )
             product_id = options.get("product_id")
             organization_code = options.get("organization_code")
             kwargs = {
