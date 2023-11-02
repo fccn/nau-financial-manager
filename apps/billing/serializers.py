@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
@@ -47,8 +45,27 @@ class TransactionSerializer(CountryFieldMixin, serializers.ModelSerializer):
         fields = "__all__"
 
 
+class TransactionItemSerializerWithoutTransaction(TransactionItemSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.fields["transaction"]
+
+
 class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerializer):
-    item = TransactionItemSerializer()
+    """
+    Serializer for processing transactions.
+    This serializer is responsible for validating and processing transaction data. It includes methods for creating
+    transactions, executing shared revenue resources, and converting transaction data to internal and external formats.
+    Methods:
+        _execute_shared_revenue_resources(organization: Organization, product_id: str): Checks if a revenue configuration
+            exists for the given organization and product ID, and creates one if it doesn't exist.
+        _execute_billing_resources(validate_data: dict): Creates a transaction and a transaction item from the given data.
+        create(validate_data): Creates a transaction, a transaction item, and a revenue configuration from the given data.
+        to_internal_value(data): Converts the given data to an internal format.
+        to_representation(instance): Returns the given instance.
+    """
+
+    item = TransactionItemSerializerWithoutTransaction(required=True, allow_null=False)
 
     class Meta:
         model = Transaction
@@ -79,59 +96,58 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
         organization: Organization,
         product_id: str,
     ):
-        revenue_configuration_exists: bool = self._has_concurrent_revenue_configuration(
-            organization=organization,
-            product_id=product_id,
-        )
-        if not revenue_configuration_exists:
-            RevenueConfiguration.objects.create(**{"organization": organization, "product_id": product_id})
+        try:
+            revenue_configuration_exists = RevenueConfiguration(
+                organization=organization,
+                product_id=product_id,
+            ).has_concurrent_revenue_configuration()
+            if not revenue_configuration_exists:
+                RevenueConfiguration.objects.create(**{"organization": organization, "product_id": product_id})
+        except Exception:
+            return True
 
     def _execute_billing_resources(
         self,
         validate_data: dict,
     ):
-        transaction_data = {k: v for k, v in validate_data.items() if k != "item"}
-        transaction = Transaction.objects.create(**transaction_data)
+        item = validate_data.pop("item", None)
+        transaction = Transaction.objects.create(**validate_data)
+        item["transaction"] = transaction
+        item = TransactionItem.objects.create(**item)
 
-        transaction_item_data = deepcopy(validate_data["item"])
-        transaction_item_data["transaction"] = transaction
-        item = TransactionItem.objects.create(**transaction_item_data)
-
-        return transaction, item
-
-    def _has_concurrent_revenue_configuration(
-        self,
-        organization: Organization,
-        product_id: str,
-    ):
-        try:
-            return RevenueConfiguration(
-                organization=organization,
-                product_id=product_id,
-            ).has_concurrent_revenue_configuration()
-        except Exception:
-            return True
+        return item
 
     def create(self, validate_data):
         try:
+            item = self._execute_billing_resources(validate_data=validate_data)
             organization, created = Organization.objects.get_or_create(
-                short_name=validate_data["item"]["organization_code"],
-                defaults={"short_name": validate_data["item"]["organization_code"]},
+                short_name=item.organization_code,
+                defaults={"short_name": item.organization_code},
             )
             self._execute_shared_revenue_resources(
                 organization=organization,
-                product_id=validate_data["item"]["product_id"],
+                product_id=item.product_id,
             )
             return validate_data
         except Exception as e:
             raise e
 
-    def to_internal_value(self, data):
-        transaction, item = self._execute_billing_resources(validate_data=data)
-        data = TransactionSerializer(transaction).data
-        data["item"] = TransactionItemSerializer(item).data
-
-        return data
-
     def to_representation(self, instance):
         return instance
+
+    def validate(self, data):
+        serializer_fields = set(self.fields.keys())
+        data_fields = set(self.initial_data.keys())
+        extra_fields = data_fields - serializer_fields
+        if extra_fields:
+            raise serializers.ValidationError(f"Extra fields: {', '.join(extra_fields)}")
+
+        item = data.pop("item", None)
+        transaction = TransactionSerializer(data=data)
+        transaction.is_valid(raise_exception=True)
+        item = TransactionItemSerializerWithoutTransaction(data=item)
+        item.is_valid(raise_exception=True)
+        transaction = transaction.data
+        transaction["item"] = item.data
+
+        return transaction

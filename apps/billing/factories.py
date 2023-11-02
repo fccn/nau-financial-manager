@@ -15,7 +15,7 @@ class TransactionFactory(factory.django.DjangoModelFactory):
 
     transaction_id = factory.Faker(
         "pystr_format",
-        string_format="NAU-######{random_int}",
+        string_format="NAU-######{{random_int}}",
     )
     client_name = factory.Faker("name")
     email = factory.Faker("email")
@@ -26,16 +26,16 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     vat_identification_number = factory.Faker("ssn")
     total_amount_exclude_vat = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=5, right_digits=2)
     payment_type = factory.fuzzy.FuzzyChoice(PAYMENT_TYPE)
-    transaction_type = factory.fuzzy.FuzzyChoice(TRANSACTION_TYPE[0])
+    transaction_type = factory.Faker("random_element", elements=[t[0] for t in TRANSACTION_TYPE])
     transaction_date = factory.Faker(
         "date_time_between", start_date="-1d", end_date="-5d", tzinfo=timezone.get_current_timezone()
     )
-    document_id = factory.Faker("pystr_format", string_format="DCI-######{random_int}")
+    document_id = factory.Faker("pystr_format", string_format="DCI-######{{random_int}}")
 
     # Assuming 20% VAT
     @factory.lazy_attribute
     def total_amount_include_vat(self):
-        return self.total_amount_exclude_vat * Decimal("1.20")
+        return round(self.total_amount_exclude_vat * Decimal("1.20"), 2)
 
 
 class TransactionItemFactory(factory.django.DjangoModelFactory):
@@ -54,4 +54,4 @@ class TransactionItemFactory(factory.django.DjangoModelFactory):
     # Assuming 20% VAT
     @factory.lazy_attribute
     def amount_include_vat(self):
-        return self.amount_exclude_vat * Decimal("1.20")
+        return round(self.amount_exclude_vat * Decimal("1.20"), 2)
