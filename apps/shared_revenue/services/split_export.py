@@ -53,9 +53,9 @@ class SplitExportService:
                 end_date=end_date,
             ).execute_split_steps(**kwargs)
 
-            file_name = self._generate_file_name(optional=kwargs)
+            file_name: str = self._generate_file_name(optional=kwargs)
             FileGenerator().generate_xlsx(
-                file_name=f"{file_name}",
+                file_name=file_name,
                 values=split_results,
                 columns=[
                     "product_name",
