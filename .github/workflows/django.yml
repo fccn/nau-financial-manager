@@ -1,0 +1,27 @@
+name: Django CI Nau Financial Manager
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Poetry
+      run: make install-poetry install-packages
+
+    - name: Get all containers up and running
+      run: cp sample-dev.env .env; make hr-docker
+
+    - name: Run Django tests
+      run: make test
+
+    - name: Run pre-commit checks
+      run: make pre-commit
