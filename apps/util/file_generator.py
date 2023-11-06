@@ -40,7 +40,6 @@ class XlsxGenerator:
     def generate_xlsx(
         self,
         file_name: str,
-        columns: list[str],
         values: list[Dict],
     ) -> None:
         """
@@ -61,6 +60,7 @@ class XlsxGenerator:
         )
         work_sheet = workbook.add_worksheet()
 
+        columns = list(values[0].keys())
         for column in columns:
             column_letter = self._generate_column_letter_position(columns.index(column) + 1)
             work_sheet.set_column(

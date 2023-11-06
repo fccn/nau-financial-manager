@@ -92,17 +92,32 @@ class SplitExecutionService:
         """
 
         return {
-            "product_name": item.description,
+            "transaction_id": item.transaction.transaction_id,
             "transaction_date": item.transaction.transaction_date.isoformat(),
-            "total_amount_include_vat": item.transaction.total_amount_include_vat,
-            "total_amount_exclude_vat": item.transaction.total_amount_exclude_vat,
-            "organization_code": item.organization_code,
-            "amount_for_nau": item.transaction.total_amount_include_vat * (1 - configuration.partner_percentage),
-            "amount_for_organization": item.transaction.total_amount_include_vat * configuration.partner_percentage,
-            "partner_percentage": configuration.partner_percentage,
-            "configuration_start_date": configuration.start_date,
-            "configuration_end_date": configuration.end_date,
+            "product_name": item.description,
+            "product_id": item.product_id,
+            "organization": item.organization_code,
+            "total_amount_including_vat": item.amount_include_vat,
+            "total_amount_exclude_vat": item.amount_exclude_vat,
+            "percentage_for_organization": configuration.partner_percentage,
+            "amount_for_organization_including_vat": item.amount_include_vat * configuration.partner_percentage,
+            "amount_for_organization_exclude_vat": item.amount_exclude_vat * configuration.partner_percentage,
+            "percentage_for_nau": configuration.nau_percentage,
+            "amount_for_nau_including_vat": item.amount_include_vat * configuration.nau_percentage,
+            "amount_for_nau_exclude_vat": item.amount_exclude_vat * configuration.nau_percentage,
         }
+
+    def _calculate_nau_percentage(self, product_id: str):
+        try:
+            percentage = 1
+
+            configurations: list[RevenueConfiguration] = RevenueConfiguration.objects.filter(product_id=product_id)
+            for configuration in configurations:
+                percentage = percentage - configuration.partner_percentage
+
+            return percentage
+        except Exception as e:
+            raise e
 
     def _calculate_transactions(
         self,
@@ -120,6 +135,7 @@ class SplitExecutionService:
             list[Dict]: The results list of calculated transactions
         """
 
+        nau_percentage_per_product: dict = {}
         split_results: list[Dict] = []
 
         for item in transaction_items:
@@ -129,6 +145,11 @@ class SplitExecutionService:
                         if not configuration.start_date <= item.transaction.transaction_date <= configuration.end_date:
                             continue
 
+                    if item.product_id not in nau_percentage_per_product:
+                        nau_percentage = self._calculate_nau_percentage(product_id=item.product_id)
+                        nau_percentage_per_product[item.product_id] = nau_percentage
+
+                    configuration.nau_percentage = nau_percentage_per_product[item.product_id]
                     result = self._assembly_each_result(item=item, configuration=configuration)
                     split_results.append(result)
 
