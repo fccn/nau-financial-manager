@@ -36,8 +36,9 @@ class SplitExecutionService:
             transactions = Transaction.objects.filter(transaction_date__range=[self.start_date, self.end_date])
             transaction_items: list[TransactionItem] = []
             for transaction in transactions:
-                kwargs["transaction"] = transaction
-                transaction_items += TransactionItem.objects.filter(**kwargs)
+                items = transaction.transaction_items.all()
+                if items:
+                    transaction_items.append(items[0])
 
             return transaction_items
         except Exception as e:
@@ -53,7 +54,9 @@ class SplitExecutionService:
 
         try:
             configurations = RevenueConfiguration.objects.filter(
-                Q(start_date__isnull=True) | Q(end_date__isnull=True) | Q(end_date__gte=self.start_date),
+                Q(start_date__isnull=True)
+                | Q(end_date__isnull=True)
+                | Q(start_date__lte=self.end_date) & Q(end_date__gte=self.start_date)
             )
             if kwargs:
                 new_kwargs = kwargs
@@ -90,12 +93,15 @@ class SplitExecutionService:
 
         return {
             "product_name": item.description,
-            "transaction_date": item.transaction.transaction_date,
+            "transaction_date": item.transaction.transaction_date.isoformat(),
             "total_amount_include_vat": item.transaction.total_amount_include_vat,
             "total_amount_exclude_vat": item.transaction.total_amount_exclude_vat,
-            "organization_code": configuration.organization.short_name,
+            "organization_code": item.organization_code,
             "amount_for_nau": item.transaction.total_amount_include_vat * (1 - configuration.partner_percentage),
             "amount_for_organization": item.transaction.total_amount_include_vat * configuration.partner_percentage,
+            "partner_percentage": configuration.partner_percentage,
+            "configuration_start_date": configuration.start_date,
+            "configuration_end_date": configuration.end_date,
         }
 
     def _calculate_transactions(
@@ -118,8 +124,13 @@ class SplitExecutionService:
 
         for item in transaction_items:
             for configuration in configurations:
-                result = self._assembly_each_result(item=item, configuration=configuration)
-                split_results.append(result)
+                if item.organization_code == configuration.organization.short_name:
+                    if None not in [configuration.start_date, configuration.end_date]:
+                        if not configuration.start_date <= item.transaction.transaction_date <= configuration.end_date:
+                            continue
+
+                    result = self._assembly_each_result(item=item, configuration=configuration)
+                    split_results.append(result)
 
         return split_results
 
@@ -131,8 +142,8 @@ class SplitExecutionService:
             list[Dict]: All the calculated split results
         """
         try:
-            transaction_items: list[TransactionItem] = self._filter_transaction_items(**kwargs)
             configurations: list[RevenueConfiguration] = self._filter_revenue_configurations(**kwargs)
+            transaction_items: list[TransactionItem] = self._filter_transaction_items(**kwargs)
             split_results = self._calculate_transactions(
                 transaction_items=transaction_items,
                 configurations=configurations,
