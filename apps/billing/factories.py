@@ -1,3 +1,5 @@
+import random
+import string
 from decimal import Decimal
 
 import factory
@@ -48,8 +50,11 @@ class TransactionItemFactory(factory.django.DjangoModelFactory):
     vat_tax = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=3, right_digits=2)
     amount_exclude_vat = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=5, right_digits=2)
     organization_code = factory.LazyAttribute(lambda obj: slugify(obj.description))
-    product_code = factory.Faker("ean13")
-    product_id = factory.Faker("uuid4")
+    product_code = "".join([random.choice(string.ascii_uppercase) for _ in range(5)])
+
+    @factory.lazy_attribute
+    def product_id(self):
+        return f"course-v1:{self.organization_code}+{self.product_code}+2023_T3"
 
     # Assuming 20% VAT
     @factory.lazy_attribute
