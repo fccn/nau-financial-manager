@@ -11,42 +11,37 @@ from apps.shared_revenue.factories import RevenueConfigurationFactory
 from apps.billing.factories import TransactionFactory, TransactionItemFactory
 
 
-def generate_revenue_configuration(
-    organization,
-) -> RevenueConfigurationFactory:
-    """
-    Generates and populates RevenueConfiguration model.
-    """
-    
-    revenue_configuration = RevenueConfigurationFactory.create(
-            organization=organization,
-            partner_percentage=0.70
-        )
-    
-    return revenue_configuration
-    
 
-def populate_shared_revenue(organization) -> None:
+def populate_shared_revenue(organization, product_ids: list[str]) -> None:
     """
-    
-    Starts populate of shared_revenue module, creates RevenueConfiguration and ShareExecution
+    Populates shared_revenue module, creates RevenueConfiguration
     """    
     
-    revenue_configuration = generate_revenue_configuration(
-        organization,
-    )
-    return revenue_configuration
+    for product_id in product_ids:
+        RevenueConfigurationFactory.create(
+            organization=organization,
+            product_id=product_id,
+            partner_percentage=0.70
+        )
 
 
-def populate_billing(organization) -> None:
+def populate_billing(organization) -> list[str]:
     """
     Populates billing module, creates five transactions per organization and one TransactionItem per Transaction
     """  
 
     amount_of_transactions = 5
     transactions = TransactionFactory.create_batch(amount_of_transactions)
+    product_ids = []
     for transaction in transactions:
-        TransactionItemFactory.create(transaction=transaction)
+        item: TransactionItemFactory = TransactionItemFactory.create(
+            transaction=transaction,
+            organization_code=organization.short_name,
+        )
+        if not item.product_id in product_ids:
+            product_ids.append(item.product_id)
+    
+    return product_ids
 
 
 def populate():
@@ -60,8 +55,11 @@ def populate():
         for organization in organizations:
             OrganizationContactFactory.create(organization=organization)
             OrganizationAddressFactory.create(organization=organization)
-            populate_shared_revenue(organization=organization)
-            populate_billing(organization=organization)
+            product_ids = populate_billing(organization=organization)
+            populate_shared_revenue(
+                product_ids=product_ids,
+                organization=organization,
+            )
     except Exception as e:
         raise e
 
