@@ -1,5 +1,6 @@
 #Variables
 PYTHON_PATH_ENV_APP=$(shell which python)
+POETRY = poetry
 SRC_DIR = src
 TEST_DIR = tests
 POETRY_RUN = poetry run
@@ -95,3 +96,13 @@ hr-docker: ## remake complete docker environment (destroy dockers, prune docker,
 create-token: ## create token for admin user
 	$(CREATE_TOKEN)
 .PHONY: create-token
+
+install-poetry: ## Install Poetry
+	@echo "Installing Poetry..."
+	@curl -sSL https://install.python-poetry.org | python -
+.PHONY: install-poetry
+
+install-packages: ## Install project dependencies
+	@echo "Installing project dependencies..."
+	@$(POETRY) install
+.PHONY: install-packages
