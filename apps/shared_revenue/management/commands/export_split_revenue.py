@@ -43,11 +43,7 @@ class Command(BaseCommand):
             ).isoformat()
             product_id = options.get("product_id")
             organization_code = options.get("organization_code")
-            kwargs = {
-                k: v
-                for k, v in {"product_id": product_id, "organization_code": organization_code}.items()
-                if v not in ["", None]
-            }
+            kwargs = {k: v for k, v in {"product_id": product_id, "organization_code": organization_code}.items() if v}
             SplitExportService().export_split_to_xlsx(
                 start_date=start_date,
                 end_date=end_date,

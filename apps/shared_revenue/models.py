@@ -62,7 +62,7 @@ class RevenueConfiguration(BaseModel):
         configuration,
     ) -> bool:
 
-        id = self.id if self.id is not None else -1
+        id = self.id
         if configuration.id == id:
             return True
 

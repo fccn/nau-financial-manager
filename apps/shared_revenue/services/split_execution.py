@@ -36,8 +36,9 @@ class SplitExecutionService:
             transactions = Transaction.objects.filter(transaction_date__range=[self.start_date, self.end_date])
             transaction_items: list[TransactionItem] = []
             for transaction in transactions:
-                kwargs["transaction"] = transaction
-                transaction_items += TransactionItem.objects.filter(**kwargs)
+                items = transaction.transaction_items.all()
+                if items:
+                    transaction_items.append(items[0])
 
             return transaction_items
         except Exception as e:
@@ -95,7 +96,7 @@ class SplitExecutionService:
             "transaction_date": item.transaction.transaction_date.isoformat(),
             "total_amount_include_vat": item.transaction.total_amount_include_vat,
             "total_amount_exclude_vat": item.transaction.total_amount_exclude_vat,
-            "organization_code": configuration.organization.short_name,
+            "organization_code": item.organization_code,
             "amount_for_nau": item.transaction.total_amount_include_vat * (1 - configuration.partner_percentage),
             "amount_for_organization": item.transaction.total_amount_include_vat * configuration.partner_percentage,
             "partner_percentage": configuration.partner_percentage,
@@ -123,10 +124,11 @@ class SplitExecutionService:
 
         for item in transaction_items:
             for configuration in configurations:
-                if (None in [configuration.start_date, configuration.end_date]) or (
-                    configuration.start_date <= item.transaction.transaction_date
-                    and configuration.end_date >= item.transaction.transaction_date
-                ):
+                if item.organization_code == configuration.organization.short_name:
+                    if None not in [configuration.start_date, configuration.end_date]:
+                        if not configuration.start_date <= item.transaction.transaction_date <= configuration.end_date:
+                            continue
+
                     result = self._assembly_each_result(item=item, configuration=configuration)
                     split_results.append(result)
 
@@ -140,8 +142,8 @@ class SplitExecutionService:
             list[Dict]: All the calculated split results
         """
         try:
-            transaction_items: list[TransactionItem] = self._filter_transaction_items(**kwargs)
             configurations: list[RevenueConfiguration] = self._filter_revenue_configurations(**kwargs)
+            transaction_items: list[TransactionItem] = self._filter_transaction_items(**kwargs)
             split_results = self._calculate_transactions(
                 transaction_items=transaction_items,
                 configurations=configurations,
