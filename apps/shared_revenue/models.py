@@ -61,9 +61,7 @@ class RevenueConfiguration(BaseModel):
         self,
         configuration,
     ) -> bool:
-
-        id = self.id
-        if configuration.id == id:
+        if configuration.id == self.id:
             return True
 
         now = datetime.now(timezone.utc)
@@ -84,7 +82,10 @@ class RevenueConfiguration(BaseModel):
             if saved_start_date < now and invalid_saved_end_date:
                 return False
 
-        if saved_end_date is None or saved_end_date > start_date_to_save:
+        if saved_end_date is None:
+            return False
+
+        if saved_end_date > start_date_to_save and saved_start_date < end_date_to_save:
             return False
 
         return True
@@ -124,13 +125,36 @@ class RevenueConfiguration(BaseModel):
                 assert self.check_each_configuration(configuration=configuration)
 
             return False
-        except Exception as e:
-            e
+        except Exception:
             raise ValidationError("There is a concurrent revenue configuration in this moment")
+
+    def _check_partner_percentage(self) -> None:
+        try:
+            same_configurations: list[RevenueConfiguration] = RevenueConfiguration.objects.filter(
+                **{
+                    "organization": self.organization,
+                    "product_id": self.product_id,
+                }
+            )
+
+            percentages = self.partner_percentage
+            for configuration in same_configurations:
+                if configuration.id == self.id:
+                    continue
+
+                percentages = percentages + configuration.partner_percentage
+
+            assert percentages <= 1
+        except Exception:
+            raise ValidationError("The partner percentage exceed 100%")
 
     def validate_instance(self) -> None:
         try:
-            validations = [self.has_concurrent_revenue_configuration]
+            validations = [
+                self.has_concurrent_revenue_configuration,
+                self._check_partner_percentage,
+            ]
+
             for validation in validations:
                 validation()
         except Exception as e:
