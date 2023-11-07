@@ -1,6 +1,5 @@
-from ast import Dict
 from datetime import datetime
-from typing import List
+from typing import Dict, List
 
 from django.utils.timezone import get_current_timezone
 
