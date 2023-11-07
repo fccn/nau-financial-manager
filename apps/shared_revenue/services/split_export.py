@@ -54,21 +54,6 @@ class SplitExportService:
             ).execute_split_steps(**kwargs)
 
             file_name: str = self._generate_file_name(optional=kwargs)
-            FileGenerator().generate_xlsx(
-                file_name=file_name,
-                values=split_results,
-                columns=[
-                    "product_name",
-                    "transaction_date",
-                    "total_amount_include_vat",
-                    "total_amount_exclude_vat",
-                    "organization_code",
-                    "amount_for_nau",
-                    "amount_for_organization",
-                    "partner_percentage",
-                    "configuration_start_date",
-                    "configuration_end_date",
-                ],
-            )
+            FileGenerator().generate_xlsx(file_name=file_name, values=split_results)
         except Exception as e:
             raise e
