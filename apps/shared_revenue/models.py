@@ -146,7 +146,7 @@ class RevenueConfiguration(BaseModel):
 
             assert percentages <= 1
         except Exception:
-            raise ValidationError("The partner percentage exceed 100%")
+            raise ValidationError("The partner percentage exceeds 100%")
 
     def validate_instance(self) -> None:
         try:
