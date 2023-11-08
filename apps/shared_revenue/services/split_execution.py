@@ -141,7 +141,6 @@ class SplitExecutionService:
         split_results: list[Dict] = []
         used_configurations: list[Dict] = []
 
-        # calculate NAU percentage base on the sum of all partner percentages per product_id
         for item in transaction_items:
             for configuration in configurations:
                 if item.organization_code == configuration.organization.short_name:
