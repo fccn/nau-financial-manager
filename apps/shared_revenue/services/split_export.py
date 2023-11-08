@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Dict, List
 
 from django.utils.timezone import get_current_timezone
 
@@ -48,12 +49,12 @@ class SplitExportService:
         """
 
         try:
-            split_results = SplitExecutionService(
+            split_sheets: list[List[Dict]] = SplitExecutionService(
                 start_date=start_date,
                 end_date=end_date,
             ).execute_split_steps(**kwargs)
 
             file_name: str = self._generate_file_name(optional=kwargs)
-            FileGenerator().generate_xlsx(file_name=file_name, values=split_results)
+            FileGenerator().generate_xlsx(file_name=file_name, sheets=split_sheets)
         except Exception as e:
             raise e

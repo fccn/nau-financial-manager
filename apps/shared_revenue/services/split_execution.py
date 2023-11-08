@@ -1,16 +1,17 @@
 from datetime import datetime
-from typing import Dict
+from typing import Dict, List
 
 from django.db.models import Q
 
 from apps.billing.models import Transaction, TransactionItem
 from apps.organization.models import Organization
 from apps.shared_revenue.models import RevenueConfiguration
+from apps.shared_revenue.serializers import RevenueConfigurationSerializer
 
 
 class SplitExecutionService:
     """
-    This is the class whose executes the split revenue based on the `start_date` and `end_date` parameters
+    This is the class whose executes the split revenue based on the `start_date` and `end_date` parameters.
     """
 
     def __init__(
@@ -85,10 +86,10 @@ class SplitExecutionService:
 
         Args:
             item (TransactionItem): The transaction item is the parameter whose has the relevant information about the transaction
-            configuration (RevenueConfiguration): The configuration available to be calculated for each transaction
+            configuration (RevenueConfiguration): The configuration available to be calculated for each transaction.
 
         Returns:
-            dict: The split revenue result
+            dict: The split revenue result.
         """
 
         return {
@@ -123,7 +124,7 @@ class SplitExecutionService:
         self,
         transaction_items: list[TransactionItem],
         configurations: list[RevenueConfiguration],
-    ) -> list[Dict]:
+    ) -> tuple[list[Dict], list[Dict]]:
         """
         Execute the calculation step of each transaction and revenue configuration.
 
@@ -132,11 +133,13 @@ class SplitExecutionService:
             configurations (list[RevenueConfiguration]): The filtered list of configurations
 
         Returns:
-            list[Dict]: The results list of calculated transactions
+            tuple[list[Dict], list[Dict]]: The results is a tuple of two lists, the first one is a list of calculated transactions,
+            the second, a list of used `RevenueConfiguration` for calculate each transaction.
         """
 
         nau_percentage_per_product: dict = {}
         split_results: list[Dict] = []
+        used_configurations: list[Dict] = []
 
         for item in transaction_items:
             for configuration in configurations:
@@ -153,23 +156,28 @@ class SplitExecutionService:
                     result = self._assembly_each_result(item=item, configuration=configuration)
                     split_results.append(result)
 
-        return split_results
+                    configuration_data: dict = dict(RevenueConfigurationSerializer(configuration).data)
+                    configuration_data["organization"] = configuration_data["organization"]["short_name"]
+                    if configuration_data not in used_configurations:
+                        used_configurations.append(configuration_data)
 
-    def execute_split_steps(self, **kwargs) -> list[Dict]:
+        return split_results, used_configurations
+
+    def execute_split_steps(self, **kwargs) -> list[List[Dict]]:
         """
         Start the split steps executions
 
         Returns:
-            list[Dict]: All the calculated split results
+            list[List[Dict]]: All the calculated split results and their used configurations
         """
         try:
             configurations: list[RevenueConfiguration] = self._filter_revenue_configurations(**kwargs)
             transaction_items: list[TransactionItem] = self._filter_transaction_items(**kwargs)
-            split_results = self._calculate_transactions(
+            split_results, used_configurations = self._calculate_transactions(
                 transaction_items=transaction_items,
                 configurations=configurations,
             )
 
-            return split_results
+            return [split_results, used_configurations]
         except Exception as e:
             raise e

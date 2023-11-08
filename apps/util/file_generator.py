@@ -1,5 +1,5 @@
 from string import ascii_uppercase
-from typing import Dict
+from typing import Dict, List
 
 import xlsxwriter
 
@@ -40,7 +40,7 @@ class XlsxGenerator:
     def generate_xlsx(
         self,
         file_name: str,
-        values: list[Dict],
+        sheets: List[List[Dict]],
     ) -> None:
         """
         This method generates xlsx format files
@@ -58,22 +58,24 @@ class XlsxGenerator:
                 "default_date_format": "dd/mm/yy hh:mm:ss.000",
             },
         )
-        work_sheet = workbook.add_worksheet()
 
-        columns = list(values[0].keys())
-        for column in columns:
-            column_letter = self._generate_column_letter_position(columns.index(column) + 1)
-            work_sheet.set_column(
-                f"{column_letter}:{column_letter}",
-                width=20,
-            )
-            bold = workbook.add_format({"bold": True})
-            work_sheet.write(f"{column_letter}1", column.replace("_", " "), bold)
+        for sheet in sheets:
+            work_sheet = workbook.add_worksheet()
 
-            row = 2
-            for value in values:
-                work_sheet.write(f"{column_letter}{row}", value[column])
-                row += 1
+            columns = list(sheet[0].keys())
+            for column in columns:
+                column_letter = self._generate_column_letter_position(columns.index(column) + 1)
+                work_sheet.set_column(
+                    f"{column_letter}:{column_letter}",
+                    width=20,
+                )
+                bold = workbook.add_format({"bold": True})
+                work_sheet.write(f"{column_letter}1", column, bold)
+
+                row = 2
+                for value in sheet:
+                    work_sheet.write(f"{column_letter}{row}", value[column])
+                    row += 1
 
         workbook.close()
 
