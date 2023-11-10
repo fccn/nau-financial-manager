@@ -1,0 +1,23 @@
+version: "3.5"
+
+services:
+
+  nau-financial-app:
+    container_name: nau-financial-app
+    restart: always
+    command: sh -c './wait-for-mysql.sh && python manage.py runserver 0.0.0.0:8000'
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    env_file: ../.env
+    # on docker mode change use the container directly
+    environment:
+      - DB_HOST=nau-database-mysql
+    ports:
+      - 8000:8000
+    volumes:
+      - ../:/app
+    depends_on:
+      - database-mysql  
+      - redis
+      - celery

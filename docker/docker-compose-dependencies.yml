@@ -5,7 +5,7 @@ services:
     container_name: nau-database-mysql
     restart: always
     image: mysql:8.1
-    env_file: ../sample-dev.env
+    env_file: ../.env
     hostname: database
     ports:
       - "3306:3306"
@@ -24,7 +24,7 @@ services:
       context: ../
       dockerfile: docker/Dockerfile
     command: celery -A nau_financial_manager worker --loglevel=info
-    env_file: ../sample-dev.env
+    env_file: ../.env
     volumes:
       - ../:/app
     depends_on:
@@ -38,7 +38,7 @@ services:
       context: ../
       dockerfile: docker/Dockerfile
     command: celery -A nau_financial_manager beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    env_file: ../sample-dev.env
+    env_file: ../.env
     volumes:
       - ../:/app
     depends_on:
@@ -50,7 +50,7 @@ services:
       context: ../
       dockerfile: docker/Dockerfile
     command: celery -A nau_financial_manager flower --port=5555
-    env_file: ../sample-dev.env
+    env_file: ../.env
     restart: always
     volumes:
       - ../:/app
@@ -61,20 +61,3 @@ services:
       - redis
       - celery
 
-
-  nau-financial-app:
-    container_name: nau-financial-app
-    restart: always
-    command: sh -c './wait-for-mysql.sh && python manage.py runserver 0.0.0.0:8000'
-    build:
-      context: ../
-      dockerfile: docker/Dockerfile
-    env_file: ../sample-dev.env
-    ports:
-      - 8000:8000
-    volumes:
-      - ../:/app
-    depends_on:
-      - database-mysql  
-      - redis
-      - celery

@@ -15,8 +15,12 @@ POPULATE_DB = $(POETRY_RUN) python apps/util/populate_db.py
 RESET_MIGRATIONS = find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
 MAKE_MIGRATIONS = $(POETRY_RUN) python manage.py makemigrations
 MIGRATE = $(POETRY_RUN) python manage.py migrate
-RUN_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose.yml up -d
-KILL_DOCKER_DEV = $(DOCKER_COMPOSE) -f docker/docker-compose.yml down
+COMPOSE_FILE := docker/docker-compose-dependencies.yml
+ifneq ($(APP), false)
+	COMPOSE_FILE := $(COMPOSE_FILE):docker/docker-compose-app.yml
+endif
+RUN_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) up -d --remove-orphans
+KILL_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) down
 PRUNE_DOCKER = docker system prune -af
 CREATESUPERUSER = $(POETRY_RUN) python manage.py add_superuser --no-input --settings=nau_financial_manager.settings
 

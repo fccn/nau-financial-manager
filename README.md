@@ -82,6 +82,23 @@ poetry shell
 cp sample-dev.env .env
 ```
 
+## Run for DEV
+
+Start the app's dependencies services:
+```bash
+APP=false make run-docker
+```
+
+You have to install the app package dependencies and run the migrations.
+```bash
+make install-packages migrate
+```
+
+To execute the application outside the docker:
+```bash
+make run
+```
+
 ## GENERATING AND USING TOKEN
 
 To generate a token you should use one of this two commands:
@@ -105,8 +122,18 @@ Here is a example:
 headers = { "Authorization": "Token generated_token" }
 ```
 
-## TROUBLESHOOTING
+## Troubleshooting
 
 ```bash
 # TODO: Automate this installation after validation of method and structure
+```
+
+Error:
+```
+org.freedesktop.DBus.Error.UnknownMethod] ('No such interface “org.freedesktop.DBus.Properties
+```
+
+Solution:
+```bash
+export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 ```
