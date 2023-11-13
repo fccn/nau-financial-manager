@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 import factory
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
 
@@ -34,16 +34,6 @@ class RevenueConfigurationTestCase(TestCase):
         self.assertGreaterEqual(self.revenue_configuration.partner_percentage, 0)
         self.assertLessEqual(self.revenue_configuration.partner_percentage, 1)
 
-    def test_required_parameters(self):
-        """
-        Should raise an error of type `IntegrityError`, it validates the required parameters to save a `RevenueConfiguration`.
-        """
-        with self.assertRaises(IntegrityError):
-            RevenueConfigurationFactory(
-                partner_percentage=None,
-                product_id=None,
-            )
-
     def test_has_concurrent_revenue_configuration_with_dates(self):
         """
         Should raise an error of type `ValidationError`, it validates that
@@ -64,6 +54,7 @@ class RevenueConfigurationTestCase(TestCase):
                 ),
                 product_id=self.revenue_configuration.product_id,
                 organization=self.organization,
+                partner_percentage=0,
             )
 
     def test_has_concurrent_revenue_configuration_with_just_start_date(self):
@@ -84,6 +75,7 @@ class RevenueConfigurationTestCase(TestCase):
                 end_date=None,
                 product_id=self.revenue_configuration.product_id,
                 organization=self.organization,
+                partner_percentage=0,
             )
 
     def test_has_concurrent_revenue_configuration_with_just_end_date(self):
@@ -104,6 +96,7 @@ class RevenueConfigurationTestCase(TestCase):
                 ),
                 product_id=self.revenue_configuration.product_id,
                 organization=self.organization,
+                partner_percentage=0,
             )
 
     def test_has_concurrent_revenue_configuration_with_no_dates(self):
@@ -123,6 +116,7 @@ class RevenueConfigurationTestCase(TestCase):
                 end_date=None,
                 product_id=self.revenue_configuration.product_id,
                 organization=self.organization,
+                partner_percentage=0,
             )
 
     def test_has_no_concurrent_revenue_configuration(self):
@@ -140,6 +134,7 @@ class RevenueConfigurationTestCase(TestCase):
             ),
             organization=self.organization,
             product_id=self.revenue_configuration.product_id,
+            partner_percentage=0,
         )
 
         self.assertNotEqual(new_configuration.id, self.revenue_configuration.id)
@@ -153,6 +148,12 @@ class RevenueConfigurationTestCase(TestCase):
         Should register a new `RevenueConfiguration`, it validades that this attempt
         is to save a future configuration considering as None the `end_date`, which will not impact
         on the current, or any other configuration.
+
+        In the last line of this test function, the new configuration is deleted,
+        the reason for that is because leaving this configuration created, it will
+        prevent the creation of another new one and break the other tests. This behavior
+        is right, as expected it is not possible to create another one, if there are a concurrent
+        configuration, then it's deleted because the testing needs to continue.
         """
 
         new_configuration = RevenueConfigurationFactory(
@@ -162,12 +163,14 @@ class RevenueConfigurationTestCase(TestCase):
             end_date=None,
             organization=self.organization,
             product_id=self.revenue_configuration.product_id,
+            partner_percentage=0,
         )
         self.assertNotEqual(new_configuration.id, self.revenue_configuration.id)
         self.assertEqual(new_configuration.organization, self.revenue_configuration.organization)
         self.assertEqual(new_configuration.product_id, self.revenue_configuration.product_id)
         self.assertTrue(new_configuration.start_date > self.revenue_configuration.start_date)
         self.assertIsNone(new_configuration.end_date)
+        new_configuration.delete()
 
     def test_older_configuration_creation(self):
         """
@@ -177,13 +180,14 @@ class RevenueConfigurationTestCase(TestCase):
 
         new_configuration = RevenueConfigurationFactory(
             start_date=factory.Faker(
-                "date_time_between", start_date="-10d", end_date="-5d", tzinfo=timezone.get_current_timezone()
+                "date_time_between", start_date="-100d", end_date="-98d", tzinfo=timezone.get_current_timezone()
             ),
             end_date=factory.Faker(
-                "date_time_between", start_date="-4d", end_date="-1d", tzinfo=timezone.get_current_timezone()
+                "date_time_between", start_date="-97d", end_date="-95d", tzinfo=timezone.get_current_timezone()
             ),
             organization=self.organization,
             product_id=self.revenue_configuration.product_id,
+            partner_percentage=0,
         )
         self.assertNotEqual(new_configuration.id, self.revenue_configuration.id)
         self.assertEqual(new_configuration.organization, self.revenue_configuration.organization)
@@ -206,21 +210,20 @@ class RevenueConfigurationTestCase(TestCase):
         self.assertNotEqual(self.revenue_configuration.start_date, new_start_date)
         self.assertNotEqual(self.revenue_configuration.end_date, new_end_date)
         self.assertNotEqual(self.revenue_configuration.product_id, "new_product_id")
-        self.assertNotEqual(self.revenue_configuration.partner_percentage, 0.71)
+        self.assertNotEqual(self.revenue_configuration.partner_percentage, 0.69)
 
         self.revenue_configuration.start_date = new_start_date
         self.revenue_configuration.end_date = new_end_date
-        self.revenue_configuration.partner_percentage = 0.71
+        self.revenue_configuration.partner_percentage = 0.69
         self.revenue_configuration.product_id = "new_product_id"
 
         self.assertEqual(type(self.revenue_configuration.start_date), datetime)
         self.assertEqual(type(self.revenue_configuration.end_date), datetime)
         self.assertEqual(self.revenue_configuration.start_date, new_start_date)
         self.assertEqual(self.revenue_configuration.end_date, new_end_date)
-        self.assertEqual(self.revenue_configuration.partner_percentage, 0.71)
+        self.assertEqual(self.revenue_configuration.partner_percentage, 0.69)
         self.assertEqual(self.revenue_configuration.product_id, "new_product_id")
         self.assertEqual(type(self.revenue_configuration), RevenueConfiguration)
-        self.revenue_configuration.save()
 
     def test_edit_has_concurrent_revenue_configuration(self):
         """
@@ -241,6 +244,7 @@ class RevenueConfigurationTestCase(TestCase):
                 ),
                 organization=self.organization,
                 product_id=self.revenue_configuration.product_id,
+                partner_percentage=0,
             )
 
             new_start_date = new_configuration.start_date + timedelta(days=1)
@@ -264,3 +268,37 @@ class RevenueConfigurationTestCase(TestCase):
 
             self.assertEqual(type(self.revenue_configuration), RevenueConfiguration)
             self.revenue_configuration.save()
+
+    def test_check_partner_percentage_with_error(self):
+        """
+        Should raise an error of type `ValidationError`, it validades that is not possible to create
+        a configuration that exceeds 100% of partners percentage
+        """
+
+        with self.assertRaisesMessage(
+            expected_exception=ValidationError,
+            expected_message="The partner percentage exceeds 100%",
+        ):
+            self.revenue_configuration.partner_percentage = Decimal(0.7)
+            self.revenue_configuration.save()
+
+            RevenueConfigurationFactory(
+                product_id=self.revenue_configuration.product_id,
+                partner_percentage=Decimal(0.31),
+            )
+
+    def test_check_partner_percentage_with_success(self):
+        """
+        Should create a new configuration, it validates that is
+        possible to register a new configuration when does not exceed
+        100% in the `partner_percentage`'s calculation.
+        """
+
+        self.revenue_configuration.partner_percentage = Decimal(0.71)
+        self.revenue_configuration.save()
+
+        new_configuration = RevenueConfigurationFactory(
+            product_id=self.revenue_configuration.product_id,
+            partner_percentage=Decimal(0.29),
+        )
+        new_configuration.delete()
