@@ -1,6 +1,6 @@
+from collections.abc import Callable
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Callable
 
 import factory
 from django.test import TestCase
@@ -74,7 +74,7 @@ class SplitExecutionServiceTestCase(TestCase):
 
     def test_execute_split_without_filters(self):
         """
-        Should validate that it is possible calculate all the transactions
+        Should validate that it is possible to calculate all the transactions
         based on the given dates.
         """
 
@@ -91,8 +91,8 @@ class SplitExecutionServiceTestCase(TestCase):
 
     def test_filter_by_organization(self):
         """
-        Should validate that it is possible calculate all the transactions based on
-        the given dates by filtering for only transactions of certain organization.
+        Should validate that it is possible to calculate all the transactions based on
+        the given dates by filtering for only transactions of a certain organization.
         """
 
         kwargs = {"organization_code": self.organizations[0].short_name}
@@ -115,8 +115,8 @@ class SplitExecutionServiceTestCase(TestCase):
 
     def test_filter_by_product(self):
         """
-        Should validate that it is possible calculate all the transactions based on
-        the given dates by filtering for only transactions of certain product.
+        Should validate that it is possible to calculate all the transactions based on
+        the given dates by filtering for only transactions of a certain product.
         """
 
         kwargs = {"product_id": self.transaction_items[0].product_id}
@@ -136,7 +136,7 @@ class SplitExecutionServiceTestCase(TestCase):
 
     def test_filter_by_organization_and_product(self):
         """
-        Should validate that it is possible calculate all the transactions based on
+        Should validate that it is possible to calculate all the transactions based on
         the given dates by filtering for only transactions of certain combined organization and product.
         """
 
