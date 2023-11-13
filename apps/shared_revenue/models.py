@@ -131,10 +131,7 @@ class RevenueConfiguration(BaseModel):
     def _check_partner_percentage(self) -> None:
         try:
             same_configurations: list[RevenueConfiguration] = RevenueConfiguration.objects.filter(
-                **{
-                    "organization": self.organization,
-                    "product_id": self.product_id,
-                }
+                product_id=self.product_id
             )
 
             percentages = self.partner_percentage
