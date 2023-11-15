@@ -1,16 +1,32 @@
-from typing import TypeVar
+class TransactionProcessorInterface:
+    """
+    This class represents an interface to be implemented as a contract.
+
+    Each new transcation processor needs to implements its logic by signing to this class.
+    """
+
+    def send_transaction_to_processor(self, transaction_data) -> str:
+        raise Exception("This method needs to be implemented")
+
+    def check_transaction_in_processor(self) -> bool:
+        raise Exception("This method needs to be implemented")
 
 
-class TransactionProcessor:
-    def send_transaction_to_processor(self, data):
-        pass
+class ProcessorInstantiator:
+    """
+    This class is a instantiator module for the `TransactionProcessorInterface` type.
 
-    def check_transaction_in_processor(self):
-        pass
+    The business logic implemented here, deals with invert the dependency for the type `TransactionProcessorInterface`,
+    then a new transaction processor can replace an older without many problems.
+    """
 
+    def __new__(cls, processor: TransactionProcessorInterface) -> TransactionProcessorInterface:
+        if not issubclass(processor, TransactionProcessorInterface):
+            raise Exception("The given processor is not from the type of TransactionProcessorInterface")
 
-T = TypeVar("T", TransactionProcessor)
+        instance = processor()
 
+        if not isinstance(instance, TransactionProcessorInterface):
+            raise Exception("The generated processor instance is not from the type of TransactionProcessorInterface")
 
-class FinancialProcessorService(T):
-    pass
+        return instance
