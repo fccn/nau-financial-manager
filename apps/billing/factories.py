@@ -5,7 +5,6 @@ from decimal import Decimal
 import factory
 import factory.fuzzy
 from django.utils import timezone
-from django.utils.text import slugify
 
 from apps.billing.models import Transaction, TransactionItem
 from apps.util.constants import PAYMENT_TYPE, TRANSACTION_TYPE
@@ -23,6 +22,12 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     email = factory.Faker("email")
     address_line_1 = factory.Faker("address")
     address_line_2 = factory.Faker("address")
+    city = "City"
+    postal_code = factory.Faker(
+        "pystr_format",
+        string_format="%%%%-%%%",
+    )
+    state = "State"
     country_code = factory.Faker("country_code")
     vat_identification_country = factory.Faker("country_code")
     vat_identification_number = factory.Faker("ssn")
@@ -48,7 +53,7 @@ class TransactionItemFactory(factory.django.DjangoModelFactory):
     description = factory.Faker("sentence")
     quantity = factory.Faker("pyint", min_value=1, max_value=10)
     vat_tax = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=3, right_digits=2)
-    organization_code = factory.LazyAttribute(lambda obj: slugify(obj.description))
+    organization_code = factory.Sequence(lambda n: f"Org {n}")
     product_code = "".join([random.choice(string.ascii_uppercase) for _ in range(5)])
 
     @factory.lazy_attribute
