@@ -129,7 +129,7 @@ class SplitExecutionService:
         Execute the calculation step of each transaction and revenue configuration.
 
         Args:
-            transaction_items (list[TransactionItem]): The filtered list of trasactions items
+            transaction_items (list[TransactionItem]): The filtered list of transactions items
             configurations (list[RevenueConfiguration]): The filtered list of configurations
 
         Returns:

@@ -1,3 +1,6 @@
+from apps.billing.models import Transaction
+
+
 class TransactionProcessorInterface:
     """
     This class represents an interface to be implemented as a contract.
@@ -5,10 +8,10 @@ class TransactionProcessorInterface:
     Each new transcation processor needs to implements its logic by signing to this class.
     """
 
-    def send_transaction_to_processor(self, transaction_data) -> str:
+    def send_transaction_to_processor(self, transaction: Transaction) -> str:
         raise Exception("This method needs to be implemented")
 
-    def check_transaction_in_processor(self) -> bool:
+    def check_transaction_in_processor(self, transaction: Transaction) -> bool:
         raise Exception("This method needs to be implemented")
 
 
