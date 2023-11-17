@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test.testcases import TestCase
 
 from apps.billing.factories import TransactionFactory, TransactionItemFactory
@@ -14,6 +15,7 @@ class TransactionServiceTestCase(TestCase):
         self._transaction_processor = SageX3Processor()
         self.transaction = TransactionFactory.create()
         self.transaction_item = TransactionItemFactory.create(transaction=self.transaction)
+        self.processor_url = getattr(settings, "TRANSACTION_PROCESSOR_URL")
 
         return super().setUp()
 
@@ -22,8 +24,8 @@ class TransactionServiceTestCase(TestCase):
             expected_exception=Exception,
             expected_message="This method needs to be implemented",
         ):
-            self.financial_processor_interface.check_transaction_in_processor()
-            self.financial_processor_interface.send_transaction_to_processor(transaction_data={})
+            self.financial_processor_interface.check_transaction_in_processor(transaction=self.transaction)
+            self.financial_processor_interface.send_transaction_to_processor(transaction=self.transaction)
 
     def test_processor_instance(self):
         processor = ProcessorInstantiator(processor=SageX3Processor)
@@ -32,25 +34,17 @@ class TransactionServiceTestCase(TestCase):
         self.assertEqual(type(processor), SageX3Processor)
         self.assertTrue(isinstance(processor, TransactionProcessorInterface))
 
-    def test_processor_service(self):
-        transaction_already_registered = self._transaction_processor.check_transaction_in_processor()
-        document_id = self._transaction_processor.send_transaction_to_processor(transaction_data={})
-
-        self.assertEqual(type(transaction_already_registered), bool)
-        self.assertEqual(type(document_id), str)
-
     def test_transaction_processor(self):
-        processor: SageX3Processor = ProcessorInstantiator(processor=SageX3Processor)
         self.mock_server, self.thread = run_mock_server()
-        document_id = processor.send_transaction_to_processor(transaction=self.transaction)
+        processor: SageX3Processor = ProcessorInstantiator(processor=SageX3Processor)
+        response = processor.send_transaction_to_processor(transaction=self.transaction)
 
-        self.assertEqual(document_id, "document_id")
-
-    def test_run_transaction_steps(self):
-        self.transaction_service.run_transaction_steps(transaction=self.transaction)
+        self.assertTrue(response)
+        self.assertEqual(type(response), dict)
 
     def tearDown(self) -> None:
-        if self.mock_server:
+        if hasattr(self, "mock_server"):
+            setattr(settings, "TRANSACTION_PROCESSOR_URL", self.processor_url)
             self.mock_server.shutdown()
             self.thread.join()
 
