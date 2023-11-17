@@ -33,15 +33,15 @@ class SageX3Processor(TransactionProcessorInterface):
         try:
             data = self.__generate_data_to_save(transaction=transaction)
             response = requests.post(
-                url="http://localhost:8001/",
+                url=self.__processor_url,
                 data=data,
-                headers={"Content-type": "application/json"},
+                headers={"Content-type": "application/xml"},
                 auth=(
                     self.__user_processor_auth,
                     self.__user_processor_password,
                 ),
-            ).request.body
-            response_as_json = xmltodict.parse(response)
+            ).content
+            response_as_json = dict(xmltodict.parse(response))
             return response_as_json
         except Exception as e:
             raise e
