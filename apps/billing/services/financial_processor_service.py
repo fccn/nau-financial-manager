@@ -11,9 +11,6 @@ class TransactionProcessorInterface:
     def send_transaction_to_processor(self, transaction: Transaction) -> str:
         raise Exception("This method needs to be implemented")
 
-    def check_transaction_in_processor(self, transaction: Transaction) -> bool:
-        raise Exception("This method needs to be implemented")
-
 
 class ProcessorInstantiator:
     """

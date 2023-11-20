@@ -12,18 +12,11 @@ class TransactionService:
     def __init__(self) -> None:
         self.__processor: TransactionProcessorInterface = ProcessorInstantiator(processor=SageX3Processor)
 
-    def __send_transaction(self, transaction: Transaction):
-        self.__processor.send_transaction_to_processor(transaction=transaction)
-
-    def __check_transaction(self, transaction: Transaction):
-        self.__processor.check_transaction_in_processor(transaction=transaction)
-
     def run_transaction_steps(self, transaction: Transaction):
         try:
-            transaction_already_registered: bool = self.__check_transaction(transaction=transaction)
-            if not transaction_already_registered:
-                document_id = self.__send_transaction(transaction=transaction)
 
-                return document_id
+            document_id = self.__processor.send_transaction_to_processor(transaction=transaction)
+
+            return document_id
         except Exception as e:
             raise e
