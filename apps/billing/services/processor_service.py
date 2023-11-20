@@ -46,13 +46,6 @@ class SageX3Processor(TransactionProcessorInterface):
         except Exception as e:
             raise e
 
-    def check_transaction_in_processor(self, transaction: Transaction) -> bool:
-        """
-        This method checks if the transaction is already processed.
-        """
-
-        return False
-
     def __generate_items_as_xml(self, items: list[TransactionItem]) -> str:
         """
         This method generates items from a transaction as xml text,
