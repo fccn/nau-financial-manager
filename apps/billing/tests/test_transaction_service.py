@@ -59,11 +59,18 @@ class TransactionServiceTestCase(TestCase):
 
     @mock.patch("requests.post", side_effect=processor_response)
     def test_transaction_processor(self, mocked_post):
+        fake_url_processor = "http://fake-processor.com"
+        setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
+
         processor: SageX3Processor = ProcessorInstantiator(processor=SageX3Processor)
         response = processor.send_transaction_to_processor(transaction=self.transaction)
 
         self.assertTrue(response)
         self.assertEqual(type(response), dict)
+
+    def tearDown(self) -> None:
+        setattr(settings, "TRANSACTION_PROCESSOR_URL", self.processor_url)
+        return super().tearDown()
 
 
 response_as_xml = """
