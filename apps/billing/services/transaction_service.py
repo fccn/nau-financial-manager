@@ -17,7 +17,7 @@ class TransactionService:
     def __check_transaction_state(self, document_id):
         pass
 
-    def __send_transaction_to_processor(self, transaction: Transaction) -> str:
+    def send_transaction_to_processor(self, transaction: Transaction) -> str:
         """
         This method receives a Transaction to send to the processor and deals with the request result.
 
@@ -54,7 +54,7 @@ class TransactionService:
 
     def run_steps_to_send_transaction(self, transaction: Transaction) -> None:
         try:
-            document_id = self.__send_transaction_to_processor(transaction=transaction)
+            document_id = self.send_transaction_to_processor(transaction=transaction)
             self.__check_transaction_state(document_id=document_id)
         except Exception as e:
             raise e
