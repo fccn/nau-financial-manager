@@ -8,7 +8,7 @@ class TransactionProcessorInterface:
     Each new transcation processor needs to implements its logic by signing to this class.
     """
 
-    def send_transaction_to_processor(self, transaction: Transaction) -> str:
+    def send_transaction_to_processor(self, transaction: Transaction) -> dict:
         raise Exception("This method needs to be implemented")
 
 

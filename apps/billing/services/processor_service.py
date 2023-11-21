@@ -25,7 +25,7 @@ class SageX3Processor(TransactionProcessorInterface):
         self.__user_processor_auth = getattr(settings, "USER_PROCESSOR_AUTH")
         self.__user_processor_password = getattr(settings, "USER_PROCESSOR_PASSWORD")
 
-    def send_transaction_to_processor(self, transaction: Transaction) -> str:
+    def send_transaction_to_processor(self, transaction: Transaction) -> dict:
         """
         This method sends the transaction informations to the `Sage X3` service.
         """
