@@ -157,26 +157,46 @@ class TransactionServiceTestCase(TestCase):
         self.assertEqual(type(response), dict)
 
     @mock.patch("requests.post", side_effect=processor_success_response)
-    def test_transaction_service_success_response(self, mocked_post):
+    def test_transaction_to_processor_success(self, mocked_post):
         """
-        This method ensures the success result from the processor.
+        This test ensures the success result from the processor.
 
-        Calling the `self.transaction_service.run_steps_to_send_transaction`, it deals with the success result
+        Calling the `self.transaction_service.send_transaction_to_processor`, it deals with the success result
         and extracts the document id from response payload.
         """
 
         fake_url_processor = "http://fake-processor.com"
         setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
 
-        self.transaction_service.run_steps_to_send_transaction(transaction=self.transaction)
+        document_id = self.transaction_service.send_transaction_to_processor(transaction=self.transaction)
+
+        self.assertTrue(isinstance(document_id, str))
+        self.assertNotEqual(document_id, "")
+        self.assertTrue(document_id.startswith("FRN-"))
 
     @mock.patch("requests.post", side_effect=processor_duplicate_error_response)
-    def test_transaction_service_duplicate_error_response(self, mocked_post):
+    def test_transaction_to_processor_duplicate_error(self, mocked_post):
         """
-        This method ensures the duplicate result from the processor.
+        This test ensures the duplicate result from the processor.
 
-        Calling the `self.transaction_service.run_steps_to_send_transaction`, it deals with the duplicate result
-        and extracts the document id from response payload that indicates the duplicate informaation.
+        Calling the `self.transaction_service.send_transaction_to_processor`, it deals with the duplicate result
+        and extracts the document id from response payload that indicates the duplicate information.
+        """
+
+        fake_url_processor = "http://fake-processor.com"
+        setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
+
+        document_id = self.transaction_service.send_transaction_to_processor(transaction=self.transaction)
+
+        self.assertTrue(isinstance(document_id, str))
+        self.assertNotEqual(document_id, "")
+        self.assertTrue(document_id.startswith("FRN-"))
+
+    @mock.patch("requests.post", side_effect=processor_success_response)
+    def test_run_steps_to_send_transaction(self, mocked_post):
+        """
+        This test ensures the success triggering the method that runs each step to send a
+        transaction to processor.
         """
 
         fake_url_processor = "http://fake-processor.com"
