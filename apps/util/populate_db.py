@@ -6,10 +6,9 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nau_financial_manager.settings")
 django.setup()
 
-from apps.organization.factories import OrganizationAddressFactory, OrganizationContactFactory, OrganizationFactory
+from apps.organization.factories import OrganizationFactory
 from apps.shared_revenue.factories import RevenueConfigurationFactory
 from apps.billing.factories import TransactionFactory, TransactionItemFactory
-
 
 
 def populate_shared_revenue(organization, product_ids: list[str]) -> None:
@@ -53,8 +52,6 @@ def populate():
         organizations_amount = 5
         organizations = OrganizationFactory.create_batch(organizations_amount)
         for organization in organizations:
-            OrganizationContactFactory.create(organization=organization)
-            OrganizationAddressFactory.create(organization=organization)
             product_ids = populate_billing(organization=organization)
             populate_shared_revenue(
                 product_ids=product_ids,
