@@ -24,10 +24,13 @@ class ProcessTransactionTest(TestCase):
         self.client = APIClient()
         self.endpoint = "/api/billing/transaction-complete/"
 
-        self.transaction = factory.build(dict, FACTORY_CLASS=TransactionFactory)
-        self.transaction_item = factory.build(dict, FACTORY_CLASS=TransactionItemFactory)
-        self.transaction["item"] = self.transaction_item
-        del self.transaction["item"]["transaction"]
+        transaction = TransactionFactory.build()
+        item = TransactionItemFactory.build(transaction=transaction)
+
+        self.transaction = factory.build(dict, **TransactionSerializer(transaction).data)
+        self.transaction_item = factory.build(dict, **TransactionItemSerializer(item).data)
+        self.transaction["items"] = [self.transaction_item]
+
         self.payload = self.transaction
 
         # Create a new user and generate a token for that user
@@ -45,12 +48,16 @@ class ProcessTransactionTest(TestCase):
 
         transaction = Transaction.objects.get(transaction_id=self.payload["transaction_id"])
         transaction_data = TransactionSerializer(transaction).data
-        transaction_data["item"] = TransactionItemSerializer(transaction.transaction_items.all()[0]).data
+        transaction_data["items"] = [
+            TransactionItemSerializer(item).data for item in transaction.transaction_items.all()
+        ]
 
-        for key, value in response.data["data"].items():
-            if key == "item":
-                for item_key, item_value in response.data["data"]["item"].items():
-                    self.assertEqual(item_value, transaction_data["item"][item_key])
+        for key, value in dict(response.data["data"]).items():
+            if key == "items":
+                for item in value:
+                    same_item = [i for i in transaction_data["items"] if i == item][0]
+                    [self.assertEqual(v, same_item[k]) for k, v in dict(item).items()]
+
             self.assertEqual(value, transaction_data[key])
 
     def test_create_transaction_without_token(self):
@@ -112,10 +119,10 @@ class ProcessTransactionTest(TestCase):
 
     def test_create_transaction_with_missing_item_field(self):
         """
-        Test that a transaction cannot be created if the 'item' field is missing.
+        Test that a transaction cannot be created if the 'items' field is missing.
         """
-        # Remove the required 'item' field from the payload
-        del self.payload["item"]
+        # Remove the required 'items' field from the payload
+        del self.payload["items"]
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
 
