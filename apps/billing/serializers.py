@@ -42,7 +42,25 @@ class TransactionSerializer(CountryFieldMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Transaction
-        fields = "__all__"
+        fields = [
+            "transaction_id",
+            "client_name",
+            "email",
+            "address_line_1",
+            "address_line_2",
+            "city",
+            "postal_code",
+            "state",
+            "country_code",
+            "vat_identification_number",
+            "vat_identification_country",
+            "total_amount_exclude_vat",
+            "total_amount_include_vat",
+            "currency",
+            "payment_type",
+            "transaction_type",
+            "transaction_date",
+        ]
 
 
 class TransactionItemSerializerWithoutTransaction(TransactionItemSerializer):
@@ -65,12 +83,12 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
         to_representation(instance): Returns the given instance.
     """
 
-    item = TransactionItemSerializerWithoutTransaction(required=True, allow_null=False)
+    items = serializers.ListField()
 
     class Meta:
         model = Transaction
         fields = [
-            "item",
+            "items",
             "transaction_id",
             "transaction_type",
             "client_name",
@@ -108,25 +126,33 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
     def _execute_billing_resources(
         self,
         validate_data: dict,
-    ):
-        item = validate_data.pop("item", None)
+    ) -> list[TransactionItem]:
+        items = validate_data.pop("items", [])
         transaction = Transaction.objects.create(**validate_data)
-        item["transaction"] = transaction
-        item = TransactionItem.objects.create(**item)
+        items_as_instances: list[TransactionItem] = []
+        serialized_items = []
+        for item in items:
+            item["transaction"] = transaction
+            item = TransactionItem.objects.create(**item)
+            items_as_instances.append(item)
+            serialized_items.append(TransactionItemSerializer(item).data)
 
-        return item
+        validate_data["items"] = serialized_items
+        return items_as_instances
 
     def create(self, validate_data):
         try:
-            item = self._execute_billing_resources(validate_data=validate_data)
-            organization, created = Organization.objects.get_or_create(
-                short_name=item.organization_code,
-                defaults={"short_name": item.organization_code},
-            )
-            self._execute_shared_revenue_resources(
-                organization=organization,
-                product_id=item.product_id,
-            )
+            items: list[TransactionItem] = self._execute_billing_resources(validate_data=validate_data)
+            for item in items:
+                organization, created = Organization.objects.get_or_create(
+                    short_name=item.organization_code,
+                    defaults={"short_name": item.organization_code},
+                )
+                self._execute_shared_revenue_resources(
+                    organization=organization,
+                    product_id=item.product_id,
+                )
+
             return validate_data
         except Exception as e:
             raise e
@@ -141,12 +167,17 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
         if extra_fields:
             raise serializers.ValidationError(f"Extra fields: {', '.join(extra_fields)}")
 
-        item = data.pop("item", None)
+        items = data.pop("items", [])
         transaction = TransactionSerializer(data=data)
         transaction.is_valid(raise_exception=True)
-        item = TransactionItemSerializerWithoutTransaction(data=item)
-        item.is_valid(raise_exception=True)
+        serialized_items = []
+
+        for item in items:
+            item = TransactionItemSerializerWithoutTransaction(data=item)
+            item.is_valid(raise_exception=True)
+            serialized_items.append(item.data)
+
         transaction = transaction.data
-        transaction["item"] = item.data
+        transaction["items"] = serialized_items
 
         return transaction
