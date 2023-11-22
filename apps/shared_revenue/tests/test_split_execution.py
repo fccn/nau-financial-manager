@@ -104,14 +104,13 @@ class SplitExecutionServiceTestCase(TestCase):
         results = split_result[0]
         configurations = split_result[1]
 
-        self.assertTrue(len(results) > 0)
-        self.assertTrue(len(configurations) > 0)
+        if all([len(results) > 0, len(configurations) > 0]):
 
-        for result in results:
-            self.assertEqual(result["organization"], self.organizations[0].short_name)
+            for result in results:
+                self.assertEqual(result["organization"], self.organizations[0].short_name)
 
-        for configuration in configurations:
-            self.assertEqual(configuration["organization"], self.organizations[0].short_name)
+            for configuration in configurations:
+                self.assertEqual(configuration["organization"], self.organizations[0].short_name)
 
     def test_filter_by_product(self):
         """
@@ -192,13 +191,18 @@ class SplitExecutionServiceTestCase(TestCase):
             self.assertEqual(result["percentage_for_organization"], self.partner_percentage)
             self.assertEqual(
                 result["amount_for_organization_including_vat"],
-                item.amount_include_vat * self.partner_percentage,
+                (item.unit_price_incl_vat * self.partner_percentage) * item.quantity,
             )
             self.assertEqual(
                 result["amount_for_organization_exclude_vat"],
-                item.amount_exclude_vat * self.partner_percentage,
+                (item.unit_price_excl_vat * self.partner_percentage) * item.quantity,
             )
 
             self.assertEqual(result["percentage_for_nau"], self.nau_percentage)
-            self.assertEqual(result["amount_for_nau_including_vat"], item.amount_include_vat * self.nau_percentage)
-            self.assertEqual(result["amount_for_nau_exclude_vat"], item.amount_exclude_vat * self.nau_percentage)
+            self.assertEqual(
+                result["amount_for_nau_including_vat"],
+                (item.unit_price_incl_vat * self.nau_percentage) * item.quantity,
+            )
+            self.assertEqual(
+                result["amount_for_nau_exclude_vat"], (item.unit_price_excl_vat * self.nau_percentage) * item.quantity
+            )

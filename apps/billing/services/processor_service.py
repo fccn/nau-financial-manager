@@ -61,7 +61,7 @@ class SageX3Processor(TransactionProcessorInterface):
                 <FLD NAME="ITMDES1">{item.description}</FLD>
                 <FLD NAME="QTY">{item.quantity}</FLD>
                 <FLD NAME="STU">UN</FLD>
-                <FLD NAME="GROPRI">{item.amount_exclude_vat}</FLD>
+                <FLD NAME="GROPRI">{item.unit_price_excl_vat}</FLD>
                 <FLD NAME="DISCRGVAL1">0</FLD>
                 <FLD NAME="VACITM1">{self.__vacitm1}</FLD>
             </LIN>

@@ -98,14 +98,16 @@ class SplitExecutionService:
             "product_name": item.description,
             "product_id": item.product_id,
             "organization": item.organization_code,
-            "total_amount_including_vat": item.amount_include_vat,
-            "total_amount_exclude_vat": item.amount_exclude_vat,
+            "total_amount_including_vat": item.transaction.total_amount_include_vat,
+            "total_amount_exclude_vat": item.transaction.total_amount_exclude_vat,
             "percentage_for_organization": configuration.partner_percentage,
-            "amount_for_organization_including_vat": item.amount_include_vat * configuration.partner_percentage,
-            "amount_for_organization_exclude_vat": item.amount_exclude_vat * configuration.partner_percentage,
+            "amount_for_organization_including_vat": (item.unit_price_incl_vat * configuration.partner_percentage)
+            * item.quantity,
+            "amount_for_organization_exclude_vat": (item.unit_price_excl_vat * configuration.partner_percentage)
+            * item.quantity,
             "percentage_for_nau": configuration.nau_percentage,
-            "amount_for_nau_including_vat": item.amount_include_vat * configuration.nau_percentage,
-            "amount_for_nau_exclude_vat": item.amount_exclude_vat * configuration.nau_percentage,
+            "amount_for_nau_including_vat": (item.unit_price_incl_vat * configuration.nau_percentage) * item.quantity,
+            "amount_for_nau_exclude_vat": (item.unit_price_excl_vat * configuration.nau_percentage) * item.quantity,
         }
 
     def _calculate_nau_percentage(self, product_id: str):
