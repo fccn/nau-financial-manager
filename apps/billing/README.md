@@ -39,8 +39,8 @@ classDiagram
         -description: CharField
         -quantity: PositiveIntegerField
         -vat_tax: DecimalField
-        -amount_exclude_vat: DecimalField
-        -amount_include_vat: DecimalField
+        -unit_price_excl_vat: DecimalField
+        -unit_price_incl_vat: DecimalField
         -organization: CharField
         -product_id: CharField
         -product_code: CharField

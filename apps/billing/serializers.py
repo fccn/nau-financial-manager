@@ -10,8 +10,8 @@ class TransactionItemSerializer(CountryFieldMixin, serializers.ModelSerializer):
     """
     A serializer class for the `TransactionItem` model.
 
-    This serializer includes the `transaction`, `description`, `quantity`, `vat_tax`, `amount_exclude_vat`,
-    `amount_include_vat`, `organization_code`, `product_code`, and `product_id` fields of the `TransactionItem` model.
+    This serializer includes the `transaction`, `description`, `quantity`, `vat_tax`, `unit_price_excl_vat`,
+    `unit_price_incl_vat`, `organization_code`, `product_code`, and `product_id` fields of the `TransactionItem` model.
     """
 
     class Meta:
@@ -22,8 +22,8 @@ class TransactionItemSerializer(CountryFieldMixin, serializers.ModelSerializer):
             "description",
             "quantity",
             "vat_tax",
-            "amount_exclude_vat",
-            "amount_include_vat",
+            "unit_price_excl_vat",
+            "unit_price_incl_vat",
             "organization_code",
             "product_id",
             "product_code",
@@ -88,7 +88,6 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
             "currency",
             "payment_type",
             "transaction_date",
-            "document_id",
         ]
 
     def _execute_shared_revenue_resources(

@@ -39,10 +39,9 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     )
     document_id = factory.Faker("pystr_format", string_format="DCI-######{{random_int}}")
 
-    # Assuming 20% VAT
     @factory.lazy_attribute
     def total_amount_include_vat(self):
-        return round(self.total_amount_exclude_vat * Decimal("1.20"), 2)
+        return round(self.total_amount_exclude_vat * Decimal("1.23"), 2)
 
 
 class TransactionItemFactory(factory.django.DjangoModelFactory):
@@ -61,9 +60,9 @@ class TransactionItemFactory(factory.django.DjangoModelFactory):
         return f"course-v1:{self.organization_code}+{self.product_code}+2023_T3"
 
     @factory.lazy_attribute
-    def amount_exclude_vat(self):
-        return self.transaction.total_amount_exclude_vat
+    def unit_price_excl_vat(self):
+        return round((self.transaction.total_amount_exclude_vat / self.quantity), 2)
 
     @factory.lazy_attribute
-    def amount_include_vat(self):
-        return round(self.transaction.total_amount_exclude_vat * Decimal("1.20"), 2)
+    def unit_price_incl_vat(self):
+        return round(((self.transaction.total_amount_include_vat * Decimal("1.20")) / self.quantity), 2)
