@@ -25,8 +25,9 @@ class ProcessTransactionTest(TestCase):
         self.endpoint = "/api/billing/transaction-complete/"
 
         self.transaction = factory.build(dict, FACTORY_CLASS=TransactionFactory)
-        self.transaction_item = factory.build(dict, FACTORY_CLASS=TransactionItemFactory, transaction=None)
+        self.transaction_item = factory.build(dict, FACTORY_CLASS=TransactionItemFactory)
         self.transaction["item"] = self.transaction_item
+        del self.transaction["item"]["transaction"]
         self.payload = self.transaction
 
         # Create a new user and generate a token for that user
