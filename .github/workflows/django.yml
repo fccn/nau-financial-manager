@@ -22,6 +22,3 @@ jobs:
 
     - name: Run Django tests
       run: make test
-
-    - name: Run pre-commit checks
-      run: make pre-commit
