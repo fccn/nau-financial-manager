@@ -112,8 +112,6 @@ class TransactionServiceTestCase(TestCase):
         self.transaction_item = TransactionItemFactory.create(transaction=self.transaction)
         self.processor_url = getattr(settings, "TRANSACTION_PROCESSOR_URL")
 
-        return super().setUp()
-
     def test_financial_processor_service(self):
         """
         This test ensures that if not implemented, the method from the interface
@@ -210,7 +208,6 @@ class TransactionServiceTestCase(TestCase):
         varible as the real service url again.
         """
         setattr(settings, "TRANSACTION_PROCESSOR_URL", self.processor_url)
-        return super().tearDown()
 
 
 def generate_data_to_response(

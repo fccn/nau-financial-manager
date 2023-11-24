@@ -1,3 +1,5 @@
+import json
+
 import requests
 from django.conf import settings
 
@@ -16,9 +18,10 @@ class InvoiceDocumentHost:
                     self.__invoice_host_auth,
                     self.__invoice_host_password,
                 ),
-            ).json()
+            ).content
+            response = json.JSONDecoder().decode(response)
             document_informations = [
-                attachment for attachment in response["attachments"] if attachment["type"] == "pdf"
+                attachment for attachment in response["response"]["data"]["attachments"] if attachment["type"] == "pdf"
             ][0]
             return document_informations["file"]
         except Exception as e:
