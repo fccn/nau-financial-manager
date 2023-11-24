@@ -4,10 +4,10 @@ from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from services.document_host_service import InvoiceDocumentHost
 
 from apps.billing.models import Transaction
 from apps.billing.serializers import ProcessTransactionSerializer
+from apps.billing.services.invoice_host_service import InvoiceDocumentHost
 from apps.util.base_views import GeneralPost
 
 
