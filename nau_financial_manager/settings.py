@@ -109,15 +109,17 @@ CELERY_APP = "nau_financial_manager"
 CELERY_BROKER_URL = config("CELERY_BROKER_URL", "redis://nau-redis:6379/0")
 CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", "django-db")
 CELERY_CACHE_BACKEND = "default"
+CELERY_TASK_TRACK_STARTED = True
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
+CELERY_RESULTS_EXTENDED = True
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # WORKAROUND TO CELERY USING MYSQL
 DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH = 191
 
 
-RESDIS_URL = config("REDIS_URL", "redis://localhost:6379/")
+REDIS_URL = config("REDIS_URL", "redis://localhost:6379/")
 REDIS_HOST = config("REDIS_HOST", "nau-redis")
 REDIS_PORT = config("REDIS_PORT", 6379)
 REDIS_DB = config("REDIS_DB", 0)
