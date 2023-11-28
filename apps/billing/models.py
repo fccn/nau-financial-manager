@@ -90,3 +90,17 @@ class TransactionItem(BaseModel):
 
     def __str__(self):
         return self.description
+
+
+class SageX3XmlTransaction(BaseModel):
+    """
+    This model represents the xml who was sent to the X3 service.
+    One-to-many relationship with Transaction model (related_name='sagex3_xml_transactions').
+
+    """
+
+    transaction = models.ForeignKey(Transaction, related_name="sagex3_xml_transactions", on_delete=models.CASCADE)
+    xml_content = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.transaction.transaction_id} - {self.transaction.transaction_id}"
