@@ -21,6 +21,7 @@ ifneq ($(APP), false)
 endif
 RUN_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) up -d --remove-orphans
 KILL_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) down
+BUILD_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) build
 PRUNE_DOCKER = docker system prune -af
 CREATESUPERUSER = $(POETRY_RUN) python manage.py add_superuser --no-input --settings=nau_financial_manager.settings
 
@@ -78,6 +79,7 @@ kill: ## stop django server in your host
 .PHONY: kill
 
 run-docker: ## run django server in docker in dev mode
+	$(BUILD_DOCKER_DEV)
 	$(RUN_DOCKER_DEV)
 	@echo "The should be running on http://localhost:8000"
 .PHONY: run-docker
