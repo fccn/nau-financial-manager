@@ -36,6 +36,11 @@ def mocked_get(*args, **kwargs):
 
 class InvoiceDocumentHostTest(TestCase):
     def setUp(self) -> None:
+        """
+        This method starts the `InvoiceDocumentHostTest` compoment,
+        setting the required parameters to excute the tests.
+        """
+
         user = get_user_model().objects.create(username="user_test", password="pwd_test")
         self.token = Token.objects.create(user=user)
         self.api_client = APIClient()
@@ -44,6 +49,11 @@ class InvoiceDocumentHostTest(TestCase):
 
     @mock.patch("requests.get", mocked_get)
     def test_get_document_success(self):
+        """
+        This test ensures to success getting a file link providing the
+        transaction_id though the url.
+        """
+
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
 
         link = MOCKED_RESPONSE["response"]["data"]["attachments"][0]["file"]
@@ -59,6 +69,11 @@ class InvoiceDocumentHostTest(TestCase):
         self.assertEqual(link, obtained_link)
 
     def test_get_document_transaction_not_found(self):
+        """
+        This test ensures the transaction not found error getting a file link providing wrong
+        transaction id parameter.
+        """
+
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
 
         response = self.api_client.get("/api/billing/invoice-link/wrong-transaction-id/")
@@ -68,6 +83,11 @@ class InvoiceDocumentHostTest(TestCase):
         self.assertEqual(data, "Trasaction not found")
 
     def test_get_document_authentication_not_provided(self):
+        """
+        This test ensures the authentication not provided error getting a file link
+        without credentials.
+        """
+
         self.api_client.credentials()
 
         response = self.api_client.get("/api/billing/invoice-link/wrong-transaction-id/")
@@ -79,6 +99,11 @@ class InvoiceDocumentHostTest(TestCase):
         self.assertEqual(message, "Authentication credentials were not provided.")
 
     def test_get_document_invalid_token(self):
+        """
+        This test ensures the invalid token error getting a file link
+        providing a invalid token.
+        """
+
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key[:-3]}abc")
 
         response = self.api_client.get("/api/billing/invoice-link/wrong-transaction-id/")
@@ -90,6 +115,10 @@ class InvoiceDocumentHostTest(TestCase):
         self.assertEqual(message, "Invalid token.")
 
     def test_get_document_endpoint_not_found(self):
+        """
+        This test ensures the not found error getting a file link calling a wrong url.
+        """
+
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key[:-3]}abc")
 
         response = self.api_client.get("/api/billing/invoice-link/")

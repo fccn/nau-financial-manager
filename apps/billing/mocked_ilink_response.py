@@ -1,3 +1,7 @@
+"""
+This payload is the mocked ilink response.
+"""
+
 MOCKED_RESPONSE = {
     "success": "true",
     "response": {

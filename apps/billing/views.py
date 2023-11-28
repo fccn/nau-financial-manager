@@ -20,6 +20,10 @@ class ProcessTransaction(APIView, GeneralPost):
 @api_view(["GET"])
 @authentication_classes([TokenAuthentication])
 def get_invoice_link(request, *args, **kwargs):
+    """
+    This method is the endpoint method called through `invoice-link/<str:transaction_id>/`.
+    """
+
     try:
         if not kwargs:
             return Response({"response": "Invalid transaction id"}, status=400)
