@@ -92,15 +92,20 @@ class TransactionItem(BaseModel):
         return self.description
 
 
-class SageX3XmlTransaction(BaseModel):
+class SageX3TransactionInformation(BaseModel):
     """
-    This model represents the xml who was sent to the X3 service.
-    One-to-many relationship with Transaction model (related_name='sagex3_xml_transactions').
+    Represents the status of a transaction in the Sage X3 system.
 
     """
 
-    transaction = models.ForeignKey(Transaction, related_name="sagex3_xml_transactions", on_delete=models.CASCADE)
-    xml_content = models.TextField(null=True, blank=True)
+    transaction = models.OneToOneField(
+        Transaction, related_name="sage_x3_transaction_information", on_delete=models.CASCADE
+    )
+    status = models.CharField(max_length=255, null=True, blank=True)
+    last_status_date = models.DateTimeField(auto_now_add=True)
+    retries = models.PositiveIntegerField(default=0)
+    input_xml = models.TextField(null=True, blank=True)
+    output_xml = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.transaction.transaction_id} - {self.transaction.transaction_id}"

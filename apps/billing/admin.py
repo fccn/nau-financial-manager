@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.billing.models import SageX3XmlTransaction, Transaction, TransactionItem
+from apps.billing.models import SageX3TransactionInformation, Transaction, TransactionItem
 
 
 class TransactionItemInline(admin.TabularInline):
@@ -45,4 +45,4 @@ class TransactionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Transaction, TransactionAdmin)
-admin.site.register(SageX3XmlTransaction)
+admin.site.register(SageX3TransactionInformation)
