@@ -53,7 +53,6 @@ class SplitExportService:
                 start_date=start_date,
                 end_date=end_date,
             ).execute_split_steps(**kwargs)
-
             file_name: str = self._generate_file_name(optional=kwargs)
             FileGenerator().generate_xlsx(file_name=file_name, sheets=split_sheets)
         except Exception as e:
