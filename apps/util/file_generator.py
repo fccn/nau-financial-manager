@@ -1,7 +1,11 @@
+import os
 from string import ascii_uppercase
 from typing import Dict, List
 
 import xlsxwriter
+from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage, get_storage_class
 
 
 class XlsxGenerator:
@@ -13,6 +17,26 @@ class XlsxGenerator:
     and it will not affect any part of the system
 
     """
+
+    def __save_generated_file(self, file_name: str):
+        """
+        This method saves the generated file in `STORAGES` settings and remove
+        the same file from the directory root.
+        """
+
+        try:
+            with open(f"{file_name}.xlsx", "rb") as f:
+                if hasattr(settings, "REPORTS_STORAGES"):
+                    get_storage_class(settings.REPORTS_STORAGES["default"].get("BACKEND"),)(
+                        **settings.REPORTS_STORAGES["default"].get("OPTIONS", {})
+                    ).save(name=f"{file_name}.xlsx", content=ContentFile(f.read()))
+                else:
+                    default_storage.save(name=f"{file_name}.xlsx", content=ContentFile(f.read()))
+                f.close()
+        except Exception as e:
+            raise e
+        finally:
+            os.remove(f"{file_name}.xlsx")
 
     def _generate_column_letter_position(self, column_position: int):
         """
@@ -50,34 +74,37 @@ class XlsxGenerator:
             columns (list[str]): The columns to be created in this file
             values (list[Dict]): The values to be saved in each column
         """
+        try:
+            workbook = xlsxwriter.Workbook(
+                f"{file_name}.xlsx",
+                options={
+                    "remove_timezone": True,
+                    "default_date_format": "dd/mm/yy hh:mm:ss.000",
+                },
+            )
 
-        workbook = xlsxwriter.Workbook(
-            f"{file_name}.xlsx",
-            options={
-                "remove_timezone": True,
-                "default_date_format": "dd/mm/yy hh:mm:ss.000",
-            },
-        )
+            for sheet in sheets:
+                work_sheet = workbook.add_worksheet()
 
-        for sheet in sheets:
-            work_sheet = workbook.add_worksheet()
+                columns = list(sheet[0].keys())
+                for column in columns:
+                    column_letter = self._generate_column_letter_position(columns.index(column) + 1)
+                    work_sheet.set_column(
+                        f"{column_letter}:{column_letter}",
+                        width=20,
+                    )
+                    bold = workbook.add_format({"bold": True})
+                    work_sheet.write(f"{column_letter}1", column, bold)
 
-            columns = list(sheet[0].keys())
-            for column in columns:
-                column_letter = self._generate_column_letter_position(columns.index(column) + 1)
-                work_sheet.set_column(
-                    f"{column_letter}:{column_letter}",
-                    width=20,
-                )
-                bold = workbook.add_format({"bold": True})
-                work_sheet.write(f"{column_letter}1", column, bold)
+                    row = 2
+                    for value in sheet:
+                        work_sheet.write(f"{column_letter}{row}", value[column])
+                        row += 1
 
-                row = 2
-                for value in sheet:
-                    work_sheet.write(f"{column_letter}{row}", value[column])
-                    row += 1
-
-        workbook.close()
+            workbook.close()
+            self.__save_generated_file(file_name=file_name)
+        except Exception as e:
+            raise e
 
 
 class PdfGenerator:
@@ -97,7 +124,6 @@ class CsvGenerator:
 
 
 class FileGenerator(XlsxGenerator, PdfGenerator, CsvGenerator):
-
     """
     This class implements the files generators
 
