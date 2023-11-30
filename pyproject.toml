@@ -29,6 +29,8 @@ xlsxwriter = "3.1.9"
 requests = "^2.31.0"
 xmltodict = "^0.13.0"
 django-celery-results = "2.3.1"
+django-storages = "^1.14.2"
+boto3 = "^1.33.4"
 
 [build-system]
 requires = ["poetry-core"]
