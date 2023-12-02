@@ -108,4 +108,4 @@ class SageX3TransactionInformation(BaseModel):
     output_xml = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.transaction.transaction_id} - {self.transaction.transaction_id}"
+        return f"{self.transaction.transaction_id} - {self.status}"

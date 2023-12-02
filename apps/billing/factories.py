@@ -6,7 +6,8 @@ import factory
 import factory.fuzzy
 from django.utils import timezone
 
-from apps.billing.models import Transaction, TransactionItem
+from apps.billing.mocks import xml_duplicate_error_response_mock
+from apps.billing.models import SageX3TransactionInformation, Transaction, TransactionItem
 from apps.util.constants import PAYMENT_TYPE, TRANSACTION_TYPE
 
 
@@ -66,3 +67,23 @@ class TransactionItemFactory(factory.django.DjangoModelFactory):
     @factory.lazy_attribute
     def unit_price_incl_vat(self):
         return round(((self.transaction.total_amount_include_vat * Decimal("1.20")) / self.quantity), 2)
+
+
+class SageX3TransactionInformationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SageX3TransactionInformation
+
+    transaction = factory.SubFactory(TransactionFactory)
+    status = factory.Faker("random_element", elements=["pending", "completed", "failed"])
+    last_status_date = factory.Faker(
+        "date_time_between", start_date="-5d", end_date="-1d", tzinfo=timezone.get_current_timezone()
+    )
+    retries = factory.Faker("pyint", min_value=0, max_value=10)
+
+    @factory.lazy_attribute
+    def input_xml(self):
+        return "<xml></xml>"
+
+    @factory.lazy_attribute
+    def output_xml(self):
+        return xml_duplicate_error_response_mock()
