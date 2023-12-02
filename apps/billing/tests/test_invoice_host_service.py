@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from apps.billing.factories import TransactionFactory
-from apps.billing.mocked_ilink_response import MOCKED_RESPONSE
+from apps.billing.mocks import ILINK_RESPONSE_MOCK
 from apps.billing.models import Transaction
 from apps.billing.services.invoice_host_service import InvoiceDocumentHost
 
@@ -31,7 +31,7 @@ class MockResponse(Response):
 
 
 def mocked_get(*args, **kwargs):
-    return MockResponse(data=MOCKED_RESPONSE, status_code=200)
+    return MockResponse(data=ILINK_RESPONSE_MOCK, status_code=200)
 
 
 class InvoiceDocumentHostTest(TestCase):
@@ -56,7 +56,7 @@ class InvoiceDocumentHostTest(TestCase):
 
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
 
-        link = MOCKED_RESPONSE["response"]["data"]["attachments"][0]["file"]
+        link = ILINK_RESPONSE_MOCK["response"]["data"]["attachments"][0]["file"]
         response = self.api_client.get(f"/api/billing/invoice-link/{self.transaction.transaction_id}/")
         obtained_link = response.data["response"]
 
