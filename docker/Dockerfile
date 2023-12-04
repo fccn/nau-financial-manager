@@ -1,5 +1,5 @@
+# Docker image for the nau-financial-manager application.
 FROM python:3.11-slim AS base_build
-
 
 # Create a group and user to run our app
 ARG USER=nau-financial-manager
@@ -61,3 +61,10 @@ RUN poetry install --verbose
 ENV FINANCIAL_MANAGER_CFG=/app/config.yml
 
 USER ${USER}:${USER}
+
+# copy multiple files and folders to the /app folder inside the image
+COPY  manage.py \
+      wait-for-mysql.sh \
+      apps \ 
+      nau_financial_manager \
+      /app/
