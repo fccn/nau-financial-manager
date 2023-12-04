@@ -9,17 +9,48 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import codecs
+import copy
+import os
 from pathlib import Path
 
-from decouple import Csv, config
+import yaml
+from django.core.exceptions import ImproperlyConfigured
+
+
+def get_env_setting(env_variable, default=None):
+    """Get the environment variable value or return its default value."""
+    try:
+        return os.environ[env_variable]
+    except KeyError:
+        if default:
+            return default
+        else:
+            error_msg = "Set the {} environment variable".format(env_variable)
+            raise ImproperlyConfigured(error_msg)
+
+
+CONFIG_FILE = get_env_setting("FINANCIAL_MANAGER_CFG", "./config.yml")
+
+# Load the configuration from an YAML file and expose the configurations on a `CONFIG` object.
+with codecs.open(CONFIG_FILE, encoding="utf-8") as f:
+    CONFIG = yaml.safe_load(f)
+
+    # Add the key/values from config into the global namespace of this module.
+    __config_copy__ = copy.deepcopy(CONFIG)
+
+    vars().update(__config_copy__)
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config("SECRET_KEY")
+DEBUG = CONFIG.get("DEBUG", False)
 
-DEBUG = config("DEBUG", default=False, cast=bool)
+SECRET_KEY = CONFIG.get("SECRET_KEY", "change-me")
+if SECRET_KEY == "change-me" and not DEBUG:
+    raise ImproperlyConfigured("For security reasons you need to change the 'SECRET_KEY'.")
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv(), default="localhost")
+ALLOWED_HOSTS = CONFIG.get("ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
 
 DJANGO_APPS = [
     "django.contrib.admin",
@@ -83,16 +114,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "nau_financial_manager.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": config("MYSQL_DATABASE"),
-        "USER": config("MYSQL_USER_ROOT"),
-        "PASSWORD": config("MYSQL_PASSWORD"),
-        "HOST": config("DB_HOST"),
-        "PORT": config("DB_PORT"),
-    }
-}
+# The normal Django `DATABASES`` setting
+DATABASES = CONFIG.get(
+    "DATABASES",
+    {
+        "default": {
+            # The DB_HOST needs to be overridden from environment variable because we have 2 modes
+            # of running on the development mode, one from docker and another outside docker.
+            # Each modes connects to MySQL host differently.
+            "ENGINE": get_env_setting("ENGINE", "django.db.backends.mysql"),
+            "NAME": get_env_setting("MYSQL_DATABASE", "nau_db"),
+            "USER": get_env_setting("MYSQL_USER", "nau_user"),
+            "PASSWORD": get_env_setting("MYSQL_PASSWORD", "nau_password"),
+            # Default mode it the development mode without docker
+            "HOST": get_env_setting("DB_HOST", "127.0.0.1"),
+            "PORT": get_env_setting("DB_PORT", 3306),
+        }
+    },
+)
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
@@ -105,33 +144,38 @@ REST_FRAMEWORK = {
     ],
 }
 
-CELERY_APP = "nau_financial_manager"
-CELERY_BROKER_URL = config("CELERY_BROKER_URL", "redis://nau-redis:6379/0")
-CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", "django-db")
-CELERY_CACHE_BACKEND = "default"
-CELERY_TASK_TRACK_STARTED = True
-CELERY_ACCEPT_CONTENT = ["application/json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_RESULTS_EXTENDED = True
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+# Celery settings
+CELERY_APP = CONFIG.get("CELERY_APP", "nau_financial_manager")
+CELERY_BROKER_URL = CONFIG.get("CELERY_BROKER_URL", "redis://nau-redis:6379/0")
+CELERY_RESULT_BACKEND = CONFIG.get("CELERY_RESULT_BACKEND", "django-db")
+CELERY_CACHE_BACKEND = CONFIG.get("CELERY_CACHE_BACKEND", "default")
+CELERY_TASK_TRACK_STARTED = CONFIG.get("CELERY_TASK_TRACK_STARTED", True)
+CELERY_ACCEPT_CONTENT = CONFIG.get("CELERY_ACCEPT_CONTENT", ["application/json"])
+CELERY_TASK_SERIALIZER = CONFIG.get("CELERY_TASK_SERIALIZER", "json")
+CELERY_RESULT_SERIALIZER = CONFIG.get("CELERY_RESULT_SERIALIZER", "json")
+CELERY_RESULTS_EXTENDED = CONFIG.get("CELERY_RESULTS_EXTENDED", True)
+CELERY_BEAT_SCHEDULER = CONFIG.get("CELERY_BEAT_SCHEDULER", "django_celery_beat.schedulers:DatabaseScheduler")
 # WORKAROUND TO CELERY USING MYSQL
 DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH = 191
 
-
-REDIS_URL = config("REDIS_URL", "redis://localhost:6379/")
-REDIS_HOST = config("REDIS_HOST", "nau-redis")
-REDIS_PORT = config("REDIS_PORT", 6379)
-REDIS_DB = config("REDIS_DB", 0)
-
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": config("REDIS_URL", "redis://localhost:6379/"),
-        "KEY_PREFIX": "naufm",
-        "TIMEOUT": 60 * 15,  # in seconds: 60 * 15 (15 minutes)
-    }
-}
+# Django Cache settings
+#
+# By default it uses the Redis as Django Cache.
+#
+# The next configuration is used for development proposes.
+# If you need to change this for a specific environment update the `CACHES` key
+# on the `FINANCIAL_MANAGER_CFG` yaml file.
+CACHES = CONFIG.get(
+    "CACHES",
+    {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": "redis://localhost:6379/0",
+            "KEY_PREFIX": "naufm",
+            "TIMEOUT": 60 * 15,  # in seconds: 60 * 15 (15 minutes)
+        }
+    },
+)
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -160,14 +204,18 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Transcation processor settings
-TRANSACTION_PROCESSOR_URL = config("TRANSACTION_PROCESSOR_URL", "")
-IVA_VACITM1_FIELD = config("IVA_VACITM1_FIELD", "")
-GEOGRAPHIC_ACTIVITY_VACBPR_FIELD = config("GEOGRAPHIC_ACTIVITY_VACBPR_FIELD", "")
-USER_PROCESSOR_AUTH = config("USER_PROCESSOR_AUTH", "")
-USER_PROCESSOR_PASSWORD = config("USER_PROCESSOR_PASSWORD", "")
+# Transaction processor settings
+TRANSACTION_PROCESSOR_URL = CONFIG.get("TRANSACTION_PROCESSOR_URL", "")
+IVA_VACITM1_FIELD = CONFIG.get("IVA_VACITM1_FIELD", "NOR")
+GEOGRAPHIC_ACTIVITY_VACBPR_FIELD = CONFIG.get("GEOGRAPHIC_ACTIVITY_VACBPR_FIELD", "CON")
+USER_PROCESSOR_AUTH = CONFIG.get("USER_PROCESSOR_AUTH", "")
+USER_PROCESSOR_PASSWORD = CONFIG.get("USER_PROCESSOR_PASSWORD", "")
 
 # Invoice host information
-INVOICE_HOST_URL = config("INVOICE_HOST_URL", "")
-INVOICE_HOST_AUTH = config("INVOICE_HOST_AUTH", "")
-INVOICE_HOST_PASSWORD = config("INVOICE_HOST_PASSWORD", "")
+INVOICE_HOST_URL = CONFIG.get("INVOICE_HOST_URL", "")
+INVOICE_HOST_AUTH = CONFIG.get("INVOICE_HOST_AUTH", "")
+INVOICE_HOST_PASSWORD = CONFIG.get("INVOICE_HOST_PASSWORD", "")
+
+SWAGGER_PROJECT_NAME = CONFIG.get("SWAGGER_PROJECT_NAME", "Nau Financial Manager")
+SWAGGER_PROJECT_VERSION = CONFIG.get("SWAGGER_PROJECT_VERSION", "1.0.0")
+SWAGGER_DESCRIPTION = CONFIG.get("SWAGGER_DESCRIPTION", "API for Nau Financial Manager")

@@ -17,8 +17,5 @@ jobs:
     - name: Setup Poetry
       run: make install-poetry install-packages
 
-    - name: Get all containers up and running
-      run: cp sample-dev.env .env; make hr-docker
-
     - name: Run Django tests
       run: make test

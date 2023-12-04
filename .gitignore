@@ -160,9 +160,7 @@ pyrightconfig.json
 # Ignore all local history of files
 .history
 .ionide
-.env
 .python-version
-.env
 .vscode/settings.json
 db.sqlite3
 

@@ -3,28 +3,29 @@ version: "3.5"
 services:
   database-mysql:
     container_name: nau-database-mysql
-    restart: always
     image: mysql:8.1
-    env_file: ../.env
+    environment:
+      - MYSQL_DATABASE=nau_db
+      - MYSQL_USER=nau_user
+      - MYSQL_USER_ROOT=root
+      - MYSQL_PASSWORD=nau_password
+      - MYSQL_ROOT_PASSWORD=nau_password
     hostname: database
     ports:
       - "3306:3306"
 
   redis:
     hostname: nau-redis
-    restart: always
     image: redis:latest
     ports:
       - "6379:6379"
 
   celery:
     hostname: nau-celery
-    restart: always
     build:
       context: ../
       dockerfile: docker/Dockerfile
     command: celery -A nau_financial_manager worker --loglevel=info
-    env_file: ../.env
     volumes:
       - ../:/app
     depends_on:
@@ -33,12 +34,10 @@ services:
 
   celery-beat:
     hostname: nau-celery-beat
-    restart: always
     build:
       context: ../
       dockerfile: docker/Dockerfile
     command: celery -A nau_financial_manager beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    env_file: ../.env
     environment:
       - DB_HOST=nau-database-mysql
     volumes:
@@ -52,8 +51,6 @@ services:
       context: ../
       dockerfile: docker/Dockerfile
     command: celery -A nau_financial_manager flower --port=5555
-    env_file: ../.env
-    restart: always
     volumes:
       - ../:/app
     ports:

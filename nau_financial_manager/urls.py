@@ -14,7 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from decouple import config
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from drf_yasg import openapi
@@ -23,9 +23,9 @@ from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(
-        title=config("SWAGGER_PROJECT_NAME", default="Your project name"),
-        default_version=config("SWAGGER_PROJECT_VERSION", default="1.0.0"),
-        description=config("SWAGGER_DESCRIPTION", default="Your project description"),
+        title=settings.SWAGGER_PROJECT_NAME,
+        default_version=settings.SWAGGER_PROJECT_VERSION,
+        description=settings.SWAGGER_DESCRIPTION,
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
