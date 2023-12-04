@@ -58,4 +58,6 @@ COPY poetry.lock pyproject.toml /app/
 # Install packages via poetry:
 RUN poetry install --verbose
 
+ENV FINANCIAL_MANAGER_CFG=/app/config.yml
+
 USER ${USER}:${USER}

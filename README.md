@@ -76,12 +76,6 @@ poetry env use 3.11.4
 poetry shell
 ```
 
-## Create .env file for enviromnent desired
-
-```bash
-cp sample-dev.env .env
-```
-
 ## Run for DEV
 
 Start the app's dependencies services:

@@ -5,7 +5,7 @@ SRC_DIR = src
 TEST_DIR = tests
 POETRY_RUN = poetry run
 DOCKER_COMPOSE = docker-compose
-TEST_CMD = $(POETRY_RUN) python manage.py test
+TEST_CMD = $(POETRY_RUN) python manage.py test --settings=nau_financial_manager.test
 LINT_CMD = $(POETRY_RUN) black .
 PRE_COMMIT = $(POETRY_RUN) pre-commit run --all-files
 RUN_CMD = $(POETRY_RUN) python manage.py runserver

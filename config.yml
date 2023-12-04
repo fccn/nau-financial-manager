@@ -1,0 +1,9 @@
+# This is default configuration settings used to development purposes.
+# We can override any default Django setting.
+# The good default setting value should be the default value of the 
+# 
+#   CONFIG.get("KEY", <default value>)
+#
+
+# Currently we are just enforcing the debug.
+DEBUG: True
