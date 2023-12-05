@@ -133,15 +133,22 @@ DATABASES = CONFIG.get(
     },
 )
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-        "OPTIONS": {
-            "location": f"{BASE_DIR}/files",
-            "base_url": f"{BASE_DIR}/files/",
-        },
-    }
-}
+
+# When it is running in dev environment, the used STORAGES is FileSystemStorage
+# if it is running in prod environment, it uses the STORAGES located in the FINANCIAL_MANAGER_CFG variables
+# which is a boto3 config implemented by django-storages package
+STORAGES = get_env_setting(
+    "STORAGES",
+    {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+            "OPTIONS": {
+                "location": f"{BASE_DIR}/files",
+                "base_url": f"{BASE_DIR}/files/",
+            },
+        }
+    },
+)
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
