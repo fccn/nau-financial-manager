@@ -146,7 +146,10 @@ STORAGES = get_env_setting(
                 "location": f"{BASE_DIR}/files",
                 "base_url": f"{BASE_DIR}/files/",
             },
-        }
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
     },
 )
 
