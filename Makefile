@@ -5,7 +5,9 @@ SRC_DIR = src
 TEST_DIR = tests
 POETRY_RUN = poetry run
 DOCKER_COMPOSE = docker-compose
+# or use in future the 'pytest' directly
 TEST_CMD = $(POETRY_RUN) python manage.py test --settings=nau_financial_manager.test
+# TEST_CMD = $(POETRY_RUN) pytest
 LINT_CMD = $(POETRY_RUN) black .
 PRE_COMMIT = $(POETRY_RUN) pre-commit run --all-files
 RUN_CMD = $(POETRY_RUN) python manage.py runserver
@@ -34,7 +36,7 @@ help:
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 .PHONY: help
 
-test:  ## run tests, all or specific test
+test:  ## run tests, all or a specific test, example: 'make test apps.billing.tests.test_invoice_host_service' or 'pytest apps/billing/tests/test_invoice_host_service.py -k test_get_document_transaction_not_found'
 	@args="$(filter-out $@,$(MAKECMDGOALS))" && $(TEST_CMD) $${args:-${1}}
 .PHONY: test
 
