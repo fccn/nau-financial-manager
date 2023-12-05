@@ -165,3 +165,6 @@ pyrightconfig.json
 db.sqlite3
 
 .docker-compose.yml
+
+#default django storages directory to work with django.core.files.storage.FileSystemStorage
+files

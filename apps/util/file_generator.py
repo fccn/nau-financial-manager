@@ -3,9 +3,8 @@ from string import ascii_uppercase
 from typing import Dict, List
 
 import xlsxwriter
-from django.conf import settings
 from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage, get_storage_class
+from django.core.files.storage import default_storage
 
 
 class XlsxGenerator:
@@ -26,12 +25,7 @@ class XlsxGenerator:
 
         try:
             with open(f"{file_name}.xlsx", "rb") as f:
-                if hasattr(settings, "REPORTS_STORAGES"):
-                    get_storage_class(settings.REPORTS_STORAGES["default"].get("BACKEND"),)(
-                        **settings.REPORTS_STORAGES["default"].get("OPTIONS", {})
-                    ).save(name=f"{file_name}.xlsx", content=ContentFile(f.read()))
-                else:
-                    default_storage.save(name=f"{file_name}.xlsx", content=ContentFile(f.read()))
+                default_storage.save(name=f"{file_name}.xlsx", content=ContentFile(f.read()))
                 f.close()
         except Exception as e:
             raise e
