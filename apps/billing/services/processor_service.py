@@ -25,7 +25,7 @@ class SageX3Processor(TransactionProcessorInterface):
         self.__user_processor_auth = getattr(settings, "USER_PROCESSOR_AUTH")
         self.__user_processor_password = getattr(settings, "USER_PROCESSOR_PASSWORD")
 
-    def __save_transaction_xml(self, transaction: Transaction, input_xml: str, output_xml: str) -> None:
+    def __save_transaction_xml(self, transaction: Transaction, informations: dict) -> None:
         """
         Saves the XML content of a transaction to the database.
 
@@ -36,7 +36,7 @@ class SageX3Processor(TransactionProcessorInterface):
         """
         try:
             created, obj = SageX3TransactionInformation.objects.get_or_create(
-                transaction=transaction, defaults={"input_xml": input_xml, "output_xml": output_xml}
+                transaction=transaction, defaults={**informations}
             )
             if not created:
                 obj.retries += 1
@@ -52,6 +52,7 @@ class SageX3Processor(TransactionProcessorInterface):
 
         try:
             data = self.__generate_data_to_save(transaction=transaction)
+            informations = {"input_xml": data, "error_messages": ""}
             response = requests.post(
                 url=self.__processor_url,
                 data=data,
@@ -62,12 +63,13 @@ class SageX3Processor(TransactionProcessorInterface):
                 ),
             ).content
             response_as_json = dict(xmltodict.parse(response))
-
-            self.__save_transaction_xml(transaction, data, response)
+            informations["output_xml"] = response
+            self.__save_transaction_xml(transaction, informations)
 
             return response_as_json
         except Exception as e:
-            raise e
+            informations["error_messages"] = str(e)
+            self.__save_transaction_xml(transaction, informations)
 
     def __generate_items_as_xml(self, items: list[TransactionItem]) -> str:
         """
