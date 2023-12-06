@@ -106,6 +106,7 @@ class SageX3TransactionInformation(BaseModel):
     retries = models.PositiveIntegerField(default=0)
     input_xml = models.TextField(null=True, blank=True)
     output_xml = models.TextField(null=True, blank=True)
+    error_messages = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.transaction.transaction_id} - {self.status}"
