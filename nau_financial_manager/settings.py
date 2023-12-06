@@ -137,7 +137,7 @@ DATABASES = CONFIG.get(
 # When it is running in dev environment, the used STORAGES is FileSystemStorage
 # if it is running in prod environment, it uses the STORAGES located in the FINANCIAL_MANAGER_CFG variables
 # which is a boto3 config implemented by django-storages package
-STORAGES = get_env_setting(
+STORAGES = CONFIG.get(
     "STORAGES",
     {
         "default": {
