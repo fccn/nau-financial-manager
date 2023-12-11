@@ -46,7 +46,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = CONFIG.get("DEBUG", False)
 
-SECRET_KEY = CONFIG.get("SECRET_KEY", "change-me")
+# Optionally load the SECRET_KEY from the config.yml file or by environment variable.
+# This allows us to run collectstatic without a special config.yml file or a specific
+# static.py settings file.
+SECRET_KEY = CONFIG.get("SECRET_KEY", get_env_setting("SECRET_KEY", "change-me"))
 if SECRET_KEY == "change-me" and not DEBUG:
     raise ImproperlyConfigured("For security reasons you need to change the 'SECRET_KEY'.")
 
