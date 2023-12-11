@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -45,3 +46,7 @@ urlpatterns += [
     path("api/organization/", include("apps.organization.urls")),
     path("api/shared-revenue/", include("apps.shared_revenue.urls")),
 ]
+
+# Optionally deliver static assets by the application.
+if getattr(settings, "STATIC_FILES_URL_ENABLE", False) or settings.DEBUG:
+    urlpatterns = staticfiles_urlpatterns() + urlpatterns
