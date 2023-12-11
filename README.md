@@ -80,7 +80,7 @@ poetry shell
 
 Start the app's dependencies services:
 ```bash
-APP=false make run-docker
+RUN_APP=false make run-docker
 ```
 
 You have to install the app package dependencies and run the migrations.
