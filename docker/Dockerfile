@@ -95,7 +95,7 @@ RUN apt-get update && apt-get install -y rdfind
 WORKDIR /app
 
 # Collect static files
-RUN python manage.py collectstatic --noinput
+RUN SECRET_KEY=any python manage.py collectstatic --noinput
 
 # Replace duplicated file by a symlink to decrease the overall size of the final image
 RUN rdfind -makesymlinks true ${STATIC_ROOT}

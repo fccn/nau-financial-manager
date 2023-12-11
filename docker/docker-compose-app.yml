@@ -11,6 +11,7 @@ services:
     # on docker mode change use the container directly
     environment:
       - DB_HOST=nau-database-mysql
+      - SECRET_KEY=a-different-secret-key
     ports:
       - 8000:8000
     volumes:
