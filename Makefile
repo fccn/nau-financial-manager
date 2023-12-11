@@ -25,6 +25,7 @@ endif
 RUN_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) up -d --remove-orphans
 KILL_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) down
 BUILD_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) build
+LOGS_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) logs
 PRUNE_DOCKER = docker system prune -af
 CREATESUPERUSER = $(POETRY_RUN) python manage.py add_superuser --no-input --settings=nau_financial_manager.settings
 
@@ -117,3 +118,7 @@ install-packages: ## Install project dependencies
 	@echo "Installing project dependencies..."
 	@$(POETRY) install
 .PHONY: install-packages
+
+logs: ## display docker app logs (follow mode)
+	@$(LOGS_DOCKER_DEV) -f nau-financial-app
+.PHONY: logs
