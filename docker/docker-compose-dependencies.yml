@@ -25,6 +25,7 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+      target: ${DOCKER_TARGET}
     command: celery -A nau_financial_manager worker --loglevel=info
     volumes:
       - ../:/app
@@ -37,6 +38,7 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+      target: ${DOCKER_TARGET}
     command: celery -A nau_financial_manager beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     environment:
       - DB_HOST=nau-database-mysql
@@ -50,6 +52,7 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+      target: ${DOCKER_TARGET}
     command: celery -A nau_financial_manager flower --port=5555
     volumes:
       - ../:/app

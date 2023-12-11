@@ -4,10 +4,10 @@ services:
 
   nau-financial-app:
     container_name: nau-financial-app
-    command: sh -c './wait-for-mysql.sh && python manage.py runserver 0.0.0.0:8000'
     build:
       context: ../
       dockerfile: docker/Dockerfile
+      target: ${DOCKER_TARGET}
     # on docker mode change use the container directly
     environment:
       - DB_HOST=nau-database-mysql
@@ -19,3 +19,22 @@ services:
       - database-mysql  
       - redis
       - celery
+
+  # we just need nginx when we are usig the application from docker
+  nginx:
+    container_name: nau-financial-nginx
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+      target: nginx
+      args:
+        NGINX_IMAGE_NAME: ${NGINX_IMAGE_NAME:-nginx}
+        NGINX_IMAGE_TAG: ${NGINX_IMAGE_TAG:-1.20.1}
+        STATIC_ROOT: ${STATIC_ROOT:-/nau/nau-financial-manager/static}
+    ports:
+      - "8081:8081"
+    volumes:
+      - ../docker/files/etc/nginx/conf.d:/etc/nginx/conf.d:ro
+      # - ../data/media:/data/media:ro
+    depends_on:
+      - nau-financial-app

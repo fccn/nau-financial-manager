@@ -93,6 +93,14 @@ To execute the application outside the docker:
 make run
 ```
 
+## Run for PROD
+
+To start the application using the production mode, run:
+
+```bash
+DOCKER_TARGET=production make run-docker
+```
+
 ## GENERATING AND USING TOKEN
 
 To generate a token you should use one of this two commands:
