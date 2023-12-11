@@ -4,7 +4,8 @@ POETRY = poetry
 SRC_DIR = src
 TEST_DIR = tests
 POETRY_RUN = poetry run
-DOCKER_COMPOSE = docker-compose
+DOCKER_TARGET ?= development
+DOCKER_COMPOSE = DOCKER_TARGET=$(DOCKER_TARGET) docker-compose
 # or use in future the 'pytest' directly
 TEST_CMD = $(POETRY_RUN) python manage.py test --settings=nau_financial_manager.test
 # TEST_CMD = $(POETRY_RUN) pytest
@@ -83,7 +84,9 @@ kill: ## stop django server in your host
 run-docker: ## run django server in docker in dev mode
 	$(BUILD_DOCKER_DEV)
 	$(RUN_DOCKER_DEV)
-	@echo "The should be running on http://localhost:8000"
+ifneq ($(APP), false)
+	@echo "The should be running on http://localhost:8081"
+endif
 .PHONY: run-docker
 
 kill-docker: ## stop django server in docker in dev mode

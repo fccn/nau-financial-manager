@@ -1,0 +1,8 @@
+# Configuration for PRODUCTION!
+#
+# This is default configuration settings that will be put inside the docker container
+# used in production.
+# The operator should override this file using a docker volume or using a docker config.
+
+# Currently we are just enforcing the debug.
+DEBUG: False
