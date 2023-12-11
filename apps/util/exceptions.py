@@ -1,3 +1,6 @@
+import logging
+from datetime import datetime
+
 from rest_framework.views import exception_handler
 
 
@@ -9,4 +12,7 @@ def custom_exception_handler(exc, context):
         response.data = data
         response.content_type = "application/json"
 
+    logging.getLogger("nau_financial_manager").error(
+        f"time:{datetime.now()}, error: {response.data}, exc: '{exc}', context: {context}"
+    )
     return response
