@@ -82,6 +82,7 @@ ENV FINANCIAL_MANAGER_CFG=/app/config.yml
 # Copy the rest of the application files
 COPY manage.py /app/
 COPY nau_financial_manager /app/nau_financial_manager/
+COPY wait-for-mysql.sh /app/
 COPY apps /app/apps/
 
 # ---- Static files/links collector ----

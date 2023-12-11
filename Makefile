@@ -5,7 +5,11 @@ SRC_DIR = src
 TEST_DIR = tests
 POETRY_RUN = poetry run
 DOCKER_TARGET ?= development
-DOCKER_COMPOSE = DOCKER_TARGET=$(DOCKER_TARGET) docker-compose
+ifeq ($(DOCKER_TARGET), development)
+APP_DOCKER_COMMAND='./wait-for-mysql.sh && python manage.py runserver 0.0.0.0:8000'
+else
+APP_DOCKER_COMMAND='gunicorn --workers 3 -c /usr/local/etc/gunicorn/app.py nau_financial_manager.wsgi:application'
+endif
 # or use in future the 'pytest' directly
 TEST_CMD = $(POETRY_RUN) python manage.py test --settings=nau_financial_manager.test
 # TEST_CMD = $(POETRY_RUN) pytest
@@ -19,13 +23,15 @@ RESET_MIGRATIONS = find . -path "*/migrations/*.py" -not -name "__init__.py" -de
 MAKE_MIGRATIONS = $(POETRY_RUN) python manage.py makemigrations
 MIGRATE = $(POETRY_RUN) python manage.py migrate
 COMPOSE_FILE := docker/docker-compose-dependencies.yml
-ifneq ($(APP), false)
+RUN_APP ?= true
+ifeq ($(RUN_APP), true)
 	COMPOSE_FILE := $(COMPOSE_FILE):docker/docker-compose-app.yml
 endif
-RUN_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) up -d --remove-orphans
-KILL_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) down
-BUILD_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) build
-LOGS_DOCKER_DEV = COMPOSE_FILE=$(COMPOSE_FILE) $(DOCKER_COMPOSE) logs
+DOCKER_COMPOSE = APP_DOCKER_COMMAND=$(APP_DOCKER_COMMAND) DOCKER_TARGET=$(DOCKER_TARGET) COMPOSE_FILE=$(COMPOSE_FILE) docker-compose
+RUN_DOCKER_DEV = $(DOCKER_COMPOSE) up -d --remove-orphans
+KILL_DOCKER_DEV = $(DOCKER_COMPOSE) down
+BUILD_DOCKER_DEV = $(DOCKER_COMPOSE) build
+LOGS_DOCKER_DEV = $(DOCKER_COMPOSE) logs
 PRUNE_DOCKER = docker system prune -af
 CREATESUPERUSER = $(POETRY_RUN) python manage.py add_superuser --no-input --settings=nau_financial_manager.settings
 
@@ -50,9 +56,15 @@ pre-commit: ## use pre-commit to check best practices
 	$(PRE_COMMIT)
 .PHONY: pre-commit
 
-run: ## run django server in your host
+run: ## run DB's inside docker and run django server in your host
+	RUN_APP=false make run-docker
 	$(RUN_CMD)
 .PHONY: run
+
+run-app: ## run django server in your host
+	$(RUN_DOCKER_DEV)
+	$(RUN_CMD)
+.PHONY: run-app
 
 populate: ## populate the database initially with fake data
 	$(POPULATE_DB)
@@ -85,8 +97,8 @@ kill: ## stop django server in your host
 run-docker: ## run django server in docker in dev mode
 	$(BUILD_DOCKER_DEV)
 	$(RUN_DOCKER_DEV)
-ifneq ($(APP), false)
-	@echo "The should be running on http://localhost:8081"
+ifeq ($(RUN_APP), true)
+	@echo "The app should be running on 8000 port and you can access it from nginx on http://localhost:8081"
 endif
 .PHONY: run-docker
 
