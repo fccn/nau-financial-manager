@@ -4,6 +4,13 @@ version = "0.1.0"
 description = "Manage financial information for NAU"
 authors = ["Tiago Silva <tsilva@quanticosolutions.com>, José Augusto Oliveira <joliveira@quanticosolutions.com>"]
 readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Framework :: Django :: 4.2",
+    "Framework :: Celery",
+    "Intended Audience :: Education",
+]
+license="AGPL-3.0-or-later"
 
 [tool.poetry.dependencies]
 python = "^3.10.2"
