@@ -5,6 +5,7 @@ import xmltodict
 from django.conf import settings
 from django.test.testcases import TestCase
 from requests import Response
+from requests.exceptions import Timeout
 
 from apps.billing.factories import TransactionFactory, TransactionItemFactory
 from apps.billing.mocks import xml_duplicate_error_response_mock, xml_success_response_mock
@@ -96,6 +97,12 @@ def processor_duplicate_error_response(*args, **kwargs):
     )
 
     return MockResponse(response_as_xml, 200)
+
+
+def processor_timeout_exception_response(*args, **kwargs):
+    response_as_xml = ""
+
+    return MockResponse(response_as_xml, 408)
 
 
 class TransactionServiceTestCase(TestCase):
@@ -201,6 +208,18 @@ class TransactionServiceTestCase(TestCase):
         setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
 
         self.transaction_service.run_steps_to_send_transaction(transaction=self.transaction)
+
+    @mock.patch("requests.post", side_effect=Timeout)
+    def test_transaction_to_processor_timeout_error(self, mocked_post):
+        """
+        This test ensures that the transaction service correctly handles a timeout error from the processor.
+        """
+
+        fake_url_processor = "http://fake-processor.com"
+        setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
+
+        with self.assertRaises(Timeout):
+            self.transaction_service.send_transaction_to_processor(transaction=self.transaction)
 
     def tearDown(self) -> None:
         """

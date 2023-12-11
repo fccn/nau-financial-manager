@@ -50,7 +50,7 @@ class TransactionService:
 
             return document_id
         except Exception as e:
-            raise e
+            print(str(e))
 
     def run_steps_to_send_transaction(self, transaction: Transaction) -> None:
         try:
