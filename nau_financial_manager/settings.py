@@ -55,6 +55,8 @@ if SECRET_KEY == "change-me" and not DEBUG:
 
 ALLOWED_HOSTS = CONFIG.get("ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
 
+STATIC_ROOT = os.path.join(get_env_setting("STATIC_ROOT", "./data/static"))
+
 DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
