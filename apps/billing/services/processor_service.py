@@ -1,8 +1,7 @@
 import requests
-import xmltodict
 from django.conf import settings
 
-from apps.billing.models import SageX3TransactionInformation, Transaction, TransactionItem
+from apps.billing.models import Transaction, TransactionItem
 from apps.billing.services.financial_processor_service import TransactionProcessorInterface
 
 
@@ -25,51 +24,25 @@ class SageX3Processor(TransactionProcessorInterface):
         self.__user_processor_auth = getattr(settings, "USER_PROCESSOR_AUTH")
         self.__user_processor_password = getattr(settings, "USER_PROCESSOR_PASSWORD")
 
-    def __save_transaction_xml(self, transaction: Transaction, informations: dict) -> None:
-        """
-        Saves the XML content of a transaction to the database.
-
-        This function attempts to get or create a SageX3TransactionInformation object
-        with the given transaction. If the SageX3TransactionInformation object doesn't exist,
-        it creates one with the provided XML content. If an exception occurs during
-        this process, it prints the exception message.
-        """
-        try:
-            created, obj = SageX3TransactionInformation.objects.get_or_create(
-                transaction=transaction, defaults={**informations}
-            )
-            if not created:
-                obj.retries += 1
-                obj.save()
-
-        except Exception as e:
-            print(str(e))
-
-    def send_transaction_to_processor(self, transaction: Transaction) -> dict:
+    def send_transaction_to_processor(self) -> dict:
         """
         This method sends the transaction informations to the `Sage X3` service.
         """
 
         try:
-            data = self.__generate_data_to_save(transaction=transaction)
-            informations = {"input_xml": data, "error_messages": ""}
             response = requests.post(
                 url=self.__processor_url,
-                data=data,
+                data=self.data,
                 headers={"Content-type": "application/xml"},
                 auth=(
                     self.__user_processor_auth,
                     self.__user_processor_password,
                 ),
             ).content
-            response_as_json = dict(xmltodict.parse(response))
-            informations["output_xml"] = response
-            self.__save_transaction_xml(transaction, informations)
 
-            return response_as_json
+            return response
         except Exception as e:
-            informations["error_messages"] = str(e)
-            self.__save_transaction_xml(transaction, informations)
+            raise e
 
     def __generate_items_as_xml(self, items: list[TransactionItem]) -> str:
         """
@@ -94,12 +67,13 @@ class SageX3Processor(TransactionProcessorInterface):
 
         return items_as_xml
 
-    def __generate_data_to_save(self, transaction: Transaction) -> str:
+    @property
+    def data(self) -> str:
         """
         This method generates the request data as xml text from a transaction,
         as expected for the `Sage X3` service.
         """
-
+        transaction: Transaction = self.transaction
         items: list[TransactionItem] = transaction.transaction_items.all()
         items_as_xml = self.__generate_items_as_xml(items=items)
 

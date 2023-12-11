@@ -9,8 +9,7 @@ from requests.exceptions import Timeout
 
 from apps.billing.factories import TransactionFactory, TransactionItemFactory
 from apps.billing.mocks import xml_duplicate_error_response_mock, xml_success_response_mock
-from apps.billing.services.financial_processor_service import ProcessorInstantiator, TransactionProcessorInterface
-from apps.billing.services.processor_service import SageX3Processor
+from apps.billing.services.financial_processor_service import TransactionProcessorInterface
 from apps.billing.services.transaction_service import TransactionService
 
 nau_data = {}
@@ -112,14 +111,12 @@ class TransactionServiceTestCase(TestCase):
         and creates a combination of one `Transaction` and `TransactionItem`.
         """
 
-        self.financial_processor_interface = TransactionProcessorInterface()
-        self.transaction_service = TransactionService()
-        self._transaction_processor = SageX3Processor()
         self.transaction = TransactionFactory.create()
         self.transaction_item = TransactionItemFactory.create(transaction=self.transaction)
         self.processor_url = getattr(settings, "TRANSACTION_PROCESSOR_URL")
+        self.transaction_service = TransactionService(transaction=self.transaction)
 
-    def test_financial_processor_service(self):
+    def test_financial_processor_service_interface(self):
         """
         This test ensures that if not implemented, the method from the interface
         will raise an exception.
@@ -129,37 +126,7 @@ class TransactionServiceTestCase(TestCase):
             expected_exception=Exception,
             expected_message="This method needs to be implemented",
         ):
-            self.financial_processor_interface.send_transaction_to_processor(transaction=self.transaction)
-
-    def test_processor_instance(self):
-        """
-        This test ensures that the dependency inversion of the `ProcessorInstantiator` and `TransactionProcessorInterface`
-        is working as expected.
-        """
-
-        processor = ProcessorInstantiator(processor=SageX3Processor)
-
-        self.assertEqual(type(processor), type(self._transaction_processor))
-        self.assertEqual(type(processor), SageX3Processor)
-        self.assertTrue(isinstance(processor, TransactionProcessorInterface))
-
-    @mock.patch("requests.post", side_effect=processor_success_response)
-    def test_transaction_processor(self, mocked_post):
-        """
-        This test is a call for the processor service, it will use the written service with a mocked response.
-
-        It sets the `TRANSACTION_PROCESSOR_URL` variable as `http://fake-processor.com`, which will be
-        setted as the real service url again in the `tearDown` class test method.
-        """
-
-        fake_url_processor = "http://fake-processor.com"
-        setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
-
-        processor: SageX3Processor = ProcessorInstantiator(processor=SageX3Processor)
-        response = processor.send_transaction_to_processor(transaction=self.transaction)
-
-        self.assertTrue(response)
-        self.assertEqual(type(response), dict)
+            TransactionProcessorInterface().send_transaction_to_processor()
 
     @mock.patch("requests.post", side_effect=processor_success_response)
     def test_transaction_to_processor_success(self, mocked_post):
@@ -173,7 +140,7 @@ class TransactionServiceTestCase(TestCase):
         fake_url_processor = "http://fake-processor.com"
         setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
 
-        document_id = self.transaction_service.send_transaction_to_processor(transaction=self.transaction)
+        document_id: str = self.transaction_service.send_transaction_to_processor()
 
         self.assertTrue(isinstance(document_id, str))
         self.assertNotEqual(document_id, "")
@@ -191,7 +158,7 @@ class TransactionServiceTestCase(TestCase):
         fake_url_processor = "http://fake-processor.com"
         setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
 
-        document_id = self.transaction_service.send_transaction_to_processor(transaction=self.transaction)
+        document_id: str = self.transaction_service.send_transaction_to_processor()
 
         self.assertTrue(isinstance(document_id, str))
         self.assertNotEqual(document_id, "")
@@ -207,7 +174,7 @@ class TransactionServiceTestCase(TestCase):
         fake_url_processor = "http://fake-processor.com"
         setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
 
-        self.transaction_service.run_steps_to_send_transaction(transaction=self.transaction)
+        self.transaction_service.run_steps_to_send_transaction()
 
     @mock.patch("requests.post", side_effect=Timeout)
     def test_transaction_to_processor_timeout_error(self, mocked_post):
@@ -219,7 +186,7 @@ class TransactionServiceTestCase(TestCase):
         setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
 
         with self.assertRaises(Timeout):
-            self.transaction_service.send_transaction_to_processor(transaction=self.transaction)
+            self.transaction_service.send_transaction_to_processor()
 
     def tearDown(self) -> None:
         """
