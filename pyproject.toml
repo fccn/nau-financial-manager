@@ -2,7 +2,7 @@
 name = "nau-financial-manager"
 version = "0.1.0"
 description = "Manage financial information for NAU"
-authors = ["Tiago Silva <tsilva@quanticosolutions.com>, José Augusto Oliveira <joliveira@quanticosolutions.com>"]
+authors = ["Tiago Silva <tsilva@quanticosolutions.com>, José Augusto Oliveira <joliveira@quanticosolutions.com>, Ivo branco <ivo.branco@fcn.pt>"]
 readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3.11",
