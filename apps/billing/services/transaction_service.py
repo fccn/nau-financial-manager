@@ -29,7 +29,7 @@ class TransactionService:
         this process, it prints the exception message.
         """
         try:
-            created, obj = SageX3TransactionInformation.objects.get_or_create(
+            obj, created = SageX3TransactionInformation.objects.get_or_create(
                 transaction=transaction, defaults={**informations}
             )
             if not created:
@@ -74,7 +74,7 @@ class TransactionService:
         except Exception as e:
             raise e
 
-    def run_steps_to_send_transaction(self) -> None:
+    def run_steps_to_send_transaction(self) -> str:
         try:
             document_id = self.send_transaction_to_processor()
             self.__save_transaction_xml(
