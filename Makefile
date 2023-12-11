@@ -29,7 +29,8 @@ ifeq ($(RUN_APP), true)
 endif
 DOCKER_COMPOSE = APP_DOCKER_COMMAND=$(APP_DOCKER_COMMAND) DOCKER_TARGET=$(DOCKER_TARGET) COMPOSE_FILE=$(COMPOSE_FILE) docker-compose
 RUN_DOCKER_DEV = $(DOCKER_COMPOSE) up -d --remove-orphans
-KILL_DOCKER_DEV = $(DOCKER_COMPOSE) down
+STOP_DOCKER_DEV = $(DOCKER_COMPOSE) down
+KILL_DOCKER_DEV = $(DOCKER_COMPOSE) kill
 BUILD_DOCKER_DEV = $(DOCKER_COMPOSE) build
 LOGS_DOCKER_DEV = $(DOCKER_COMPOSE) logs
 PRUNE_DOCKER = docker system prune -af
@@ -90,10 +91,6 @@ superuser: ## create django super user admin (username and password are option p
 	 @args="$(filter-out $@,$(MAKECMDGOALS))" && $(CREATESUPERUSER) $${args:+--username=$${args%% *} --password=$${args##* }}
 .PHONY: superuser
 
-kill: ## stop django server in your host
-	killall manage.py
-.PHONY: kill
-
 run-docker: ## run django server in docker in dev mode
 	$(BUILD_DOCKER_DEV)
 	$(RUN_DOCKER_DEV)
@@ -102,9 +99,21 @@ ifeq ($(RUN_APP), true)
 endif
 .PHONY: run-docker
 
+stop-docker: ## stop docker containers
+	$(STOP_DOCKER_DEV)
+.PHONY: stop
+
+kill: ## stop django server in your host
+	killall manage.py || echo "Couldn't find the app to kill"
+.PHONY: kill
+
 kill-docker: ## stop django server in docker in dev mode
 	$(KILL_DOCKER_DEV)
 .PHONY: kill-docker
+
+stop: | stop-docker kill kill-docker ## stop everything
+	@echo "Everything stopped or killed"
+.PHONY: stop
 
 hr-docker: ## remake complete docker environment (destroy dockers, prune docker, create dockers, migrate, superuser, populate)
 	$(MAKE) kill-docker
