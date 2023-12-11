@@ -6,7 +6,7 @@ TEST_DIR = tests
 POETRY_RUN = poetry run
 DOCKER_TARGET ?= development
 ifeq ($(DOCKER_TARGET), development)
-APP_DOCKER_COMMAND='./wait-for-mysql.sh && python manage.py runserver 0.0.0.0:8000'
+APP_DOCKER_COMMAND='./wait-for-mysql.sh python manage.py runserver 0.0.0.0:8000'
 else
 APP_DOCKER_COMMAND='gunicorn --workers 3 -c /usr/local/etc/gunicorn/app.py nau_financial_manager.wsgi:application'
 endif

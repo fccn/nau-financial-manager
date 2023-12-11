@@ -4,6 +4,7 @@ services:
 
   nau-financial-app:
     container_name: nau-financial-app
+    command: ${APP_DOCKER_COMMAND}
     build:
       context: ../
       dockerfile: docker/Dockerfile
