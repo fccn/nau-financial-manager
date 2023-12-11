@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import codecs
 import copy
+import logging.config
 import os
 from pathlib import Path
 
@@ -216,6 +217,36 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+
+LOGGING = CONFIG.get(
+    "LOGGING",
+    {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "console": {
+                "level": "ERROR",
+                "class": "logging.StreamHandler",
+            },
+        },
+        "loggers": {
+            "django": {
+                "handlers": ["console"],
+                "level": "ERROR",
+                "propagate": True,
+            },
+            "nau_financial_manager": {
+                "handlers": ["console"],
+                "level": "ERROR",
+                "propagate": True,
+            },
+        },
+    },
+)
+
+LOGGING_CONFIG = None
+logging.config.dictConfig(LOGGING)
 
 LANGUAGE_CODE = "en-us"
 
