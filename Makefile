@@ -148,3 +148,8 @@ install-packages: ## Install project dependencies
 logs: ## display docker app logs (follow mode)
 	@$(LOGS_DOCKER_DEV) -f nau-financial-app
 .PHONY: logs
+
+run-database: ## Run database in docker
+	@echo "Running database..."
+	@$(DOCKER_COMPOSE) -f docker/docker-compose-dependencies.yml up -d database-mysql
+.PHONY: run-database

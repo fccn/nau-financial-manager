@@ -21,4 +21,4 @@ jobs:
       run: make test
 
     - name: Run Django tests on Mysql
-      run: make test-mysql
+      run: make run-database && sleep 30 && make test-mysql
