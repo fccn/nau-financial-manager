@@ -7,4 +7,3 @@
 
 # Currently we are just enforcing the debug.
 DEBUG: True
-MYSQL_ROOT_USER: root
