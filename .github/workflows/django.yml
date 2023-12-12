@@ -19,3 +19,6 @@ jobs:
 
     - name: Run Django tests
       run: make test
+
+    - name: Run Django tests on Mysql
+      run: make test-mysql

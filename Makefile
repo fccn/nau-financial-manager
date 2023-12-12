@@ -12,6 +12,7 @@ APP_DOCKER_COMMAND='gunicorn --workers 3 -c /usr/local/etc/gunicorn/app.py nau_f
 endif
 # or use in future the 'pytest' directly
 TEST_CMD = $(POETRY_RUN) python manage.py test --settings=nau_financial_manager.test
+TEST_MYSQL_CMD = $(POETRY_RUN) python manage.py test --settings=nau_financial_manager.test_mysql
 # TEST_CMD = $(POETRY_RUN) pytest
 LINT_CMD = $(POETRY_RUN) black .
 PRE_COMMIT = $(POETRY_RUN) pre-commit run --all-files
@@ -48,6 +49,10 @@ help:
 test:  ## run tests, all or a specific test, example: 'make test apps.billing.tests.test_invoice_host_service' or 'pytest apps/billing/tests/test_invoice_host_service.py -k test_get_document_transaction_not_found'
 	@args="$(filter-out $@,$(MAKECMDGOALS))" && $(TEST_CMD) $${args:-${1}}
 .PHONY: test
+
+test-mysql:  ## run tests, all or a specific test, example: 'make test apps.billing.tests.test_invoice_host_service' or 'pytest apps/billing/tests/test_invoice_host_service.py -k test_get_document_transaction_not_found'
+	@args="$(filter-out $@,$(MAKECMDGOALS))" && $(TEST_MYSQL_CMD) $${args:-${1}}
+.PHONY: test-mysql
 
 lint: ## use black to format code
 	$(LINT_CMD)
