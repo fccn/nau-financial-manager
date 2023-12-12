@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from datetime import datetime, timedelta
 from decimal import Decimal
 
 import factory
@@ -59,13 +58,8 @@ class SplitExecutionServiceTestCase(TestCase):
             )
             self.configurations.append(configuration)
 
-        start_date = str((datetime.now() - timedelta(days=11)).date()).replace("-", "/")
-        end_date = str((datetime.now() + timedelta(days=30)).date()).replace("-", "/")
-
-        start_date = datetime.strptime(start_date, "%Y/%m/%d").isoformat()
-        end_date = (
-            datetime.strptime(end_date, "%Y/%m/%d") + (timedelta(days=1) - timedelta(milliseconds=1))
-        ).isoformat()
+        start_date = (timezone.now() - timezone.timedelta(days=11)).isoformat()
+        end_date = (timezone.now() + timezone.timedelta(days=30)).replace(hour=23, minute=59, second=59).isoformat()
 
         self.options = {
             "start_date": start_date,
