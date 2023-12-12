@@ -21,35 +21,35 @@ class OrganizationModelTest(TestCase):
         Test the label of the name field.
         """
         field_label = self.organization._meta.get_field("name").verbose_name
-        self.assertEquals(field_label, "Name")
+        self.assertEqual(field_label, "Name")
 
     def test_short_name_label(self):
         """
         Test the label of the short name field.
         """
         field_label = self.organization._meta.get_field("short_name").verbose_name
-        self.assertEquals(field_label, "Short Name")
+        self.assertEqual(field_label, "Short Name")
 
     def test_email_label(self):
         """
         Test the label of the email field.
         """
         field_label = self.organization._meta.get_field("email").verbose_name
-        self.assertEquals(field_label, "Email")
+        self.assertEqual(field_label, "Email")
 
     def test_name_max_length(self):
         """
         Test the maximum length of the name field.
         """
         max_length = self.organization._meta.get_field("name").max_length
-        self.assertEquals(max_length, 255)
+        self.assertEqual(max_length, 255)
 
     def test_object_name_is_name(self):
         """
         Test that the string representation of the organization is its name.
         """
         expected_object_name = f"{self.organization.name}"
-        self.assertEquals(expected_object_name, str(self.organization))
+        self.assertEqual(expected_object_name, str(self.organization))
 
     def test_create_organization(self):
         """
