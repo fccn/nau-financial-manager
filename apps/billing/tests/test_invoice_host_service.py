@@ -10,14 +10,14 @@ from rest_framework.test import APIClient
 from apps.billing.factories import TransactionFactory
 from apps.billing.mocks import ILINK_RESPONSE_MOCK
 from apps.billing.models import Transaction
-from apps.billing.services.invoice_host_service import InvoiceDocumentHost
+from apps.billing.services.receipt_host_service import ReceiptDocumentHost
 
 
-class InvoiceDocumentHostForTest(InvoiceDocumentHost):
+class ReceiptDocumentHostForTest(ReceiptDocumentHost):
     def __init__(self) -> None:
-        self.__invoice_host_url = "https://invoice-fake.com/"
-        self.__invoice_host_auth = "test_auth"
-        self.__invoice_host_password = "pwd_test"
+        self.__receipt_host_url = "https://receipt-fake.com/"
+        self.__receipt_host_auth = "test_auth"
+        self.__receipt_host_password = "pwd_test"
 
 
 class MockResponse(Response):
@@ -34,17 +34,17 @@ def mocked_get(*args, **kwargs):
     return MockResponse(data=ILINK_RESPONSE_MOCK, status_code=200)
 
 
-class InvoiceDocumentHostTest(TestCase):
+class ReceiptDocumentHostTest(TestCase):
     def setUp(self) -> None:
         """
-        This method starts the `InvoiceDocumentHostTest` compoment,
+        This method starts the `ReceiptDocumentHostTest` compoment,
         setting the required parameters to excute the tests.
         """
 
         user = get_user_model().objects.create(username="user_test", password="pwd_test")
         self.token = Token.objects.create(user=user)
         self.api_client = APIClient()
-        self.invoice_document_host = InvoiceDocumentHostForTest()
+        self.receipt_document_host = ReceiptDocumentHostForTest()
         self.transaction: Transaction = TransactionFactory.create()
 
     @mock.patch("requests.get", mocked_get)
@@ -57,7 +57,7 @@ class InvoiceDocumentHostTest(TestCase):
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
 
         link = ILINK_RESPONSE_MOCK["response"]["data"]["attachments"][0]["file"]
-        response = self.api_client.get(f"/api/billing/invoice-link/{self.transaction.transaction_id}/")
+        response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
         obtained_link = response.data["response"]
 
         self.assertEqual(response.status_code, 200)
@@ -76,7 +76,7 @@ class InvoiceDocumentHostTest(TestCase):
 
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
 
-        response = self.api_client.get("/api/billing/invoice-link/wrong-transaction-id/")
+        response = self.api_client.get("/api/billing/receipt-link/wrong-transaction-id/")
         data = response.data["response"]
 
         self.assertEqual(response.status_code, 404)
@@ -90,7 +90,7 @@ class InvoiceDocumentHostTest(TestCase):
 
         self.api_client.credentials()
 
-        response = self.api_client.get("/api/billing/invoice-link/wrong-transaction-id/")
+        response = self.api_client.get("/api/billing/receipt-link/wrong-transaction-id/")
         content = response.content.decode()
         message = json.JSONDecoder().decode(s=content)
         message = message["error"]["message"]["detail"]
@@ -106,7 +106,7 @@ class InvoiceDocumentHostTest(TestCase):
 
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key[:-3]}abc")
 
-        response = self.api_client.get("/api/billing/invoice-link/wrong-transaction-id/")
+        response = self.api_client.get("/api/billing/receipt-link/wrong-transaction-id/")
         content = response.content.decode()
         message = json.JSONDecoder().decode(s=content)
         message = message["error"]["message"]["detail"]
@@ -121,6 +121,6 @@ class InvoiceDocumentHostTest(TestCase):
 
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key[:-3]}abc")
 
-        response = self.api_client.get("/api/billing/invoice-link/")
+        response = self.api_client.get("/api/billing/receipt-link/")
 
         self.assertEqual(response.status_code, 404)
