@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from apps.billing.models import Transaction
 from apps.billing.serializers import ProcessTransactionSerializer
-from apps.billing.services.invoice_host_service import InvoiceDocumentHost
+from apps.billing.services.receipt_host_service import ReceiptDocumentHost
 from apps.util.base_views import GeneralPost
 
 
@@ -19,9 +19,9 @@ class ProcessTransaction(APIView, GeneralPost):
 
 @api_view(["GET"])
 @authentication_classes([TokenAuthentication])
-def get_invoice_link(request, *args, **kwargs):
+def get_receipt_link(request, *args, **kwargs):
     """
-    This method is the endpoint method called through `invoice-link/<str:transaction_id>/`.
+    This method is the endpoint method called through `receipt-link/<str:transaction_id>/`.
     """
 
     try:
@@ -34,8 +34,8 @@ def get_invoice_link(request, *args, **kwargs):
         except ObjectDoesNotExist:
             return Response({"response": "Trasaction not found"}, status=404)
 
-        invoice_link = InvoiceDocumentHost().get_document(document_id=transaction.document_id)
+        receipt_link = ReceiptDocumentHost().get_document(document_id=transaction.document_id)
 
-        return Response({"response": invoice_link}, status=200)
+        return Response({"response": receipt_link}, status=200)
     except Exception as e:
         raise e

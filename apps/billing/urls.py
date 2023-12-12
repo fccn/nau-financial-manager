@@ -9,8 +9,8 @@ urlpatterns = [
         name="transaction_complete",
     ),
     path(
-        "invoice-link/<str:transaction_id>/",
-        views.get_invoice_link,
-        name="get_invoice_link",
+        "receipt-link/<str:transaction_id>/",
+        views.get_receipt_link,
+        name="get_receipt_link",
     ),
 ]

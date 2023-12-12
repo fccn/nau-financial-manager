@@ -46,11 +46,11 @@ help:
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 .PHONY: help
 
-test:  ## run tests, all or a specific test, example: 'make test apps.billing.tests.test_invoice_host_service' or 'pytest apps/billing/tests/test_invoice_host_service.py -k test_get_document_transaction_not_found'
+test:  ## run tests, all or a specific test, example: 'make test apps.billing.tests.test_receipt_host_service' or 'pytest apps/billing/tests/test_receipt_host_service.py -k test_get_document_transaction_not_found'
 	@args="$(filter-out $@,$(MAKECMDGOALS))" && $(TEST_CMD) $${args:-${1}}
 .PHONY: test
 
-test-mysql:  ## run tests, all or a specific test, example: 'make test apps.billing.tests.test_invoice_host_service' or 'pytest apps/billing/tests/test_invoice_host_service.py -k test_get_document_transaction_not_found'
+test-mysql:  ## run tests, all or a specific test, example: 'make test apps.billing.tests.test_receipt_host_service' or 'pytest apps/billing/tests/test_receipt_host_service.py -k test_get_document_transaction_not_found'
 	@args="$(filter-out $@,$(MAKECMDGOALS))" && $(TEST_MYSQL_CMD) $${args:-${1}}
 .PHONY: test-mysql
 
