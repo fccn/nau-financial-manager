@@ -2,6 +2,7 @@ from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
 from apps.billing.models import Transaction, TransactionItem
+from apps.billing.tasks import send_transactions_to_processor_task
 from apps.organization.models import Organization
 from apps.shared_revenue.models import RevenueConfiguration
 
@@ -126,7 +127,7 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
     def _execute_billing_resources(
         self,
         validate_data: dict,
-    ) -> list[TransactionItem]:
+    ) -> tuple[Transaction, list[TransactionItem]]:
         items = validate_data.pop("items", [])
         transaction = Transaction.objects.create(**validate_data)
         items_as_instances: list[TransactionItem] = []
@@ -138,11 +139,11 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
             serialized_items.append(TransactionItemSerializer(item).data)
 
         validate_data["items"] = serialized_items
-        return items_as_instances
+        return transaction, items_as_instances
 
     def create(self, validate_data):
         try:
-            items: list[TransactionItem] = self._execute_billing_resources(validate_data=validate_data)
+            transaction, items = self._execute_billing_resources(validate_data=validate_data)
             for item in items:
                 organization, created = Organization.objects.get_or_create(
                     short_name=item.organization_code,
@@ -152,6 +153,8 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
                     organization=organization,
                     product_id=item.product_id,
                 )
+
+            send_transactions_to_processor_task(transaction=transaction)
 
             return validate_data
         except Exception as e:
