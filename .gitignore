@@ -168,3 +168,8 @@ db.sqlite3
 
 # default django storages directory to work with django.core.files.storage.FileSystemStorage
 ./files/
+docker/docker-compose-dev.yml
+docker/Dockerfile-dev
+sample-dev.env
+reset.sh
+Makefile.orig
