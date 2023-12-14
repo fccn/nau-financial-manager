@@ -12,8 +12,8 @@ class Command(BaseCommand):
     This command triggers the export of all the transactions splitted based on the given parameters.
 
     Required parameters:
-        - start_date: d/m/y
-        - end_date: d/m/y
+        - start_date: YYYY-MM-DD
+        - end_date: YYYY-MM-DD
 
     Optional parameters:
         - product_id
@@ -22,6 +22,10 @@ class Command(BaseCommand):
     How to use:
 
         python manage.py export_split_revenue  {start_date} {end_date} --product_id={product_id} --organization_code={organization_code}
+
+        Exemple:
+
+            python manage.py export_split_revenue 2023-12-01 2024-01-01
 
     """
 
