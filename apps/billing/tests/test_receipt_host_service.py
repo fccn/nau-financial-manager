@@ -3,12 +3,11 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from requests import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from apps.billing.factories import TransactionFactory
-from apps.billing.mocks import ILINK_RESPONSE_MOCK
+from apps.billing.mocks import ILINK_RESPONSE_MOCK, UNAUTHORIZED_ILINK_RESPONSE, MockResponse
 from apps.billing.models import Transaction
 from apps.billing.services.receipt_host_service import ReceiptDocumentHost
 
@@ -20,18 +19,16 @@ class ReceiptDocumentHostForTest(ReceiptDocumentHost):
         self.__receipt_bearer_token = "Bearer token"
 
 
-class MockResponse(Response):
-    def __init__(self, data, status_code):
-        self.data = data
-        self.status_code = status_code
-
-    @property
-    def content(self):
-        return json.JSONEncoder().encode(o=self.data)
-
-
 def mocked_get(*args, **kwargs):
     return MockResponse(data=ILINK_RESPONSE_MOCK, status_code=200)
+
+
+def mocked_file_not_found(*args, **kwargs):
+    return MockResponse("File not found", status_code=404)
+
+
+def mocked_unauthorized(*args, **kwargs):
+    return MockResponse(UNAUTHORIZED_ILINK_RESPONSE, status_code=500)
 
 
 class ReceiptDocumentHostTest(TestCase):
@@ -80,7 +77,7 @@ class ReceiptDocumentHostTest(TestCase):
         data = response.data["response"]
 
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(data, "Trasaction not found")
+        self.assertEqual(data, "Transaction not found")
 
     def test_get_document_authentication_not_provided(self):
         """
@@ -119,8 +116,34 @@ class ReceiptDocumentHostTest(TestCase):
         This test ensures the not found error getting a file link calling a wrong url.
         """
 
-        self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key[:-3]}abc")
+        self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token}")
 
         response = self.api_client.get("/api/billing/receipt-link/")
 
         self.assertEqual(response.status_code, 404)
+
+    @mock.patch("requests.get", mocked_file_not_found)
+    def test_get_document_file_not_found(self):
+        """
+        This test ensures that the file not found exception is correctly handled.
+        """
+
+        self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token}")
+
+        response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.data["response"], "File not found")
+
+    @mock.patch("requests.get", mocked_unauthorized)
+    def test_get_document_unauthorized(self):
+        """
+        This test ensures that the unauthorized exception is correctly handled.
+        """
+
+        self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token}")
+
+        response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
+
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.data["response"], "Occurred an error getting the document")

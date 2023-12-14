@@ -1,4 +1,7 @@
+import json
 from random import randint
+
+from requests import Response
 
 ILINK_RESPONSE_MOCK = {
     "success": "true",
@@ -496,3 +499,20 @@ def xml_duplicate_error_response_mock():
             </soapenv:Body>
             </soapenv:Envelope>
         """
+
+
+UNAUTHORIZED_ILINK_RESPONSE = {"success": False, "errors": [{"code": "e069", "msg": "Autenticação inválida."}]}
+
+
+class MockResponse(Response):
+    def __init__(self, data, status_code):
+        self.data = data
+        self.status_code = status_code
+
+    @property
+    def content(self):
+        data = self.data
+        if not isinstance(data, str):
+            data = json.JSONEncoder().encode(o=self.data)
+
+        return data
