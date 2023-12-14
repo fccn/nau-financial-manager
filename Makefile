@@ -140,10 +140,15 @@ install-poetry: ## Install Poetry
 	@curl -sSL https://install.python-poetry.org | python -
 .PHONY: install-poetry
 
-install-packages: ## Install project dependencies
+install-packages: ## Install project dependencies without dev dependencies
+	@echo "Installing project dependencies..."
+	@$(POETRY) install --only main
+.PHONY: install-packages
+
+install-packages-dev: ## Install project dependencies with dev dependencies
 	@echo "Installing project dependencies..."
 	@$(POETRY) install
-.PHONY: install-packages
+.PHONY: install-packages-dev
 
 logs: ## display docker app logs (follow mode)
 	@$(LOGS_DOCKER_DEV) -f nau-financial-app
