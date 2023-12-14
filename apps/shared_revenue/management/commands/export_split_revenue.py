@@ -54,7 +54,7 @@ class Command(BaseCommand):
                 **kwargs,
             )
             finish = time.time() - start
-            self.stdout.write("\n-----FILE GENERATED SUCCESSFULLY-----\n")
+            self.stdout.write("\n-----FILE GENERATION EXECUTED SUCCESSFULLY-----\n")
             self.stdout.write(f"\nThe time to the file export was {finish}\n")
         except Exception as e:
             raise CommandError(f"\n-----AN ERROR HAS BEEN RAISED RUNNING THE FILE EXPORT: {e}")
