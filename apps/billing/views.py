@@ -1,3 +1,4 @@
+import requests
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import api_view, authentication_classes
@@ -46,14 +47,16 @@ def get_receipt_link(request, *args, **kwargs):
         if not kwargs:
             return Response({"response": "Invalid transaction id"}, status=400)
 
-        transaction = None
-        try:
-            transaction = Transaction.objects.get(transaction_id=kwargs["transaction_id"])
-        except ObjectDoesNotExist:
-            return Response({"response": "Trasaction not found"}, status=404)
-
+        transaction = Transaction.objects.get(transaction_id=kwargs["transaction_id"])
         receipt_link = ReceiptDocumentHost().get_document(document_id=transaction.document_id)
 
         return Response({"response": receipt_link}, status=200)
+    except requests.exceptions.RequestException as e:
+        if e.response.status_code == 404:
+            return Response({"response": "File not found"}, status=404)
+
+        return Response({"response": "Occurred an error getting the document"}, status=500)
+    except ObjectDoesNotExist:
+        return Response({"response": "Transaction not found"}, status=404)
     except Exception as e:
         raise e

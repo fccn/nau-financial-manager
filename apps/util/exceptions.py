@@ -11,8 +11,10 @@ def custom_exception_handler(exc, context):
         data = {"error": {"code": response.status_code, "message": response.data}}
         response.data = data
         response.content_type = "application/json"
+        logging.getLogger("nau_financial_manager").error(
+            f"time:{datetime.now()}, error: {response.data}, exc: '{exc}', context: {context}"
+        )
 
-    logging.getLogger("nau_financial_manager").error(
-        f"time:{datetime.now()}, error: {response.data}, exc: '{exc}', context: {context}"
-    )
-    return response
+        return response
+
+    logging.getLogger("nau_financial_manager").error(f"time:{datetime.now()}, exc: '{exc}', context: {context}")

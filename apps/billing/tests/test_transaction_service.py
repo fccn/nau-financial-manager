@@ -4,11 +4,10 @@ from unittest import mock
 import xmltodict
 from django.conf import settings
 from django.test.testcases import TestCase
-from requests import Response
 from requests.exceptions import Timeout
 
 from apps.billing.factories import TransactionFactory, TransactionItemFactory
-from apps.billing.mocks import xml_duplicate_error_response_mock, xml_success_response_mock
+from apps.billing.mocks import MockResponse, xml_duplicate_error_response_mock, xml_success_response_mock
 from apps.billing.services.financial_processor_service import TransactionProcessorInterface
 from apps.billing.services.transaction_service import TransactionService
 
@@ -16,16 +15,6 @@ nau_data = {}
 billing_data = {}
 client_data = {}
 transaction_item_data = {}
-
-
-class MockResponse(Response):
-    def __init__(self, data, status_code):
-        self.data = data
-        self.status_code = status_code
-
-    @property
-    def content(self):
-        return str(self.data)
 
 
 class ProcessorResponseType(Enum):
