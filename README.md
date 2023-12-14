@@ -139,3 +139,28 @@ Solution:
 ```bash
 export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 ```
+
+
+# Django commands
+
+  ## Export shared revenue
+
+  This command triggers the export of all the transactions splitted based on the given parameters.
+
+###### Required parameters:
+  - start_date: YYYY-MM-DD
+  - end_date: YYYY-MM-DD
+
+###### Optional parameters:
+  - product_id
+  - organization_code
+
+###### How to use:
+```bash
+python manage.py export_split_revenue  {start_date} {end_date} --product_id={product_id} --organization_code={organization_code}
+```
+
+###### Exemple:
+```bash
+python manage.py export_split_revenue 2023-12-01 2024-01-01
+```
