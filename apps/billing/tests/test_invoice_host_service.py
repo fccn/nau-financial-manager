@@ -18,6 +18,7 @@ class ReceiptDocumentHostForTest(ReceiptDocumentHost):
         self.__receipt_host_url = "https://receipt-fake.com/"
         self.__receipt_host_auth = "test_auth"
         self.__receipt_host_password = "pwd_test"
+        self.__receipt_entity_public_key = "receipt_entity_public_key"
 
 
 class MockResponse(Response):

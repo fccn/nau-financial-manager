@@ -9,6 +9,7 @@ class ReceiptDocumentHost:
         self.__receipt_host_url = getattr(settings, "RECEIPT_HOST_URL")
         self.__receipt_host_auth = getattr(settings, "RECEIPT_HOST_AUTH")
         self.__receipt_host_password = getattr(settings, "RECEIPT_HOST_PASSWORD")
+        self.__receipt_entity_public_key = getattr(settings, "RECEIPT_ENTITY_PUBLIC_KEY")
 
     def get_document(self, document_id: str):
         """
@@ -21,6 +22,7 @@ class ReceiptDocumentHost:
         try:
             response = requests.get(
                 url=f"{self.__receipt_host_url}/{document_id}",
+                headers={"entity": self.__receipt_entity_public_key},
                 auth=(
                     self.__receipt_host_auth,
                     self.__receipt_host_password,
