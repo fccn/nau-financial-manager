@@ -20,5 +20,8 @@ jobs:
     - name: Run Django tests
       run: make test
 
+    - name: Run Lint
+      run: make lint
+
     - name: Run Django tests on Mysql
       run: make run-database && sleep 30 && make test-mysql
