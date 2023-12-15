@@ -76,11 +76,22 @@ poetry env use 3.11.4
 poetry shell
 ```
 
-## Run for DEV
+## Run locally
 
-Start the app's dependencies services:
+### for local development
+
+To start the application outside docker, execute the next command inside a virtual environment.
+This will start all the dependencies services on each docker container and the application directly
+on the host using the development server:
+
 ```bash
-RUN_APP=false make run-docker
+make run
+```
+
+To start the app and its dependencies on docker, on development mode, run:
+
+```bash
+make run-docker
 ```
 
 You have to install the app package dependencies and run the migrations.
@@ -88,35 +99,48 @@ You have to install the app package dependencies and run the migrations.
 make install-packages migrate
 ```
 
-To execute the application outside the docker:
-```bash
-make run
-```
+### for local testing the production mode
 
-## Run for PROD
-
-To start the application using the production mode, run:
+To check if everything is ok and running using the production mode of the docker images, we have a
+wait to run the application on production mode.
+This will use the docker target `production` of the docker application image.
 
 ```bash
 DOCKER_TARGET=production make run-docker
 ```
 
-## GENERATING AND USING TOKEN
+## API
 
-To generate a token you should use one of this two commands:
+This project uses the Django Rest Framework using a token approach for authentication.
+
+The important API are:
+
+- /billing/receipt-link/{transaction_id}/
+- /billing/transaction-complete/
+
+You can view the API documentation on:
+
+- Swagger http://localhost:8000/api/docs/
+- Redocs  http://localhost:8000/api/redocs/
+
+### Generate a local token for development
+
+To generate a token for local development you should use one of this two commands:
+
+This will create a token for `admin` user.
 ```bash
-make create-token # will create a token for admin user
+make create-token
 ```
-OR
+
+### Generate a token for a production environment
+
 ```bash
-manage.py drf_create_token user_who_you_want  # will create a token for indicated user
+python manage.py createsuperuser --noinput --username <username> --email <email>
+
+python manage.py drf_create_token <username>
 ```
 
-# IN YOUR CODE
-To use token you need import he class ```from rest_framework.authentication import TokenAuthentication ```
-then in your view declare a variable ```authentication_classes``` as list with ```TokenAuthentication``` class.
-
-# IN YOUR CLIENT OR REQUEST
+## Client
 In Headers of request you need to declare a key 'Authorization' with the value 'Token generated_token'
 
 Here is a example:
