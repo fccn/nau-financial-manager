@@ -68,8 +68,8 @@ RUN groupadd -r ${DOCKER_USER} && \
 # Copy only requirements, to cache them in docker layer
 COPY poetry.lock pyproject.toml /app/
 
-# Install packages via poetry:
-RUN poetry install --verbose
+# Install core packages via poetry
+RUN poetry install --verbose --only main
 
 # Gunicorn
 RUN mkdir -p /usr/local/etc/gunicorn
@@ -106,8 +106,8 @@ FROM core as development
 
 ARG DOCKER_USER
 
-# Install development dependencies
-# TODO
+# Install all dependencies, including development
+RUN poetry install --verbose
 
 # Un-privileged user running the application
 USER ${DOCKER_USER}:${DOCKER_USER}
