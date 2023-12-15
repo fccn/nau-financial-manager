@@ -24,6 +24,7 @@ class ProcessTransaction(APIView, GeneralPost):
     string plus the value of the token, example:
         Authorization: Token 401f7ac837da42b97f613d789819ff93537bee6a
     """
+
     authentication_classes = [TokenAuthentication]
     serializer = ProcessTransactionSerializer
     permission_classes = [IsAuthenticated]
@@ -34,7 +35,7 @@ class ProcessTransaction(APIView, GeneralPost):
 def get_receipt_link(request, *args, **kwargs):
     """
     Get Receipt Link
-    
+
     This method is the endpoint method called through `receipt-link/<str:transaction_id>/`.
 
     It uses the Django Rest Framework with a Token Authentication approach,
