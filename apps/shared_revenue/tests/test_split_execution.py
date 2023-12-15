@@ -99,7 +99,6 @@ class SplitExecutionServiceTestCase(TestCase):
         configurations = split_result[1]
 
         if all([len(results) > 0, len(configurations) > 0]):
-
             for result in results:
                 self.assertEqual(result["organization"], self.organizations[0].short_name)
 
