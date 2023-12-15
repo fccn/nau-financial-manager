@@ -19,18 +19,6 @@ class ReceiptDocumentHostForTest(ReceiptDocumentHost):
         self.__receipt_bearer_token = "Bearer token"
 
 
-def mocked_get(*args, **kwargs):
-    return MockResponse(data=ILINK_RESPONSE_MOCK, status_code=200)
-
-
-def mocked_file_not_found(*args, **kwargs):
-    return MockResponse("File not found", status_code=404)
-
-
-def mocked_unauthorized(*args, **kwargs):
-    return MockResponse(UNAUTHORIZED_ILINK_RESPONSE, status_code=500)
-
-
 class ReceiptDocumentHostTest(TestCase):
     def setUp(self) -> None:
         """
@@ -44,7 +32,7 @@ class ReceiptDocumentHostTest(TestCase):
         self.receipt_document_host = ReceiptDocumentHostForTest()
         self.transaction: Transaction = TransactionFactory.create()
 
-    @mock.patch("requests.get", mocked_get)
+    @mock.patch("requests.get", lambda *args, **kargs: MockResponse(data=ILINK_RESPONSE_MOCK, status_code=200))
     def test_get_document_success(self):
         """
         This test ensures to success getting a file link providing the
@@ -122,7 +110,7 @@ class ReceiptDocumentHostTest(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    @mock.patch("requests.get", mocked_file_not_found)
+    @mock.patch("requests.get", lambda *args, **kwargs: MockResponse("File not found", status_code=404))
     def test_get_document_file_not_found(self):
         """
         This test ensures that the file not found exception is correctly handled.
@@ -135,7 +123,7 @@ class ReceiptDocumentHostTest(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.data["response"], "File not found")
 
-    @mock.patch("requests.get", mocked_unauthorized)
+    @mock.patch("requests.get", lambda *args, **kwargs: MockResponse(UNAUTHORIZED_ILINK_RESPONSE, status_code=500))
     def test_get_document_unauthorized(self):
         """
         This test ensures that the unauthorized exception is correctly handled.
