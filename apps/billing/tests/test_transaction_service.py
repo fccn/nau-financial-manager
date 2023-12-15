@@ -203,7 +203,6 @@ def generate_data_to_response(
     billing_data: dict = None,
     client_data: dict = None,
 ):
-
     if response_type not in ProcessorResponseType:
         raise "Invalid response type"
 
