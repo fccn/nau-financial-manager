@@ -16,9 +16,8 @@ from apps.billing.services.receipt_host_service import ReceiptDocumentHost
 class ReceiptDocumentHostForTest(ReceiptDocumentHost):
     def __init__(self) -> None:
         self.__receipt_host_url = "https://receipt-fake.com/"
-        self.__receipt_host_auth = "test_auth"
-        self.__receipt_host_password = "pwd_test"
         self.__receipt_entity_public_key = "receipt_entity_public_key"
+        self.__receipt_bearer_token = "Bearer token"
 
 
 class MockResponse(Response):
