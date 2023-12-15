@@ -99,6 +99,7 @@ superuser: ## create django super user admin (username and password are option p
 run-docker: ## run django server in docker in dev mode
 	$(BUILD_DOCKER_DEV)
 	$(RUN_DOCKER_DEV)
+	$(MIGRATE)
 ifeq ($(RUN_APP), true)
 	@echo "The app should be running on 8000 port and you can access it from nginx on http://localhost:8081"
 endif
