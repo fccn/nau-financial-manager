@@ -54,7 +54,7 @@ SECRET_KEY = CONFIG.get("SECRET_KEY", get_env_setting("SECRET_KEY", "change-me")
 if SECRET_KEY == "change-me" and not DEBUG:
     raise ImproperlyConfigured("For security reasons you need to change the 'SECRET_KEY'.")
 
-ALLOWED_HOSTS = CONFIG.get("ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
+ALLOWED_HOSTS = CONFIG.get("ALLOWED_HOSTS", ["nau-financial-app", "127.0.0.1", "localhost"])
 
 STATIC_ROOT = os.path.join(get_env_setting("STATIC_ROOT", "./data/static"))
 
@@ -307,3 +307,8 @@ SWAGGER_DESCRIPTION = CONFIG.get("SWAGGER_DESCRIPTION", "API for Nau Financial M
 SWAGGER_SETTINGS = {
     "SECURITY_DEFINITIONS": {"api_key": {"type": "apiKey", "in": "header", "name": "Authorization"}},
 }
+
+# Allow usage from nginx 8081 port.
+# Unfortunately this will be added to the production image, in future we need a different run mode for production.
+# This fixes the error: "CSRF verification failed. Request aborted." when accessing using local nginx.
+CSRF_TRUSTED_ORIGINS = CONFIG.get("CSRF_TRUSTED_ORIGINS", ["http://localhost:8081"])
