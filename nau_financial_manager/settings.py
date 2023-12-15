@@ -260,14 +260,14 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Transaction processor settings
+# Sage X3 - Transaction processor settings
 TRANSACTION_PROCESSOR_URL = CONFIG.get("TRANSACTION_PROCESSOR_URL", "")
 IVA_VACITM1_FIELD = CONFIG.get("IVA_VACITM1_FIELD", "NOR")
 GEOGRAPHIC_ACTIVITY_VACBPR_FIELD = CONFIG.get("GEOGRAPHIC_ACTIVITY_VACBPR_FIELD", "CON")
 USER_PROCESSOR_AUTH = CONFIG.get("USER_PROCESSOR_AUTH", "")
 USER_PROCESSOR_PASSWORD = CONFIG.get("USER_PROCESSOR_PASSWORD", "")
 
-# Receipt host information
+# iLink - Receipt host information
 RECEIPT_HOST_URL = CONFIG.get("RECEIPT_HOST_URL", "")
 RECEIPT_ENTITY_PUBLIC_KEY = CONFIG.get("RECEIPT_ENTITY_PUBLIC_KEY", "")
 RECEIPT_BEARER_TOKEN = CONFIG.get("RECEIPT_BEARER_TOKEN", "")
@@ -275,3 +275,14 @@ RECEIPT_BEARER_TOKEN = CONFIG.get("RECEIPT_BEARER_TOKEN", "")
 SWAGGER_PROJECT_NAME = CONFIG.get("SWAGGER_PROJECT_NAME", "Nau Financial Manager")
 SWAGGER_PROJECT_VERSION = CONFIG.get("SWAGGER_PROJECT_VERSION", "1.0.0")
 SWAGGER_DESCRIPTION = CONFIG.get("SWAGGER_DESCRIPTION", "API for Nau Financial Manager")
+
+# Add a way to use Token authentication on the Swagger UI
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    },
+}
