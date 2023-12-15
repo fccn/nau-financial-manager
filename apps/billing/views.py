@@ -12,6 +12,17 @@ from apps.util.base_views import GeneralPost
 
 
 class ProcessTransaction(APIView, GeneralPost):
+    """
+    Process/save Transaction
+
+    Api that creates and processes transactions.
+    It's responsible for validating and processing transaction data.
+
+    It uses the Django Rest Framework with a Token Authentication approach,
+    meaning that the client should send the `Authorization` HTTP header with a value of `Token`
+    string plus the value of the token, example:
+        Authorization: Token 401f7ac837da42b97f613d789819ff93537bee6a
+    """
     authentication_classes = [TokenAuthentication]
     serializer = ProcessTransactionSerializer
     permission_classes = [IsAuthenticated]
@@ -21,7 +32,14 @@ class ProcessTransaction(APIView, GeneralPost):
 @authentication_classes([TokenAuthentication])
 def get_receipt_link(request, *args, **kwargs):
     """
+    Get Receipt Link
+    
     This method is the endpoint method called through `receipt-link/<str:transaction_id>/`.
+
+    It uses the Django Rest Framework with a Token Authentication approach,
+    meaning that the client should send the `Authorization` HTTP header with a value of `Token`
+    string plus the value of the token, example:
+        Authorization: Token 401f7ac837da42b97f613d789819ff93537bee6a
     """
 
     try:
