@@ -225,20 +225,24 @@ LOGGING = CONFIG.get(
         "version": 1,
         "disable_existing_loggers": False,
         "handlers": {
-            "console": {
+            "error": {
                 "level": "ERROR",
+                "class": "logging.StreamHandler",
+            },
+            "warning": {
+                "level": "WARNING",
                 "class": "logging.StreamHandler",
             },
         },
         "loggers": {
             "django": {
-                "handlers": ["console"],
+                "handlers": ["error", "warning"],
                 "level": "ERROR",
                 "propagate": True,
             },
             "nau_financial_manager": {
-                "handlers": ["console"],
-                "level": "ERROR",
+                "handlers": ["error", "warning"],
+                "level": 1,
                 "propagate": True,
             },
         },

@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Dict, List
 
@@ -56,9 +57,11 @@ class SplitExportService:
             if not len(split_sheets[0]) == 0:
                 file_name: str = self._generate_file_name(optional=kwargs)
                 FileGenerator().generate_xlsx(file_name=file_name, sheets=split_sheets)
-            else:
-                print(
-                    f"\nNo data available to generate file using the parameters:\nstart_date: {start_date}\nend_date: {end_date}\noptions: {kwargs}"
-                )
+
+                return
+
+            logging.getLogger("nau_financial_manager").warning(
+                f"\nNo data available to generate file using the parameters:\nstart_date: {start_date}\nend_date: {end_date}\noptions: {kwargs}"
+            )
         except Exception as e:
             raise e
