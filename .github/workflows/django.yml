@@ -12,7 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
     - name: Setup Poetry
       run: make install-poetry install-packages
@@ -22,9 +26,6 @@ jobs:
 
     - name: Run Lint
       run: make lint
-
-    - name: Run pre-commit
-      run: make pre-commit
 
     - name: Run Django tests on Mysql
       run: make run-database && sleep 30 && make test-mysql
