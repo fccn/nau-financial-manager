@@ -1,13 +1,16 @@
 import time
 from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 
 from apps.organization.models import Organization
 from apps.shared_revenue.services.split_export import SplitExportService
+from apps.shared_revenue.tasks import send_email_to_organization
 
 
 class Command(BaseCommand):
+
     """
 
     This command triggers the export of all the transactions splitted based on the given parameters per organization.
@@ -43,11 +46,19 @@ class Command(BaseCommand):
 
             for organization in Organization.objects.all():
                 kwargs = {"organization_code": organization.short_name}
-                SplitExportService().export_split_to_xlsx(
+                file_name = SplitExportService().export_split_to_xlsx(
                     start_date=start_date,
                     end_date=end_date,
                     **kwargs,
                 )
+
+                if file_name:
+                    for email in organization.email.split(";"):
+                        try:
+                            sender = getattr(settings, "EMAIL_SENDER")
+                            send_email_to_organization(sender=sender, receiver=email, content=f"{file_name}")
+                        except Exception as e:
+                            raise e
 
             finish = time.time() - start
             self.stdout.write("\n-----FILE GENERATION EXECUTED SUCCESSFULLY-----\n")

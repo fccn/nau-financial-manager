@@ -264,6 +264,8 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+EMAIL_SENDER = CONFIG.get("EMAIL_SENDER", "")
+
 # Sage X3 - Transaction processor settings
 TRANSACTION_PROCESSOR_URL = CONFIG.get("TRANSACTION_PROCESSOR_URL", "")
 IVA_VACITM1_FIELD = CONFIG.get("IVA_VACITM1_FIELD", "NOR")
