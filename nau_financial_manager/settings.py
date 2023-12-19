@@ -284,3 +284,8 @@ SWAGGER_DESCRIPTION = CONFIG.get("SWAGGER_DESCRIPTION", "API for Nau Financial M
 SWAGGER_SETTINGS = {
     "SECURITY_DEFINITIONS": {"api_key": {"type": "apiKey", "in": "header", "name": "Authorization"}},
 }
+
+# Allow usage from nginx 8081 port.
+# Unfortunately this will be added to the production image, in future we need a different run mode for production.
+# This fixes the error: "CSRF verification failed. Request aborted." when accessing using local nginx.
+CSRF_TRUSTED_ORIGINS = CONFIG.get("CSRF_TRUSTED_ORIGINS", ["http://localhost:8081"])
