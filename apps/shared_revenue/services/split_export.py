@@ -40,7 +40,7 @@ class SplitExportService:
         start_date: datetime,
         end_date: datetime,
         **kwargs,
-    ) -> None:
+    ):
         """
         Exports as xlsx format the calculated split revenue based on the given parameters.
 
@@ -58,7 +58,7 @@ class SplitExportService:
                 file_name: str = self._generate_file_name(optional=kwargs)
                 FileGenerator().generate_xlsx(file_name=file_name, sheets=split_sheets)
 
-                return
+                return file_name
 
             logging.getLogger("nau_financial_manager").warning(
                 f"\nNo data available to generate file using the parameters:\nstart_date: {start_date}\nend_date: {end_date}\noptions: {kwargs}"
