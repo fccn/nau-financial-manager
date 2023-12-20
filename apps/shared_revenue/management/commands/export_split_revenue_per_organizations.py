@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError, CommandParser
+from django.template.loader import render_to_string
 
 from apps.organization.models import Organization
 from apps.shared_revenue.services.split_export import SplitExportService
@@ -52,20 +53,31 @@ class Command(BaseCommand):
                     **kwargs,
                 )
 
-                # TODO: insert the list of organization emails in the for
                 if file_name and send_file.upper() == "TRUE":
-                    for email in [organization.email]:
-                        try:
-                            sender = getattr(settings, "EMAIL_SENDER")
-                            file_path_link = getattr(settings, "FILE_PATH_LINK")
-                            send_email_to_organization(
-                                sender=sender, receiver=email, content=f"{file_path_link}{file_name}"
-                            )
-                        except Exception as e:
-                            raise e
+                    # TODO: insert the list of organization emails in the for
+                    self.__send_email(
+                        file_name=file_name,
+                        recipient_list=[organization.email],
+                    )
 
             finish = time.time() - start
             self.stdout.write("\n-----FILE GENERATION EXECUTED SUCCESSFULLY-----\n")
             self.stdout.write(f"\nThe time to the file export was {finish}\n")
         except Exception as e:
             raise CommandError(f"\n-----AN ERROR HAS BEEN RAISED RUNNING THE FILE EXPORT: {e}")
+
+    def __send_email(self, file_name: str, recipient_list: list):
+        try:
+            base_dir = getattr(settings, "BASE_DIR")
+            sender = getattr(settings, "EMAIL_HOST_USER")
+            file_link = getattr(settings, "FILE_PATH_LINK")
+            content = render_to_string(
+                f"{base_dir}/templates/emails/shared_revenue_export_per_organization.txt",
+                {"file_link": f"{file_link}{file_name}"},
+            )
+
+            send_email_to_organization(
+                sender=sender, recipient_list=recipient_list, content=content, subject="NAU financial report."
+            )
+        except Exception as e:
+            raise e

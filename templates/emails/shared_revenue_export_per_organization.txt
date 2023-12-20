@@ -1,0 +1,12 @@
+{% autoescape off %}
+Hello,
+
+A new file of the financial information is available for this organization.
+Click on the link below to access.
+
+{{ file_link }}
+
+Regards,
+Team NAU.
+
+{% endautoescape %}

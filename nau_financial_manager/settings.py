@@ -101,23 +101,6 @@ MIDDLEWARE = [
 ]
 AUTH_USER_MODEL = "util.CustomUser"
 ROOT_URLCONF = "nau_financial_manager.urls"
-
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ],
-        },
-    },
-]
-
 WSGI_APPLICATION = "nau_financial_manager.wsgi.application"
 
 # The normal Django `DATABASES`` setting
@@ -158,6 +141,26 @@ STORAGES = CONFIG.get(
         },
     },
 )
+
+TEMPLATES = CONFIG.get(
+    "TEMPLATES",
+    [
+        {
+            "BACKEND": "django.template.backends.django.DjangoTemplates",
+            "DIRS": [BASE_DIR / "templates"],
+            "APP_DIRS": True,
+            "OPTIONS": {
+                "context_processors": [
+                    "django.template.context_processors.debug",
+                    "django.template.context_processors.request",
+                    "django.contrib.auth.context_processors.auth",
+                    "django.contrib.messages.context_processors.messages",
+                ],
+            },
+        }
+    ],
+)
+
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
@@ -270,6 +273,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Email configurations
 EMAIL_SENDER = CONFIG.get("EMAIL_SENDER", "")
+EMAIL_BACKEND = CONFIG.get("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+EMAIL_HOST = CONFIG.get("EMAIL_HOST", "")
+EMAIL_PORT = CONFIG.get("EMAIL_PORT", "")
+EMAIL_HOST_USER = CONFIG.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = CONFIG.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = CONFIG.get("EMAIL_USE_TLS", "")
+EMAIL_USE_SSL = CONFIG.get("EMAIL_USE_SSL", "")
+EMAIL_TIMEOUT = CONFIG.get("EMAIL_TIMEOUT", "")
+EMAIL_SSL_KEYFILE = CONFIG.get("EMAIL_SSL_KEYFILE", "")
+EMAIL_SSL_CERTFILE = CONFIG.get("EMAIL_SSL_CERTFILE", "")
 
 # S3 file informations
 FILE_PATH_LINK = CONFIG.get("FILE_PATH_LINK", "")
