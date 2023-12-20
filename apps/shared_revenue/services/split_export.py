@@ -1,4 +1,6 @@
 import logging
+import secrets
+import string
 from datetime import datetime
 from typing import Dict, List
 
@@ -30,8 +32,9 @@ class SplitExportService:
                 optinal_parameters = f"{optinal_parameters}{optional[key].replace(' ', '-')}_"
 
         now = datetime.now(tz=get_current_timezone()).strftime("%Y%m%d%H%M%S")
-        prefix = "report_split_revenue"
-        file_name = f"{prefix}{optinal_parameters}{now}"
+        choices = string.ascii_letters + string.digits
+        hash_code = "".join(secrets.choice(choices) for i in range(10))
+        file_name = f"report_split_revenue{optinal_parameters}{now}_{hash_code}"
 
         return file_name
 
@@ -61,7 +64,7 @@ class SplitExportService:
                 return file_name
 
             logging.getLogger("nau_financial_manager").warning(
-                f"\nNo data available to generate file using the parameters:\nstart_date: {start_date}\nend_date: {end_date}\noptions: {kwargs}"
+                f"No data available to generate file using the parameters: start_date: {start_date}, end_date: {end_date}, options: {kwargs}"
             )
         except Exception as e:
             raise e

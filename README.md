@@ -188,3 +188,21 @@ python manage.py export_split_revenue  {start_date} {end_date} --product_id={pro
 ```bash
 python manage.py export_split_revenue 2023-12-01 2024-01-01
 ```
+  ## Export shared revenue per organization
+
+  This command triggers the export of all the transactions splitted based on the given parameters per organization.
+
+###### Required parameters:
+  - start_date: YYYY-MM-DD
+  - end_date: YYYY-MM-DD
+  - send_file: true / false
+
+###### How to use:
+```bash
+python manage.py export_split_revenue  {start_date} {end_date} --product_id={product_id} --organization_code={organization_code} {send_file}
+```
+
+###### Exemple:
+```bash
+python manage.py export_split_revenue 2023-12-01 2024-01-01 true
+```

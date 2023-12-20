@@ -233,15 +233,19 @@ LOGGING = CONFIG.get(
                 "level": "WARNING",
                 "class": "logging.StreamHandler",
             },
+            "info": {
+                "level": "INFO",
+                "class": "logging.StreamHandler",
+            },
         },
         "loggers": {
             "django": {
-                "handlers": ["error", "warning"],
-                "level": "ERROR",
+                "handlers": ["error", "warning", "info"],
+                "level": 1,
                 "propagate": True,
             },
             "nau_financial_manager": {
-                "handlers": ["error", "warning"],
+                "handlers": ["error", "warning", "info"],
                 "level": 1,
                 "propagate": True,
             },
@@ -264,7 +268,11 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Email configurations
 EMAIL_SENDER = CONFIG.get("EMAIL_SENDER", "")
+
+# S3 file informations
+FILE_PATH_LINK = CONFIG.get("FILE_PATH_LINK", "")
 
 # Sage X3 - Transaction processor settings
 TRANSACTION_PROCESSOR_URL = CONFIG.get("TRANSACTION_PROCESSOR_URL", "")
