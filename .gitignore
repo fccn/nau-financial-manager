@@ -167,7 +167,7 @@ db.sqlite3
 .docker-compose.yml
 
 # default django storages directory to work with django.core.files.storage.FileSystemStorage
-./files/
+/files
 docker/docker-compose-dev.yml
 docker/Dockerfile-dev
 sample-dev.env
