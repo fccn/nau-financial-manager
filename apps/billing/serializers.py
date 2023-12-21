@@ -12,7 +12,7 @@ class TransactionItemSerializer(CountryFieldMixin, serializers.ModelSerializer):
     A serializer class for the `TransactionItem` model.
 
     This serializer includes the `transaction`, `description`, `quantity`, `vat_tax`, `unit_price_excl_vat`,
-    `unit_price_incl_vat`, `organization_code`, `product_code`, and `product_id` fields of the `TransactionItem` model.
+    `unit_price_incl_vat`, `organization_code`, `product_code`, `product_id` and `discount` fields of the `TransactionItem` model.
     """
 
     class Meta:
@@ -28,6 +28,7 @@ class TransactionItemSerializer(CountryFieldMixin, serializers.ModelSerializer):
             "organization_code",
             "product_id",
             "product_code",
+            "discount",
         ]
 
 

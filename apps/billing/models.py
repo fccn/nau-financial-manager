@@ -75,6 +75,7 @@ class TransactionItem(BaseModel):
     - Product id
     - Organization
     - Product code
+    - Discount
 
     """
 
@@ -87,6 +88,7 @@ class TransactionItem(BaseModel):
     organization_code = models.CharField(max_length=255, null=True)
     product_id = models.CharField(max_length=50, null=True, blank=True)
     product_code = models.CharField(max_length=50, null=True, blank=True)
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0, null=True)
 
     def __str__(self):
         return self.description
