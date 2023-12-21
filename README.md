@@ -199,10 +199,10 @@ python manage.py export_split_revenue 2023-12-01 2024-01-01
 
 ###### How to use:
 ```bash
-python manage.py export_split_revenue  {start_date} {end_date} --product_id={product_id} --organization_code={organization_code} {send_file}
+python manage.py export_split_revenue_per_organizations  {start_date} {end_date} --send_email={send_email}
 ```
 
 ###### Exemple:
 ```bash
-python manage.py export_split_revenue 2023-12-01 2024-01-01 true
+python manage.py export_split_revenue_per_organizations 2023-12-01 2024-01-01 --send_email=true
 ```
