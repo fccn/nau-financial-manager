@@ -17,15 +17,15 @@ class Command(BaseCommand):
     Required parameters:
         - start_date: YYYY-MM-DD
         - end_date: YYYY-MM-DD
-        - send_file: true / false
+        - send_email: true / false
 
     How to use:
 
-        python manage.py export_split_revenue_per_organizations  {start_date} {end_date} {send_file}
+        python manage.py export_split_revenue_per_organizations  {start_date} {end_date} --send_email={send_email}
 
         Exemple:
 
-            python manage.py export_split_revenue_per_organizations 2023-12-01 2024-01-01 true
+            python manage.py export_split_revenue_per_organizations 2023-12-01 2024-01-01 --send_email=true
     """
 
     help = "Based on the given informations, this command will generate a xlsx file with the split configurations per organization"
@@ -33,14 +33,14 @@ class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument("start_date", type=str)
         parser.add_argument("end_date", type=str)
-        parser.add_argument("send_file", type=str)
+        parser.add_argument("--send_email", dest="send_email", type=str, required=True)
 
     def handle(self, *args, **options) -> str | None:
         try:
             start = time.time()
             self.stdout.write("\nStarting file export...\n")
             start_date = datetime.strptime(options["start_date"], "%Y-%m-%d").isoformat()
-            send_file: str = options.get("send_file", "false")
+            send_email: str = options.get("send_email", "false")
             end_date = (
                 datetime.strptime(options["end_date"], "%Y-%m-%d") + (timedelta(days=1) - timedelta(milliseconds=1))
             ).isoformat()
@@ -53,7 +53,7 @@ class Command(BaseCommand):
                     **kwargs,
                 )
 
-                if file_name and send_file.upper() == "TRUE":
+                if file_name and send_email.upper() == "TRUE":
                     # TODO: insert the list of organization emails in the for
                     self.__send_email(
                         file_name=file_name,
