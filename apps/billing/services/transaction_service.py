@@ -34,6 +34,7 @@ class TransactionService:
             )
             if not created:
                 obj.retries += 1
+                obj.status = informations["status"]
                 obj.save()
 
         except Exception as e:
@@ -78,13 +79,13 @@ class TransactionService:
         try:
             document_id = self.send_transaction_to_processor()
             self.__save_transaction_xml(
-                informations={"input_xml": self.__processor.data, "error_messages": ""},
+                informations={"input_xml": self.__processor.data, "error_messages": "", "status": "success"},
                 transaction=self.transaction,
             )
 
             return document_id
         except Exception as e:
             self.__save_transaction_xml(
-                informations={"input_xml": self.__processor.data, "error_messages": str(e)},
+                informations={"input_xml": self.__processor.data, "error_messages": str(e), "status": "failed"},
                 transaction=self.transaction,
             )
