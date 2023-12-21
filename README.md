@@ -167,6 +167,13 @@ export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 
 # Django commands
 
+  ## Retry all failed transactions of SageX3
+
+  ###### How to use:
+```bash
+python manage.py retry_failed_transactions
+```
+
   ## Export shared revenue
 
   This command triggers the export of all the transactions splitted based on the given parameters.
