@@ -108,6 +108,7 @@ class SplitExecutionService:
             "percentage_for_nau": configuration.nau_percentage,
             "amount_for_nau_including_vat": (item.unit_price_incl_vat * configuration.nau_percentage) * item.quantity,
             "amount_for_nau_exclude_vat": (item.unit_price_excl_vat * configuration.nau_percentage) * item.quantity,
+            "discount": item.discount,
         }
 
     def _calculate_nau_percentage(self, product_id: str):

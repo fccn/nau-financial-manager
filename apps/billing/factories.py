@@ -55,6 +55,7 @@ class TransactionItemFactory(factory.django.DjangoModelFactory):
     vat_tax = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=3, right_digits=2)
     organization_code = factory.Sequence(lambda n: f"Org {n}")
     product_code = "".join([random.choice(string.ascii_uppercase) for _ in range(5)])
+    discount = factory.Faker("pydecimal", min_value=0, max_value=1, left_digits=1, right_digits=2)
 
     @factory.lazy_attribute
     def product_id(self):
