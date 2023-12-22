@@ -24,13 +24,13 @@ class Command(BaseCommand):
         - bcc: email@email.com
 
     How to use:
-        To add more than one email as bcc, just repeat the parameter `--bcc`.
+        To add more than one email as bcc, just open a string and add the emails.
 
-        python manage.py export_split_revenue_per_organizations  {start_date} {end_date} --send_email={send_email} --bcc={bcc1} --bcc={bcc2}
+        python manage.py export_split_revenue_per_organizations  {start_date} {end_date} --send_email={send_email} --bcc="{bcc1 bcc2}"
 
         Exemple:
 
-            python manage.py export_split_revenue_per_organizations 2023-12-01 2024-01-01 --send_email=true --bcc=bcc1@email.com --bcc=bcc2@email.com
+            python manage.py export_split_revenue_per_organizations 2023-12-01 2024-01-01 --send_email=true --bcc="bcc1@email.com bcc2@email.com"
     """
 
     help = "Based on the given informations, this command will generate a xlsx file with the split configurations per organization"
@@ -39,7 +39,7 @@ class Command(BaseCommand):
         parser.add_argument("start_date", type=str)
         parser.add_argument("end_date", type=str)
         parser.add_argument("--send_email", dest="send_email", type=str, required=True)
-        parser.add_argument("--bcc", dest="bcc", action="append", default=[])
+        parser.add_argument("--bcc", dest="bcc", type=str, default="", required=False)
 
     def handle(self, *args, **options) -> str | None:
         try:
@@ -47,7 +47,8 @@ class Command(BaseCommand):
             self.stdout.write("\nStarting file export...\n")
             start_date = datetime.strptime(options["start_date"], "%Y-%m-%d").isoformat()
             send_email: str = options.get("send_email", "false")
-            bcc = options.get("bcc", [])
+            bcc: str = options.get("bcc", "")
+            bcc = bcc.split()
             end_date = (
                 datetime.strptime(options["end_date"], "%Y-%m-%d") + (timedelta(days=1) - timedelta(milliseconds=1))
             ).isoformat()

@@ -209,13 +209,13 @@ python manage.py export_split_revenue 2023-12-01 2024-01-01
 
 ###### How to use:
 
-To add more than one email as bcc, just repeat the parameter `--bcc`.
+To add more than one email as bcc, just open a string and add the emails.
 
 ```bash
-python manage.py export_split_revenue_per_organizations  {start_date} {end_date} --send_email={send_email} --bcc={bcc1} --bcc={bcc2}
+python manage.py export_split_revenue_per_organizations  {start_date} {end_date} --send_email={send_email} --bcc="{bcc1 bcc2}"
 ```
 
 ###### Exemple:
 ```bash
-python manage.py export_split_revenue_per_organizations 2023-12-01 2024-01-01 --send_email=true --bcc=bcc1@email.com --bcc=bcc2@email.com
+python manage.py export_split_revenue_per_organizations 2023-12-01 2024-01-01 --send_email=true --bcc="bcc1@email.com bcc2@email.com"
 ```
