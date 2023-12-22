@@ -1,4 +1,6 @@
+import decimal
 import json
+from copy import deepcopy
 
 import factory
 from django.contrib.auth import get_user_model
@@ -128,3 +130,43 @@ class ProcessTransactionTest(TestCase):
 
         response = self.client.post(self.endpoint, self.payload, format="json")
         self.assertEqual(response.status_code, 400)
+
+    def test_valid_transaction_item_discount(self):
+        """
+        This test ensures that is possible to process a transaciton with valid discount value in items
+        """
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
+        response = self.client.post(self.endpoint, self.payload, format="json")
+
+        for item in self.payload["items"]:
+            self.assertTrue(decimal.Decimal(item["discount"]) >= 0)
+            self.assertTrue(decimal.Decimal(item["discount"]) <= 1)
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_invalid_transaction_item_discount_greater_than_1(self):
+        """
+        This test ensures that is not possible to process a transaciton with invalid discount value in items
+        """
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
+        invalid_payload = deepcopy(self.payload)
+        invalid_payload["items"][0]["discount"] = 1.1
+        response = self.client.post(self.endpoint, invalid_payload, format="json")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(str(response.data["discount"][0]), "Ensure this value is less than or equal to 1.")
+
+    def test_invalid_transaction_item_discount_smaller_than_0(self):
+        """
+        This test ensures that is not possible to process a transaciton with invalid discount value in items
+        """
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
+        invalid_payload = deepcopy(self.payload)
+        invalid_payload["items"][0]["discount"] = -1
+        response = self.client.post(self.endpoint, invalid_payload, format="json")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(str(response.data["discount"][0]), "Ensure this value is greater than or equal to 0.")
