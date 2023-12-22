@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django_countries.fields import CountryField
 
@@ -88,7 +89,12 @@ class TransactionItem(BaseModel):
     organization_code = models.CharField(max_length=255, null=True)
     product_id = models.CharField(max_length=50, null=True, blank=True)
     product_code = models.CharField(max_length=50, null=True, blank=True)
-    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0, null=True)
+    discount = models.DecimalField(
+        default=0.0,
+        max_digits=3,
+        validators=[MaxValueValidator(1), MinValueValidator(0)],
+        decimal_places=2,
+    )
 
     def __str__(self):
         return self.description
