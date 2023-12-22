@@ -204,12 +204,18 @@ python manage.py export_split_revenue 2023-12-01 2024-01-01
   - end_date: YYYY-MM-DD
   - send_file: true / false
 
+###### Optional parameters:
+  - bcc: email@email.com
+
 ###### How to use:
+
+To add more than one email as bcc, just repeat the parameter `--bcc`.
+
 ```bash
-python manage.py export_split_revenue_per_organizations  {start_date} {end_date} --send_email={send_email}
+python manage.py export_split_revenue_per_organizations  {start_date} {end_date} --send_email={send_email} --bcc={bcc1} --bcc={bcc2}
 ```
 
 ###### Exemple:
 ```bash
-python manage.py export_split_revenue_per_organizations 2023-12-01 2024-01-01 --send_email=true
+python manage.py export_split_revenue_per_organizations 2023-12-01 2024-01-01 --send_email=true --bcc=bcc1@email.com --bcc=bcc2@email.com
 ```
