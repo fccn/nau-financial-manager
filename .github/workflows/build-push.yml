@@ -74,7 +74,7 @@ jobs:
       #     username: ${{ github.repository_owner }}
       #     password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push application
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -84,7 +84,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Build and push
+      - name: Build and push nginx
         uses: docker/build-push-action@v5
         with:
           context: .
