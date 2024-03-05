@@ -1,6 +1,6 @@
 # Billing Module
 
-Descripton:
+Description:
 This module is responsible for handling billing and transactions.
 
 ## ERD of models
@@ -44,6 +44,7 @@ classDiagram
         -organization: CharField
         -product_id: CharField
         -product_code: CharField
+        -discount: DecimalField
         --
         +transaction: Transaction [1]
     }
