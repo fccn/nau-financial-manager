@@ -133,7 +133,7 @@ class ProcessTransactionTest(TestCase):
 
     def test_valid_transaction_item_discount(self):
         """
-        This test ensures that is possible to process a transaciton with valid discount value in items
+        This test ensures that is possible to process a transaction with valid discount value in items
         """
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
@@ -147,7 +147,7 @@ class ProcessTransactionTest(TestCase):
 
     def test_invalid_transaction_item_discount_greater_than_1(self):
         """
-        This test ensures that is not possible to process a transaciton with invalid discount value in items
+        This test ensures that is not possible to process a transaction with invalid discount value in items
         """
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
@@ -160,7 +160,7 @@ class ProcessTransactionTest(TestCase):
 
     def test_invalid_transaction_item_discount_smaller_than_0(self):
         """
-        This test ensures that is not possible to process a transaciton with invalid discount value in items
+        This test ensures that is not possible to process a transaction with invalid discount value in items
         """
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
@@ -170,3 +170,15 @@ class ProcessTransactionTest(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(str(response.data["discount"][0]), "Ensure this value is greater than or equal to 0.")
+
+    def test_invalid_transaction_item_discount_none(self):
+        """
+        This test ensures that is not possible to process a transaction without a discount value in items
+        """
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
+        invalid_payload = deepcopy(self.payload)
+        invalid_payload["items"][0].pop("discount", None)
+        response = self.client.post(self.endpoint, invalid_payload, format="json")
+
+        self.assertEqual(response.status_code, 201)

@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
@@ -14,6 +15,15 @@ class TransactionItemSerializer(CountryFieldMixin, serializers.ModelSerializer):
     This serializer includes the `transaction`, `description`, `quantity`, `vat_tax`, `unit_price_excl_vat`,
     `unit_price_incl_vat`, `organization_code`, `product_code`, `product_id` and `discount` fields of the `TransactionItem` model.
     """
+
+    # Redefined the discount field because for some reason it isn't using the model default value.
+    # So the solution was to define it again in the Serializer.
+    discount = serializers.DecimalField(
+        default=0.00,
+        max_digits=3,
+        decimal_places=2,
+        validators=[MaxValueValidator(1), MinValueValidator(0)],
+    )
 
     class Meta:
         model = TransactionItem
