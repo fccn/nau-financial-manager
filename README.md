@@ -71,6 +71,7 @@ pyenv local 3.11.4
 
 ```bash
 poetry env use 3.11.4
+poetry env use -- $HOME/.pyenv/versions/3.11.4/bin/python
 
 # Activate the virtual environment
 poetry shell
