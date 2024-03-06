@@ -5,10 +5,13 @@ class TransactionProcessorInterface:
     """
     This class represents an interface to be implemented as a contract.
 
-    Each new transcation processor needs to implements its logic by signing to this class.
+    Each new transaction processor needs to implements its logic by signing to this class.
     """
 
     transaction: Transaction = None
+
+    def __init__(self, transaction: Transaction) -> None:
+        self.transaction = transaction
 
     def send_transaction_to_processor(self) -> dict:
         raise Exception("This method needs to be implemented")

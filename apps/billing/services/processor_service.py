@@ -14,10 +14,11 @@ class SageX3Processor(TransactionProcessorInterface):
     it signs the interface contract to implement the business logic.
 
     This implementation is based on the `Sage X3` saas business logic, so it means that all the particular `Sage X3` functionalities
-    need to be implemented here as privated methods.
+    need to be implemented here as private methods.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, transaction: Transaction) -> None:
+        super().__init__(transaction)
         self.__processor_url = getattr(settings, "TRANSACTION_PROCESSOR_URL")
         self.__vacitm1 = getattr(settings, "IVA_VACITM1_FIELD")
         self.__vacbpr = getattr(settings, "GEOGRAPHIC_ACTIVITY_VACBPR_FIELD")
@@ -77,6 +78,20 @@ class SageX3Processor(TransactionProcessorInterface):
         items: list[TransactionItem] = transaction.transaction_items.all()
         items_as_xml = self.__generate_items_as_xml(items=items)
 
+        transaction_id = transaction.transaction_id
+        transaction_date = str(transaction.transaction_date.date())
+        vat_identification_country = getattr(transaction, "vat_identification_country", "")
+        city = getattr(transaction, "city", "")
+        country_code = getattr(transaction, "country_code", "")
+        postal_code = transaction.postal_code
+        postal_code = postal_code.replace("-", "").replace(" ", "") if postal_code else ""
+        vat_identification_number = str(transaction.vat_identification_number or "")
+        email = str(transaction.email or "")
+        transaction_type = str(transaction.transaction_type or "")
+        client_name = str(transaction.client_name or "")
+        address_line_1 = str(transaction.address_line_1 or "")
+        address_line_2 = str(transaction.address_line_2 or "")
+
         data = f"""
         <soapenv:Envelope
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -100,8 +115,8 @@ class SageX3Processor(TransactionProcessorInterface):
                                 <FLD NAME="SALFCY">SED</FLD>
                                 <FLD NAME="SIVTYP">FRN</FLD>
                                 <FLD NAME="NUM"></FLD>
-                                <FLD NAME="INVREF">{transaction.transaction_id}</FLD>
-                                <FLD NAME="INVDAT">{str(transaction.transaction_date.date())}</FLD>
+                                <FLD NAME="INVREF">{transaction_id}</FLD>
+                                <FLD NAME="INVDAT">{transaction_date}</FLD>
                                 <FLD NAME="BPCINV">9999</FLD>
                                 <FLD NAME="CUR">EUR</FLD>
                             </GRP>
@@ -116,19 +131,19 @@ class SageX3Processor(TransactionProcessorInterface):
                                 <FLD NAME="PTE">PTTRFPP</FLD>
                             </GRP>
                             <GRP ID="YIL_2">
-                                <FLD NAME="YCRY" TYPE="Char">{transaction.vat_identification_country}</FLD>
-                                <FLD NAME="YCRYNAM" TYPE="Char">{transaction.country_code}</FLD>
-                                <FLD NAME="YPOSCOD" TYPE="Char">{transaction.postal_code.replace("-", "").replace(" ", "")}</FLD>
-                                <FLD NAME="YCTY" TYPE="Char">{transaction.city}</FLD>
-                                <FLD NAME="YBPIEECNUM" TYPE="Char">{transaction.vat_identification_number}</FLD>
-                                <FLD NAME="YILINKMAIL" TYPE="Char">{transaction.email}</FLD>
-                                <FLD NAME="YPAM" TYPE="Char">{transaction.transaction_type}</FLD>
+                                <FLD NAME="YCRY" TYPE="Char">{vat_identification_country}</FLD>
+                                <FLD NAME="YCRYNAM" TYPE="Char">{country_code}</FLD>
+                                <FLD NAME="YPOSCOD" TYPE="Char">{postal_code}</FLD>
+                                <FLD NAME="YCTY" TYPE="Char">{city}</FLD>
+                                <FLD NAME="YBPIEECNUM" TYPE="Char">{vat_identification_number}</FLD>
+                                <FLD NAME="YILINKMAIL" TYPE="Char">{email}</FLD>
+                                <FLD NAME="YPAM" TYPE="Char">{transaction_type}</FLD>
                                 <LST NAME="YBPRNAM" SIZE="2" TYPE="Char">
-                                    <ITM>{transaction.client_name}</ITM>
+                                    <ITM>{client_name}</ITM>
                                 </LST>
                                 <LST NAME="YBPAADDLIG" SIZE="3" TYPE="Char">
-                                    <ITM>{transaction.address_line_1}</ITM>
-                                    <ITM>{transaction.address_line_2}</ITM>
+                                    <ITM>{address_line_1}</ITM>
+                                    <ITM>{address_line_2}</ITM>
                                 </LST>
                             </GRP>
                             <TAB ID="SIH4_1">{items_as_xml}</TAB>
