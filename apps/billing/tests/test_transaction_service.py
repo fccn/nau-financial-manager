@@ -115,7 +115,7 @@ class TransactionServiceTestCase(TestCase):
             expected_exception=Exception,
             expected_message="This method needs to be implemented",
         ):
-            TransactionProcessorInterface().send_transaction_to_processor()
+            TransactionProcessorInterface(None).send_transaction_to_processor()
 
     @mock.patch("requests.post", side_effect=processor_success_response)
     def test_transaction_to_processor_success(self, mocked_post):

@@ -16,8 +16,7 @@ class TransactionService:
         transaction: Transaction,
     ) -> None:
         self.transaction = transaction
-        self.__processor: TransactionProcessorInterface = SageX3Processor()
-        self.__processor.transaction = transaction
+        self.__processor: TransactionProcessorInterface = SageX3Processor(transaction)
 
     def __save_transaction_xml(self, transaction: Transaction, informations: dict) -> None:
         """
