@@ -192,7 +192,7 @@ python manage.py retry_failed_transactions
 python manage.py export_split_revenue  {start_date} {end_date} --product_id={product_id} --organization_code={organization_code}
 ```
 
-###### Exemple:
+###### Example:
 ```bash
 python manage.py export_split_revenue 2023-12-01 2024-01-01
 ```
@@ -216,7 +216,18 @@ To add more than one email as bcc, just open a string and add the emails.
 python manage.py export_split_revenue_per_organizations  {start_date} {end_date} --send_email={send_email} --bcc="{bcc1 bcc2}"
 ```
 
-###### Exemple:
+###### Example:
 ```bash
 python manage.py export_split_revenue_per_organizations 2023-12-01 2024-01-01 --send_email=true --bcc="bcc1@email.com bcc2@email.com"
+```
+
+## Troubleshooting
+
+To create missing `SageX3TransactionInformation` objects that for a bug hasn't been created.
+
+```python
+from apps.billing.models import SageX3TransactionInformation, Transaction
+transactions = Transaction.objects.all()
+for t in transactions:
+    SageX3TransactionInformation.objects.get_or_create(transaction=t)
 ```
