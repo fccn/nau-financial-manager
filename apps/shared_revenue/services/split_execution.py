@@ -32,18 +32,14 @@ class SplitExecutionService:
         The kwargs might also contains filters, `organization_code` and `product_id`
         are optional filters for this function.
         """
+        transactions = Transaction.objects.filter(transaction_date__range=[self.start_date, self.end_date])
+        transaction_items: list[TransactionItem] = []
+        for transaction in transactions:
+            items = transaction.transaction_items.all()
+            if items:
+                transaction_items.append(items[0])
 
-        try:
-            transactions = Transaction.objects.filter(transaction_date__range=[self.start_date, self.end_date])
-            transaction_items: list[TransactionItem] = []
-            for transaction in transactions:
-                items = transaction.transaction_items.all()
-                if items:
-                    transaction_items.append(items[0])
-
-            return transaction_items
-        except Exception as e:
-            raise e
+        return transaction_items
 
     def _filter_revenue_configurations(self, **kwargs) -> list[RevenueConfiguration]:
         """
@@ -52,26 +48,22 @@ class SplitExecutionService:
         The kwargs might also contains filters, `organization_code` and `product_id`
         are optional filters for this function.
         """
+        configurations = RevenueConfiguration.objects.filter(
+            Q(start_date__isnull=True)
+            | Q(end_date__isnull=True)
+            | Q(start_date__lte=self.end_date) & Q(end_date__gte=self.start_date)
+        )
+        if kwargs:
+            new_kwargs = kwargs
+            if "organization_code" in new_kwargs.keys():
+                organization = Organization.objects.filter(short_name=new_kwargs["organization_code"]).first()
+                del new_kwargs["organization_code"]
+                new_kwargs["organization"] = organization
 
-        try:
-            configurations = RevenueConfiguration.objects.filter(
-                Q(start_date__isnull=True)
-                | Q(end_date__isnull=True)
-                | Q(start_date__lte=self.end_date) & Q(end_date__gte=self.start_date)
-            )
-            if kwargs:
-                new_kwargs = kwargs
-                if "organization_code" in new_kwargs.keys():
-                    organization = Organization.objects.filter(short_name=new_kwargs["organization_code"]).first()
-                    del new_kwargs["organization_code"]
-                    new_kwargs["organization"] = organization
-
-                configurations = configurations.filter(**new_kwargs)
-                return configurations
-
+            configurations = configurations.filter(**new_kwargs)
             return configurations
-        except Exception as e:
-            raise e
+
+        return configurations
 
     def _assembly_each_result(
         self,
@@ -112,16 +104,13 @@ class SplitExecutionService:
         }
 
     def _calculate_nau_percentage(self, product_id: str):
-        try:
-            percentage = 1
+        percentage = 1
 
-            configurations: list[RevenueConfiguration] = RevenueConfiguration.objects.filter(product_id=product_id)
-            for configuration in configurations:
-                percentage = percentage - configuration.partner_percentage
+        configurations: list[RevenueConfiguration] = RevenueConfiguration.objects.filter(product_id=product_id)
+        for configuration in configurations:
+            percentage = percentage - configuration.partner_percentage
 
-            return percentage
-        except Exception as e:
-            raise e
+        return percentage
 
     def _calculate_transactions(
         self,
@@ -173,14 +162,11 @@ class SplitExecutionService:
         Returns:
             list[List[Dict]]: All the calculated split results and their used configurations
         """
-        try:
-            configurations: list[RevenueConfiguration] = self._filter_revenue_configurations(**kwargs)
-            transaction_items: list[TransactionItem] = self._filter_transaction_items(**kwargs)
-            split_results, used_configurations = self._calculate_transactions(
-                transaction_items=transaction_items,
-                configurations=configurations,
-            )
+        configurations: list[RevenueConfiguration] = self._filter_revenue_configurations(**kwargs)
+        transaction_items: list[TransactionItem] = self._filter_transaction_items(**kwargs)
+        split_results, used_configurations = self._calculate_transactions(
+            transaction_items=transaction_items,
+            configurations=configurations,
+        )
 
-            return [split_results, used_configurations]
-        except Exception as e:
-            raise e
+        return [split_results, used_configurations]

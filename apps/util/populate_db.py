@@ -43,18 +43,14 @@ def populate():
     """
     Starts the populate feature, creates five organizations
     """
-
-    try:
-        organizations_amount = 5
-        organizations = OrganizationFactory.create_batch(organizations_amount)
-        for organization in organizations:
-            product_ids = populate_billing(organization=organization)
-            populate_shared_revenue(
-                product_ids=product_ids,
-                organization=organization,
-            )
-    except Exception as e:
-        raise e
+    organizations_amount = 5
+    organizations = OrganizationFactory.create_batch(organizations_amount)
+    for organization in organizations:
+        product_ids = populate_billing(organization=organization)
+        populate_shared_revenue(
+            product_ids=product_ids,
+            organization=organization,
+        )
 
 
 if __name__ == "__main__":

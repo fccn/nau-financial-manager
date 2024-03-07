@@ -29,21 +29,17 @@ class SageX3Processor(TransactionProcessorInterface):
         """
         This method sends the transaction informations to the `Sage X3` service.
         """
+        response = requests.post(
+            url=self.__processor_url,
+            data=self.data,
+            headers={"Content-type": "application/xml"},
+            auth=(
+                self.__user_processor_auth,
+                self.__user_processor_password,
+            ),
+        ).content
 
-        try:
-            response = requests.post(
-                url=self.__processor_url,
-                data=self.data,
-                headers={"Content-type": "application/xml"},
-                auth=(
-                    self.__user_processor_auth,
-                    self.__user_processor_password,
-                ),
-            ).content
-
-            return response
-        except Exception as e:
-            raise e
+        return response
 
     def __generate_items_as_xml(self, items: list[TransactionItem]) -> str:
         """

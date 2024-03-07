@@ -76,22 +76,19 @@ class Command(BaseCommand):
             raise CommandError(f"\n-----AN ERROR HAS BEEN RAISED RUNNING THE FILE EXPORT: {e}")
 
     def __send_email(self, file_name: str, to: list, bcc: list):
-        try:
-            base_dir = getattr(settings, "BASE_DIR")
-            email_sender = getattr(settings, "EMAIL_HOST_USER")
-            file_link = getattr(settings, "FILE_PATH_LINK")
-            content = render_to_string(
-                f"{base_dir}/templates/emails/shared_revenue_export_per_organization.txt",
-                {"file_link": f"{file_link}{file_name}"},
-            )
-            email_helper = EmailHelper(
-                from_email=email_sender,
-                to=to,
-                subject="NAU financial report.",
-                body=content,
-                bcc=bcc,
-            )
+        base_dir = getattr(settings, "BASE_DIR")
+        email_sender = getattr(settings, "EMAIL_HOST_USER")
+        file_link = getattr(settings, "FILE_PATH_LINK")
+        content = render_to_string(
+            f"{base_dir}/templates/emails/shared_revenue_export_per_organization.txt",
+            {"file_link": f"{file_link}{file_name}"},
+        )
+        email_helper = EmailHelper(
+            from_email=email_sender,
+            to=to,
+            subject="NAU financial report.",
+            body=content,
+            bcc=bcc,
+        )
 
-            send_email_to_organization(email_helper=email_helper)
-        except Exception as e:
-            raise e
+        send_email_to_organization(email_helper=email_helper)
