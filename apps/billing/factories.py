@@ -75,7 +75,7 @@ class SageX3TransactionInformationFactory(factory.django.DjangoModelFactory):
         model = SageX3TransactionInformation
 
     transaction = factory.SubFactory(TransactionFactory)
-    status = factory.Faker("random_element", elements=["pending", "completed", "failed"])
+    status = factory.Faker("random_element", elements=SageX3TransactionInformation.STATE_CHOICES)
     last_status_date = factory.Faker(
         "date_time_between", start_date="-5d", end_date="-1d", tzinfo=timezone.get_current_timezone()
     )

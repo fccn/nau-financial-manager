@@ -3,7 +3,7 @@ from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
 from apps.billing.models import Transaction, TransactionItem
-from apps.billing.tasks import send_transactions_to_processor_task
+from apps.billing.tasks import create_and_async_send_transactions_to_processor_task
 from apps.organization.models import Organization
 from apps.shared_revenue.models import RevenueConfiguration
 
@@ -165,7 +165,7 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
                     product_id=item.product_id,
                 )
 
-            send_transactions_to_processor_task(transaction=transaction)
+            create_and_async_send_transactions_to_processor_task(transaction=transaction)
 
             return validate_data
         except Exception as e:

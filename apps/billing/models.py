@@ -103,13 +103,21 @@ class TransactionItem(BaseModel):
 class SageX3TransactionInformation(BaseModel):
     """
     Represents the status of a transaction in the Sage X3 system.
-
     """
+
+    PENDING = "pending"
+    SUCCESS = "success"
+    FAILED = "failed"
+    STATE_CHOICES = (
+        (PENDING, PENDING),
+        (SUCCESS, SUCCESS),
+        (FAILED, FAILED),
+    )
 
     transaction = models.OneToOneField(
         Transaction, related_name="sage_x3_transaction_information", on_delete=models.CASCADE
     )
-    status = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(max_length=255, null=False, blank=False, choices=STATE_CHOICES, default=PENDING)
     last_status_date = models.DateTimeField(auto_now_add=True)
     retries = models.PositiveIntegerField(default=0)
     input_xml = models.TextField(null=True, blank=True)

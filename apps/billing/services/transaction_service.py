@@ -1,8 +1,12 @@
+import logging
+
 import xmltodict
 
 from apps.billing.models import SageX3TransactionInformation, Transaction
 from apps.billing.services.financial_processor_service import TransactionProcessorInterface
 from apps.billing.services.processor_service import SageX3Processor
+
+log = logging.getLogger(__name__)
 
 
 class TransactionService:
@@ -15,8 +19,13 @@ class TransactionService:
         self,
         transaction: Transaction,
     ) -> None:
+        """
+        Initialize a TransactionService and save the necessary information marking
+        that there is a pending transaction to be sent.
+        """
         self.transaction = transaction
         self.__processor: TransactionProcessorInterface = SageX3Processor(transaction)
+        SageX3TransactionInformation.objects.get_or_create(transaction=transaction)
 
     def __save_transaction_xml(self, transaction: Transaction, informations: dict) -> None:
         """
@@ -47,44 +56,51 @@ class TransactionService:
         method, that checks and updates the transaction status.
         """
 
-        try:
-            response_from_service = self.__processor.send_transaction_to_processor()
-            response_as_json = dict(xmltodict.parse(response_from_service))
-            response_as_json = response_as_json["soapenv:Envelope"]["soapenv:Body"]
+        response_from_service = self.__processor.send_transaction_to_processor()
+        response_as_json = dict(xmltodict.parse(response_from_service))
+        response_as_json = response_as_json["soapenv:Envelope"]["soapenv:Body"]
 
-            if "multiRef" in list(dict(response_as_json).keys()):
-                message = "Nº Fatura NAU já registada no documento: "
-                if message in response_as_json["multiRef"]["message"]:
-                    document_id = response_as_json["multiRef"]["message"].replace(message, "")
+        if "multiRef" in list(dict(response_as_json).keys()):
+            message = "Nº Fatura NAU já registada no documento: "
+            if message in response_as_json["multiRef"]["message"]:
+                document_id = response_as_json["multiRef"]["message"].replace(message, "")
 
-                    return document_id
+                return document_id
 
-            result = xmltodict.parse(response_as_json["wss:saveResponse"]["saveReturn"]["resultXml"]["#text"])
-            document_id = ""
-            for r in result["RESULT"]["GRP"]:
-                for field in r["FLD"]:
-                    if field["@NAME"] == "NUM":
-                        document_id = field["#text"]
-                        break
-
-                if document_id:
+        result = xmltodict.parse(response_as_json["wss:saveResponse"]["saveReturn"]["resultXml"]["#text"])
+        document_id = ""
+        for r in result["RESULT"]["GRP"]:
+            for field in r["FLD"]:
+                if field["@NAME"] == "NUM":
+                    document_id = field["#text"]
                     break
 
-            return document_id
-        except Exception as e:
-            raise e
+            if document_id:
+                break
 
-    def run_steps_to_send_transaction(self) -> str:
+        return document_id
+
+    def run_steps_to_send_transaction(self):
+        data = None
         try:
             document_id = self.send_transaction_to_processor()
+            data = self.__processor.data
             self.__save_transaction_xml(
-                informations={"input_xml": self.__processor.data, "error_messages": "", "status": "success"},
+                informations={"input_xml": data, "error_messages": "", "status": SageX3TransactionInformation.SUCCESS},
                 transaction=self.transaction,
             )
-
-            return document_id
+            # save the document_id so we know what have been created on SageX3
+            self.transaction.document_id = document_id
+            self.transaction.save()
         except Exception as e:
+            # log the exception and eat it.
+            log.exception(e)
+            exception_stack_trace = e.format_exc()
             self.__save_transaction_xml(
-                informations={"input_xml": self.__processor.data, "error_messages": str(e), "status": "failed"},
+                informations={
+                    "input_xml": data,
+                    "error_messages": exception_stack_trace,
+                    "status": SageX3TransactionInformation.FAILED,
+                },
                 transaction=self.transaction,
             )
