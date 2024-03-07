@@ -12,7 +12,7 @@ class XlsxGenerator:
     This class is a based package class, an package abstraction
 
     At the moment the system is using XlsxWriter package to work, but if it's necessary to change the package,
-    just implement the new package business logic in generate_xlsx method, mantaining the basic parameters to work
+    just implement the new package business logic in generate_xlsx method, maintaining the basic parameters to work
     and it will not affect any part of the system
 
     """
@@ -27,8 +27,6 @@ class XlsxGenerator:
             with open(f"{file_name}.xlsx", "rb") as f:
                 default_storage.save(name=f"{file_name}.xlsx", content=ContentFile(f.read()))
                 f.close()
-        except Exception as e:
-            raise e
         finally:
             os.remove(f"{file_name}.xlsx")
 
@@ -68,37 +66,34 @@ class XlsxGenerator:
             columns (list[str]): The columns to be created in this file
             values (list[Dict]): The values to be saved in each column
         """
-        try:
-            workbook = xlsxwriter.Workbook(
-                f"{file_name}.xlsx",
-                options={
-                    "remove_timezone": True,
-                    "default_date_format": "dd/mm/yy hh:mm:ss.000",
-                },
-            )
+        workbook = xlsxwriter.Workbook(
+            f"{file_name}.xlsx",
+            options={
+                "remove_timezone": True,
+                "default_date_format": "dd/mm/yy hh:mm:ss.000",
+            },
+        )
 
-            for sheet in sheets:
-                work_sheet = workbook.add_worksheet()
+        for sheet in sheets:
+            work_sheet = workbook.add_worksheet()
 
-                columns = list(sheet[0].keys())
-                for column in columns:
-                    column_letter = self._generate_column_letter_position(columns.index(column) + 1)
-                    work_sheet.set_column(
-                        f"{column_letter}:{column_letter}",
-                        width=20,
-                    )
-                    bold = workbook.add_format({"bold": True})
-                    work_sheet.write(f"{column_letter}1", column, bold)
+            columns = list(sheet[0].keys())
+            for column in columns:
+                column_letter = self._generate_column_letter_position(columns.index(column) + 1)
+                work_sheet.set_column(
+                    f"{column_letter}:{column_letter}",
+                    width=20,
+                )
+                bold = workbook.add_format({"bold": True})
+                work_sheet.write(f"{column_letter}1", column, bold)
 
-                    row = 2
-                    for value in sheet:
-                        work_sheet.write(f"{column_letter}{row}", value[column])
-                        row += 1
+                row = 2
+                for value in sheet:
+                    work_sheet.write(f"{column_letter}{row}", value[column])
+                    row += 1
 
-            workbook.close()
-            self.__save_generated_file(file_name=file_name)
-        except Exception as e:
-            raise e
+        workbook.close()
+        self.__save_generated_file(file_name=file_name)
 
 
 class PdfGenerator:

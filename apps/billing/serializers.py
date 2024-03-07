@@ -153,23 +153,20 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
         return transaction, items_as_instances
 
     def create(self, validate_data):
-        try:
-            transaction, items = self._execute_billing_resources(validate_data=validate_data)
-            for item in items:
-                organization, created = Organization.objects.get_or_create(
-                    short_name=item.organization_code,
-                    defaults={"short_name": item.organization_code},
-                )
-                self._execute_shared_revenue_resources(
-                    organization=organization,
-                    product_id=item.product_id,
-                )
+        transaction, items = self._execute_billing_resources(validate_data=validate_data)
+        for item in items:
+            organization, created = Organization.objects.get_or_create(
+                short_name=item.organization_code,
+                defaults={"short_name": item.organization_code},
+            )
+            self._execute_shared_revenue_resources(
+                organization=organization,
+                product_id=item.product_id,
+            )
 
-            create_and_async_send_transactions_to_processor_task(transaction=transaction)
+        create_and_async_send_transactions_to_processor_task(transaction=transaction)
 
-            return validate_data
-        except Exception as e:
-            raise e
+        return validate_data
 
     def to_representation(self, instance):
         return instance

@@ -146,23 +146,17 @@ class RevenueConfiguration(BaseModel):
             raise ValidationError("The partner percentage exceeds 100%")
 
     def validate_instance(self) -> None:
-        try:
-            validations = [
-                self.has_concurrent_revenue_configuration,
-                self._check_partner_percentage,
-            ]
+        validations = [
+            self.has_concurrent_revenue_configuration,
+            self._check_partner_percentage,
+        ]
 
-            for validation in validations:
-                validation()
-        except Exception as e:
-            raise e
+        for validation in validations:
+            validation()
 
     def save(self, keep_deleted=False, **kwargs):
-        try:
-            self.validate_instance()
-            return super().save(keep_deleted, **kwargs)
-        except Exception as e:
-            raise e
+        self.validate_instance()
+        return super().save(keep_deleted, **kwargs)
 
     def __str__(self) -> str:
         return f"{self.organization} - {self.product_id} - {self.partner_percentage}"

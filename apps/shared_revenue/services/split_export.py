@@ -51,20 +51,16 @@ class SplitExportService:
             start_date (datetime): The start date of the range of dates that needs to be calculated
             end_date (datetime): The end date of the range of dates that needs to be calculated
         """
+        split_sheets: list[List[Dict]] = SplitExecutionService(
+            start_date=start_date,
+            end_date=end_date,
+        ).execute_split_steps(**kwargs)
+        if not len(split_sheets[0]) == 0:
+            file_name: str = self._generate_file_name(optional=kwargs)
+            FileGenerator().generate_xlsx(file_name=file_name, sheets=split_sheets)
 
-        try:
-            split_sheets: list[List[Dict]] = SplitExecutionService(
-                start_date=start_date,
-                end_date=end_date,
-            ).execute_split_steps(**kwargs)
-            if not len(split_sheets[0]) == 0:
-                file_name: str = self._generate_file_name(optional=kwargs)
-                FileGenerator().generate_xlsx(file_name=file_name, sheets=split_sheets)
+            return file_name
 
-                return file_name
-
-            logging.getLogger("nau_financial_manager").warning(
-                f"No data available to generate file using the parameters: start_date: {start_date}, end_date: {end_date}, options: {kwargs}"
-            )
-        except Exception as e:
-            raise e
+        logging.getLogger("nau_financial_manager").warning(
+            f"No data available to generate file using the parameters: start_date: {start_date}, end_date: {end_date}, options: {kwargs}"
+        )

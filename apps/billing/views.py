@@ -59,5 +59,5 @@ def get_receipt_link(request, *args, **kwargs):
         return Response({"response": "Occurred an error getting the document"}, status=500)
     except ObjectDoesNotExist:
         return Response({"response": "Transaction not found"}, status=404)
-    except Exception as e:
-        raise e
+    except Exception:
+        return Response({"response": "A not expected error ocurred getting the document"}, status=500)
