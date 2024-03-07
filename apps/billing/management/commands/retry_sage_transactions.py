@@ -30,7 +30,7 @@ class Command(BaseCommand):
             counters = {"success": 0, "failed": 0}
             try:
                 for sagex3_failed_transaction in sagex3_failed_transactions:
-                    TransactionService(sagex3_failed_transaction).run_steps_to_send_transaction()
+                    TransactionService(sagex3_failed_transaction.transaction).run_steps_to_send_transaction()
                     counters["success"] = +1
             except Exception as e:
                 self.stdout.write(f"Error while retrying: {e}")
