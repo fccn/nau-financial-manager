@@ -23,7 +23,9 @@ class Command(BaseCommand):
         try:
             start = time.time()
             self.stdout.write("\nGetting failed transactions with Sage X3...\n")
-            sagex3_failed_transactions = SageX3TransactionInformation.objects.filter(status="failed")
+            sagex3_failed_transactions = SageX3TransactionInformation.objects.filter(
+                status__in=[SageX3TransactionInformation.FAILED, SageX3TransactionInformation.PENDING]
+            )
             sagex3_failed_transactions_amount = sagex3_failed_transactions.count()
             counters = {"success": 0, "failed": 0}
             try:

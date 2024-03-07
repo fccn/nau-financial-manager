@@ -1,6 +1,7 @@
 import decimal
 import json
 from copy import deepcopy
+from unittest import mock
 
 import factory
 from django.contrib.auth import get_user_model
@@ -11,6 +12,8 @@ from rest_framework.test import APIClient
 from apps.billing.factories import TransactionFactory, TransactionItemFactory
 from apps.billing.models import Transaction
 from apps.billing.serializers import TransactionItemSerializer, TransactionSerializer
+
+from .test_transaction_service import processor_success_response
 
 
 class ProcessTransactionTest(TestCase):
@@ -39,7 +42,8 @@ class ProcessTransactionTest(TestCase):
         self.user = get_user_model().objects.create_user(username="testuser", password="testpass")
         self.token = Token.objects.create(user=self.user)
 
-    def test_create_transaction(self):
+    @mock.patch("requests.post", side_effect=processor_success_response)
+    def test_create_transaction(self, mock):
         """
         Test that a transaction can be created with a valid token.
         """
@@ -131,7 +135,8 @@ class ProcessTransactionTest(TestCase):
         response = self.client.post(self.endpoint, self.payload, format="json")
         self.assertEqual(response.status_code, 400)
 
-    def test_valid_transaction_item_discount(self):
+    @mock.patch("requests.post", side_effect=processor_success_response)
+    def test_valid_transaction_item_discount(self, mock):
         """
         This test ensures that is possible to process a transaction with valid discount value in items
         """
@@ -171,7 +176,8 @@ class ProcessTransactionTest(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(str(response.data["discount"][0]), "Ensure this value is greater than or equal to 0.")
 
-    def test_invalid_transaction_item_discount_none(self):
+    @mock.patch("requests.post", side_effect=processor_success_response)
+    def test_invalid_transaction_item_discount_none(self, mock):
         """
         This test ensures that is not possible to process a transaction without a discount value in items
         """
