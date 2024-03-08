@@ -43,15 +43,16 @@ class TransactionService:
             )
             if not created:
                 obj.retries += 1
-                obj.status = informations["status"]
+                for key, value in informations.items():
+                    setattr(obj, key, value)
                 obj.save()
 
         except Exception as e:
-            log.exception("Some error has occurred saving the transaction xml")
+            log.exception(f"Some error has occurred saving the transaction xml e={e}")
             raise e
 
     @staticmethod
-    def extract_document_id_from_response(response) -> str:
+    def __extract_document_id_from_response(response) -> str:
         """
         Extracts the document_id from the Sage X3 response or None if didn't find it.
         """
@@ -79,16 +80,31 @@ class TransactionService:
         return document_id
 
     def run_steps_to_send_transaction(self):
-        data = None
         try:
-            response = self.__processor.send_transaction_to_processor()
-            document_id = self.__class__.extract_document_id_from_response(response)
-            data = self.__processor.data
+            # save before sending
             self.__save_transaction_xml(
-                informations={"input_xml": data, "error_messages": "", "status": SageX3TransactionInformation.SUCCESS},
+                informations={
+                    "input_xml": self.__processor.data,
+                    "error_messages": "",
+                    "status": SageX3TransactionInformation.PENDING,
+                },
                 transaction=self.transaction,
             )
+
+            response = self.__processor.send_transaction_to_processor()
+
+            # save after sending
+            self.__save_transaction_xml(
+                informations={
+                    "output_xml": str(response),
+                    "error_messages": "",
+                    "status": SageX3TransactionInformation.SUCCESS,
+                },
+                transaction=self.transaction,
+            )
+
             # save the document_id so we know what have been created on SageX3
+            document_id = self.__class__.__extract_document_id_from_response(response)
             self.transaction.document_id = document_id
             self.transaction.save()
         except Exception as e:
@@ -97,7 +113,7 @@ class TransactionService:
             exception_stack_trace = traceback.format_exc()
             self.__save_transaction_xml(
                 informations={
-                    "input_xml": data,
+                    "output_xml": f"An exception has been raised when sending data to processor, exception message={e} stacktrace={exception_stack_trace}",
                     "error_messages": exception_stack_trace,
                     "status": SageX3TransactionInformation.FAILED,
                 },

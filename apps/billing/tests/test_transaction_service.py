@@ -11,7 +11,8 @@ from apps.billing.tests.test_utils import processor_duplicate_error_response, pr
 
 
 def raise_timeout(*args, **kwargs):
-    raise Timeout("Test")
+    raise Timeout("A testing exception has been raised")
+
 
 class TransactionServiceTestCase(TestCase):
     """
@@ -31,7 +32,7 @@ class TransactionServiceTestCase(TestCase):
         TransactionItemFactory.create(transaction=transaction)
         transaction_service = TransactionService(transaction=transaction)
         transaction_service.run_steps_to_send_transaction()
-        document_id : str = transaction.document_id
+        document_id: str = transaction.document_id
 
         self.assertTrue(isinstance(document_id, str))
         self.assertNotEqual(document_id, "")
@@ -49,7 +50,7 @@ class TransactionServiceTestCase(TestCase):
         transaction = TransactionFactory.create()
         transaction_service = TransactionService(transaction=transaction)
         transaction_service.run_steps_to_send_transaction()
-        document_id : str = transaction.document_id
+        document_id: str = transaction.document_id
 
         self.assertTrue(isinstance(document_id, str))
         self.assertNotEqual(document_id, "")
@@ -72,14 +73,50 @@ class TransactionServiceTestCase(TestCase):
     def test_transaction_to_processor_timeout_error(self, mocked_post):
         """
         This test ensures that the transaction service correctly handles a timeout error from the processor.
+        If an error is being raised during the communication with the processor then:
+        - the document_id shouldn't be defined
+        - status of the information should be failed
+        Then some messages should be on the log and also on the output_xml field of the
+        `SageX3TransactionInformation` object for that transaction.
+        - A specific message should have been added to the log
+        - The exception msg should be on the log
+        - The name of the exception should be on the log
         """
         transaction = TransactionFactory.create()
         transaction.document_id = None
+        transaction.save()
         transaction_service = TransactionService(transaction=transaction)
-        transaction_service.run_steps_to_send_transaction()
-        document_id : str = transaction.document_id
+
+        with self.assertLogs(logger="apps.billing.services.transaction_service", level="ERROR") as cm:
+            transaction_service.run_steps_to_send_transaction()
 
         transaction.refresh_from_db()
 
-        self.assertIsNone(document_id)
+        self.assertEqual(transaction.document_id, None)
         self.assertEqual(transaction.sage_x3_transaction_information.status, SageX3TransactionInformation.FAILED)
+
+        config = [
+            {
+                "to_check": "An exception has been raised when sending data to processor",
+                "assert_msg": "A specific message should have been added to the ",
+            },
+            {"to_check": "A testing exception has been raised", "assert_msg": "The exception msg should be on the "},
+            {"to_check": "Timeout", "assert_msg": "The name of the exception should be on the "},
+        ]
+
+        for snippet_to_check_in_log in config:
+            for m in cm.output:
+                self.assertIn(
+                    snippet_to_check_in_log["to_check"],
+                    m,
+                    msg=snippet_to_check_in_log["assert_msg"] + "log",
+                )
+
+        output_xml = transaction.sage_x3_transaction_information.output_xml
+        print(transaction.sage_x3_transaction_information.__dict__)
+        for c in config:
+            self.assertIn(
+                c["to_check"],
+                output_xml,
+                msg=c["assert_msg"] + "output_xml",
+            )
