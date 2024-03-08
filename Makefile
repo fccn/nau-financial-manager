@@ -11,8 +11,8 @@ else
 APP_DOCKER_COMMAND='gunicorn --workers 3 -c /usr/local/etc/gunicorn/app.py nau_financial_manager.wsgi:application'
 endif
 # or use in future the 'pytest' directly
-TEST_CMD = $(POETRY_RUN) python manage.py test --settings=nau_financial_manager.test
-TEST_MYSQL_CMD = $(POETRY_RUN) python manage.py test --settings=nau_financial_manager.test_mysql
+TEST_CMD = $(POETRY_RUN) pytest --ds=nau_financial_manager.test
+TEST_MYSQL_CMD = $(POETRY_RUN) pytest --ds=nau_financial_manager.test_mysql
 # TEST_CMD = $(POETRY_RUN) pytest
 LINT_CMD = $(POETRY_RUN) black .
 PRE_COMMIT = $(POETRY_RUN) pre-commit run --all-files
