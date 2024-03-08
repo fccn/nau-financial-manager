@@ -213,3 +213,28 @@ class TransactionServiceTestCase(TestCase):
             "An exception has been raised when sending data to processor",
             transaction.sage_x3_transaction_information.error_messages,
         )
+
+    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
+    @mock.patch("requests.post", side_effect=processor_success_response)
+    def test_transaction_to_processor_log_xml(self, mocked_post):
+        """
+        This test ensures that the data input xml and output xml is logged.
+        """
+        transaction = TransactionFactory.create()
+        TransactionItemFactory.create(transaction=transaction)
+        transaction_service = TransactionService(transaction=transaction)
+
+        with self.assertLogs(logger="apps.billing.services.transaction_service", level="INFO") as cm:
+            transaction_service.run_steps_to_send_transaction()
+
+        transaction.refresh_from_db()
+
+        self.assertGreaterEqual(len(cm.output), 1)
+        log_message_input = cm.output[0]
+        self.assertIn("Send transaction to SageX3 input_xml", log_message_input)
+        self.assertIn("<soapenv:Envelope", log_message_input)
+
+        self.assertGreaterEqual(len(cm.output), 2)
+        log_message_output = cm.output[1]
+        self.assertIn("Receiving from SageX3 the response", log_message_output)
+        self.assertIn("<soapenv:Envelope", log_message_output)

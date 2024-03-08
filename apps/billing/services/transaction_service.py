@@ -83,6 +83,8 @@ class TransactionService:
 
     def run_steps_to_send_transaction(self):
         try:
+            log.info("Send transaction to SageX3 input_xml: %s", self.__processor.data)
+
             # save before sending
             self.__save_transaction_xml(
                 informations={
@@ -94,6 +96,7 @@ class TransactionService:
             )
 
             response = self.__processor.send_transaction_to_processor()
+            log.info("Receiving from SageX3 the response: %s", response)
 
             # save after sending
             self.__save_transaction_xml(
