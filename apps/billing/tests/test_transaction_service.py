@@ -133,13 +133,12 @@ class TransactionServiceTestCase(TestCase):
         transaction.document_id = None
         transaction.save()
         transaction_service = TransactionService(transaction=transaction)
-
         transaction_service.run_steps_to_send_transaction()
 
         transaction.refresh_from_db()
-
         self.assertEqual(transaction.document_id, None)
         self.assertEqual(transaction.sage_x3_transaction_information.status, SageX3TransactionInformation.FAILED)
+        self.assertEqual(transaction.sage_x3_transaction_information.retries, 1)
 
         output_xml = transaction.sage_x3_transaction_information.output_xml
         self.assertIn(
@@ -157,3 +156,22 @@ class TransactionServiceTestCase(TestCase):
             output_xml,
             msg="The name of the exception should be on the output_xml",
         )
+
+    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
+    @mock.patch("requests.post", side_effect=raise_timeout)
+    def test_transaction_to_processor_error_retries_increase(self, mocked_post):
+        """
+        This test ensures that the retries flag increase when some error occurs when sending
+        transaction through the processor.
+        """
+        transaction = TransactionFactory.create()
+        transaction.document_id = None
+        transaction.save()
+        transaction_service = TransactionService(transaction=transaction)
+
+        transaction_service.run_steps_to_send_transaction()
+        transaction_service.run_steps_to_send_transaction()
+        transaction_service.run_steps_to_send_transaction()
+
+        transaction.refresh_from_db()
+        self.assertEqual(transaction.sage_x3_transaction_information.retries, 3)
