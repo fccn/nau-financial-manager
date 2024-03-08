@@ -175,3 +175,21 @@ class TransactionServiceTestCase(TestCase):
 
         transaction.refresh_from_db()
         self.assertEqual(transaction.sage_x3_transaction_information.retries, 3)
+
+    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
+    @mock.patch("requests.post", side_effect=raise_timeout)
+    def test_transaction_to_processor_error_with_input_xml(self, mocked_post):
+        """
+        This test ensures that in case of error sending to processor we still have the input_xml value.
+        """
+        transaction = TransactionFactory.create()
+        transaction.document_id = None
+        transaction.save()
+        transaction_service = TransactionService(transaction=transaction)
+
+        transaction_service.run_steps_to_send_transaction()
+        transaction.refresh_from_db()
+
+        self.assertEqual(transaction.document_id, None)
+        self.assertTrue('<soapenv:Envelope' in transaction.sage_x3_transaction_information.input_xml)
+        self.assertEqual(transaction.sage_x3_transaction_information.retries, 1)
