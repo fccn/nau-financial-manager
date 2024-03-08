@@ -162,4 +162,3 @@ class SageX3Processor(TransactionProcessorInterface):
         </soapenv:Envelope>
         """
         return data
-

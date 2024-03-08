@@ -2,6 +2,7 @@ from django.test.testcases import TestCase
 
 from apps.billing.services.financial_processor_service import TransactionProcessorInterface
 
+
 class TransactionServiceTestCase(TestCase):
     """
     Tests the `TransactionService`
