@@ -38,11 +38,13 @@ class TransactionService:
         this process, it prints the exception message.
         """
         try:
+            transaction.refresh_from_db()
             obj, created = SageX3TransactionInformation.objects.get_or_create(
                 transaction=transaction, defaults={**informations}
             )
             if not created:
-                obj.retries += 1
+                if informations["status"] == SageX3TransactionInformation.FAILED:
+                    obj.retries += 1
                 for key, value in informations.items():
                     setattr(obj, key, value)
                 obj.save()

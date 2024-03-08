@@ -68,6 +68,8 @@ class TransactionServiceTestCase(TestCase):
         transaction_service = TransactionService(transaction=transaction)
         transaction_service.run_steps_to_send_transaction()
 
+        self.assertEqual(transaction.sage_x3_transaction_information.status, SageX3TransactionInformation.SUCCESS)
+
     @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
     @mock.patch("requests.post", side_effect=raise_timeout)
     def test_transaction_to_processor_timeout_error_log(self, mocked_post):
