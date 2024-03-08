@@ -24,6 +24,7 @@ class SageX3Processor(TransactionProcessorInterface):
         self.__vacbpr = getattr(settings, "GEOGRAPHIC_ACTIVITY_VACBPR_FIELD")
         self.__user_processor_auth = getattr(settings, "USER_PROCESSOR_AUTH")
         self.__user_processor_password = getattr(settings, "USER_PROCESSOR_PASSWORD")
+        self.__data = None
 
     def send_transaction_to_processor(self) -> dict:
         """
@@ -66,6 +67,17 @@ class SageX3Processor(TransactionProcessorInterface):
 
     @property
     def data(self) -> str:
+        """
+        This method generates the request data as xml text from a transaction,
+        as expected for the `Sage X3` service.
+
+        It uses memoization to prevent the generation of data multiple times unnecessary.
+        """
+        if not self.__data:
+            self.__data = self.__generate_data()
+        return self.__data
+
+    def __generate_data(self) -> str:
         """
         This method generates the request data as xml text from a transaction,
         as expected for the `Sage X3` service.
@@ -149,5 +161,5 @@ class SageX3Processor(TransactionProcessorInterface):
             </soapenv:Body>
         </soapenv:Envelope>
         """
-
         return data
+
