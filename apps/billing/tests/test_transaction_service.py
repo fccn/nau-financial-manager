@@ -70,14 +70,13 @@ class TransactionServiceTestCase(TestCase):
 
     @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
     @mock.patch("requests.post", side_effect=raise_timeout)
-    def test_transaction_to_processor_timeout_error(self, mocked_post):
+    def test_transaction_to_processor_timeout_error_log(self, mocked_post):
         """
         This test ensures that the transaction service correctly handles a timeout error from the processor.
         If an error is being raised during the communication with the processor then:
         - the document_id shouldn't be defined
         - status of the information should be failed
-        Then some messages should be on the log and also on the output_xml field of the
-        `SageX3TransactionInformation` object for that transaction.
+        Then some messages should be on the log:
         - A specific message should have been added to the log
         - The exception msg should be on the log
         - The name of the exception should be on the log
@@ -95,28 +94,64 @@ class TransactionServiceTestCase(TestCase):
         self.assertEqual(transaction.document_id, None)
         self.assertEqual(transaction.sage_x3_transaction_information.status, SageX3TransactionInformation.FAILED)
 
-        config = [
-            {
-                "to_check": "An exception has been raised when sending data to processor",
-                "assert_msg": "A specific message should have been added to the ",
-            },
-            {"to_check": "A testing exception has been raised", "assert_msg": "The exception msg should be on the "},
-            {"to_check": "Timeout", "assert_msg": "The name of the exception should be on the "},
-        ]
+        self.assertGreaterEqual(
+            len(cm.output), 1, msg="At least a logging message should have been added with an error"
+        )
+        log_message = cm.output[0]
+        self.assertIn(
+            "An exception has been raised when sending data to processor",
+            log_message,
+            msg="A specific message should have been added to the log",
+        )
+        self.assertIn(
+            "A testing exception has been raised",
+            log_message,
+            msg="The exception msg should be on the log",
+        )
+        self.assertIn(
+            "Timeout",
+            log_message,
+            msg="The name of the exception should be on the log",
+        )
 
-        for snippet_to_check_in_log in config:
-            for m in cm.output:
-                self.assertIn(
-                    snippet_to_check_in_log["to_check"],
-                    m,
-                    msg=snippet_to_check_in_log["assert_msg"] + "log",
-                )
+    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
+    @mock.patch("requests.post", side_effect=raise_timeout)
+    def test_transaction_to_processor_timeout_error_output_xml(self, mocked_post):
+        """
+        This test ensures that the transaction service correctly handles a timeout error from the processor.
+        If an error is being raised during the communication with the processor then:
+        - the document_id shouldn't be defined
+        - status of the information should be failed
+        Then the output_xml field of the `SageX3TransactionInformation` object for that transaction should contain:
+        - A specific message
+        - The exception msg
+        - The name of the exception
+        """
+        transaction = TransactionFactory.create()
+        transaction.document_id = None
+        transaction.save()
+        transaction_service = TransactionService(transaction=transaction)
+
+        transaction_service.run_steps_to_send_transaction()
+
+        transaction.refresh_from_db()
+
+        self.assertEqual(transaction.document_id, None)
+        self.assertEqual(transaction.sage_x3_transaction_information.status, SageX3TransactionInformation.FAILED)
 
         output_xml = transaction.sage_x3_transaction_information.output_xml
-        print(transaction.sage_x3_transaction_information.__dict__)
-        for c in config:
-            self.assertIn(
-                c["to_check"],
-                output_xml,
-                msg=c["assert_msg"] + "output_xml",
-            )
+        self.assertIn(
+            "An exception has been raised when sending data to processor",
+            output_xml,
+            msg="A specific message should have been added to the output_xml",
+        )
+        self.assertIn(
+            "A testing exception has been raised",
+            output_xml,
+            msg="The exception msg should be on the output_xml",
+        )
+        self.assertIn(
+            "Timeout",
+            output_xml,
+            msg="The name of the exception should be on the output_xml",
+        )
