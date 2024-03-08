@@ -5,6 +5,7 @@ from django.test.testcases import TestCase
 from requests.exceptions import Timeout
 
 from apps.billing.factories import TransactionFactory, TransactionItemFactory
+from apps.billing.mocks import MockResponse
 from apps.billing.models import SageX3TransactionInformation
 from apps.billing.services.transaction_service import TransactionService
 from apps.billing.tests.test_utils import processor_duplicate_error_response, processor_success_response
@@ -118,13 +119,13 @@ class TransactionServiceTestCase(TestCase):
 
     @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
     @mock.patch("requests.post", side_effect=raise_timeout)
-    def test_transaction_to_processor_timeout_error_output_xml(self, mocked_post):
+    def test_transaction_to_processor_timeout_error_messages(self, mocked_post):
         """
         This test ensures that the transaction service correctly handles a timeout error from the processor.
         If an error is being raised during the communication with the processor then:
         - the document_id shouldn't be defined
         - status of the information should be failed
-        Then the output_xml field of the `SageX3TransactionInformation` object for that transaction should contain:
+        Then the error_messages field of the `SageX3TransactionInformation` object for that transaction should contain:
         - A specific message
         - The exception msg
         - The name of the exception
@@ -140,21 +141,21 @@ class TransactionServiceTestCase(TestCase):
         self.assertEqual(transaction.sage_x3_transaction_information.status, SageX3TransactionInformation.FAILED)
         self.assertEqual(transaction.sage_x3_transaction_information.retries, 1)
 
-        output_xml = transaction.sage_x3_transaction_information.output_xml
+        error_messages = transaction.sage_x3_transaction_information.error_messages
         self.assertIn(
             "An exception has been raised when sending data to processor",
-            output_xml,
-            msg="A specific message should have been added to the output_xml",
+            error_messages,
+            msg="A specific message should have been added to the error_messages",
         )
         self.assertIn(
             "A testing exception has been raised",
-            output_xml,
-            msg="The exception msg should be on the output_xml",
+            error_messages,
+            msg="The exception msg should be on the error_messages",
         )
         self.assertIn(
             "Timeout",
-            output_xml,
-            msg="The name of the exception should be on the output_xml",
+            error_messages,
+            msg="The name of the exception should be on the error_messages",
         )
 
     @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
@@ -191,5 +192,24 @@ class TransactionServiceTestCase(TestCase):
         transaction.refresh_from_db()
 
         self.assertEqual(transaction.document_id, None)
-        self.assertTrue('<soapenv:Envelope' in transaction.sage_x3_transaction_information.input_xml)
+        self.assertTrue("<soapenv:Envelope" in transaction.sage_x3_transaction_information.input_xml)
         self.assertEqual(transaction.sage_x3_transaction_information.retries, 1)
+
+    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
+    @mock.patch("requests.post", return_value=MockResponse(status_code=500, data="Some not expected error"))
+    def test_transaction_to_processor_not_expected_error(self, mocked_post):
+        """
+        This test ensures the success triggering the method that runs each step to send a
+        transaction to processor.
+        """
+        transaction = TransactionFactory.create()
+        TransactionItemFactory.create(transaction=transaction)
+        transaction_service = TransactionService(transaction=transaction)
+        transaction_service.run_steps_to_send_transaction()
+
+        self.assertEqual(transaction.sage_x3_transaction_information.status, SageX3TransactionInformation.FAILED)
+        self.assertIn("Some not expected error", transaction.sage_x3_transaction_information.output_xml)
+        self.assertIn(
+            "An exception has been raised when sending data to processor",
+            transaction.sage_x3_transaction_information.error_messages,
+        )
