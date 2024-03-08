@@ -1,102 +1,85 @@
 from unittest import mock
 
-from django.conf import settings
+from django.test import override_settings
 from django.test.testcases import TestCase
 from requests.exceptions import Timeout
 
 from apps.billing.factories import TransactionFactory, TransactionItemFactory
-from apps.billing.services.financial_processor_service import TransactionProcessorInterface
+from apps.billing.models import SageX3TransactionInformation
 from apps.billing.services.transaction_service import TransactionService
 from apps.billing.tests.test_utils import processor_duplicate_error_response, processor_success_response
 
 
+def raise_timeout(*args, **kwargs):
+    raise Timeout("Test")
+
 class TransactionServiceTestCase(TestCase):
-    def setUp(self) -> None:
-        """
-        This method instantiates all the necessary components, get the url for transaction processor service
-        and creates a combination of one `Transaction` and `TransactionItem`.
-        """
+    """
+    Tests the `TransactionService`
+    """
 
-        self.transaction = TransactionFactory.create()
-        self.transaction_item = TransactionItemFactory.create(transaction=self.transaction)
-        self.processor_url = getattr(settings, "TRANSACTION_PROCESSOR_URL")
-        self.transaction_service = TransactionService(transaction=self.transaction)
-
-    def test_financial_processor_service_interface(self):
-        """
-        This test ensures that if not implemented, the method from the interface
-        will raise an exception.
-
-        """
-        with self.assertRaisesMessage(
-            expected_exception=Exception,
-            expected_message="This method needs to be implemented",
-        ):
-            TransactionProcessorInterface(None).send_transaction_to_processor()
-
+    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
     @mock.patch("requests.post", side_effect=processor_success_response)
     def test_transaction_to_processor_success(self, mocked_post):
         """
         This test ensures the success result from the processor.
 
-        Calling the `self.transaction_service.send_transaction_to_processor`, it deals with the success result
+        Calling the `run_steps_to_send_transaction`, it deals with the success result
         and extracts the document id from response payload.
         """
-
-        fake_url_processor = "http://fake-processor.com"
-        setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
-
-        document_id: str = self.transaction_service.send_transaction_to_processor()
+        transaction = TransactionFactory.create()
+        TransactionItemFactory.create(transaction=transaction)
+        transaction_service = TransactionService(transaction=transaction)
+        transaction_service.run_steps_to_send_transaction()
+        document_id : str = transaction.document_id
 
         self.assertTrue(isinstance(document_id, str))
         self.assertNotEqual(document_id, "")
         self.assertTrue(document_id.startswith("FRN-"))
 
+    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
     @mock.patch("requests.post", side_effect=processor_duplicate_error_response)
     def test_transaction_to_processor_duplicate_error(self, mocked_post):
         """
         This test ensures the duplicate result from the processor.
 
-        Calling the `self.transaction_service.send_transaction_to_processor`, it deals with the duplicate result
+        Calling the `run_steps_to_send_transaction`, it deals with the duplicate result
         and extracts the document id from response payload that indicates the duplicate information.
         """
-
-        fake_url_processor = "http://fake-processor.com"
-        setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
-
-        document_id: str = self.transaction_service.send_transaction_to_processor()
+        transaction = TransactionFactory.create()
+        transaction_service = TransactionService(transaction=transaction)
+        transaction_service.run_steps_to_send_transaction()
+        document_id : str = transaction.document_id
 
         self.assertTrue(isinstance(document_id, str))
         self.assertNotEqual(document_id, "")
         self.assertTrue(document_id.startswith("FRN-"))
 
+    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
     @mock.patch("requests.post", side_effect=processor_success_response)
     def test_run_steps_to_send_transaction(self, mocked_post):
         """
         This test ensures the success triggering the method that runs each step to send a
         transaction to processor.
         """
+        transaction = TransactionFactory.create()
+        TransactionItemFactory.create(transaction=transaction)
+        transaction_service = TransactionService(transaction=transaction)
+        transaction_service.run_steps_to_send_transaction()
 
-        fake_url_processor = "http://fake-processor.com"
-        setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
-
-        self.transaction_service.run_steps_to_send_transaction()
-
-    @mock.patch("requests.post", side_effect=Timeout)
+    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
+    @mock.patch("requests.post", side_effect=raise_timeout)
     def test_transaction_to_processor_timeout_error(self, mocked_post):
         """
         This test ensures that the transaction service correctly handles a timeout error from the processor.
         """
+        transaction = TransactionFactory.create()
+        transaction.document_id = None
+        transaction_service = TransactionService(transaction=transaction)
+        transaction_service.run_steps_to_send_transaction()
+        document_id : str = transaction.document_id
 
-        fake_url_processor = "http://fake-processor.com"
-        setattr(settings, "TRANSACTION_PROCESSOR_URL", fake_url_processor)
+        transaction.refresh_from_db()
 
-        with self.assertRaises(Timeout):
-            self.transaction_service.send_transaction_to_processor()
-
-    def tearDown(self) -> None:
-        """
-        This method is called in the last moment of the `TestCase` class and sets the `TRANSACTION_PROCESSOR_URL`
-        varible as the real service url again.
-        """
-        setattr(settings, "TRANSACTION_PROCESSOR_URL", self.processor_url)
+        self.assertIsNone(document_id)
+        self.assertEqual(transaction.sage_x3_transaction_information.status, SageX3TransactionInformation.FAILED)

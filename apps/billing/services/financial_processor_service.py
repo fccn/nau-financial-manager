@@ -14,8 +14,14 @@ class TransactionProcessorInterface:
         self.transaction = transaction
 
     def send_transaction_to_processor(self) -> dict:
+        """
+        This method sends the transaction to the processor.
+        """
         raise Exception("This method needs to be implemented")
 
     @property
     def data(self):
+        """
+        Generates the request data from the transaction, as expected for the service.
+        """
         raise Exception("This method needs to be implemented")
