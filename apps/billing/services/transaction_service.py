@@ -115,8 +115,7 @@ class TransactionService:
             exception_stack_trace = traceback.format_exc()
             self.__save_transaction_xml(
                 informations={
-                    "output_xml": f"An exception has been raised when sending data to processor, exception message={e} stacktrace={exception_stack_trace}",
-                    "error_messages": exception_stack_trace,
+                    "error_messages": f"An exception has been raised when sending data to processor, exception message={e} stacktrace={exception_stack_trace}",
                     "status": SageX3TransactionInformation.FAILED,
                 },
                 transaction=self.transaction,
