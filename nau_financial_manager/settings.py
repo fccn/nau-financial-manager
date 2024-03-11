@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import codecs
 import copy
-import logging.config
 import os
 from pathlib import Path
 
@@ -222,42 +221,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-LOGGING = CONFIG.get(
+_LOGGING = CONFIG.get(
     "LOGGING",
-    {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "handlers": {
-            "error": {
-                "level": "ERROR",
-                "class": "logging.StreamHandler",
-            },
-            "warning": {
-                "level": "WARNING",
-                "class": "logging.StreamHandler",
-            },
-            "info": {
-                "level": "INFO",
-                "class": "logging.StreamHandler",
-            },
-        },
-        "loggers": {
-            "django": {
-                "handlers": ["error", "warning", "info"],
-                "level": 1,
-                "propagate": True,
-            },
-            "nau_financial_manager": {
-                "handlers": ["error", "warning", "info"],
-                "level": 1,
-                "propagate": True,
-            },
-        },
-    },
+    None,
 )
-
-LOGGING_CONFIG = None
-logging.config.dictConfig(LOGGING)
+if _LOGGING:
+    LOGGING = _LOGGING
 
 LANGUAGE_CODE = "en-us"
 
