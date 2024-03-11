@@ -50,9 +50,9 @@ class SageX3ProcessServiceTest(TestCase):
     @mock.patch("apps.billing.services.processor_service.SageX3Processor.data", side_effect=lambda: {"some": "thing"})
     def test_send_transaction_to_processor_header_soapaction(self, mock_data, mock_post):
         """
-        Test the SOAPAction HTTP header sent to SageX3 is XML.
+        Test the SOAPAction HTTP header sent to SageX3 is XML, it should be an empty string.
         """
         SageX3Processor(None).send_transaction_to_processor()
         _, kwargs = mock_post.call_args
         called_headers = kwargs["headers"]
-        self.assertEqual("", called_headers["SOAPAction"])
+        self.assertEqual("''", called_headers["SOAPAction"])
