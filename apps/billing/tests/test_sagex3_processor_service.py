@@ -1,10 +1,8 @@
-import xml.etree.ElementTree as ET
-from datetime import datetime
+from unittest import mock
 
 from django.test import TestCase, override_settings
 
-from apps.billing.factories import TransactionFactory
-from apps.billing.models import Transaction
+from apps.billing.mocks import MockResponse
 from apps.billing.services.processor_service import SageX3Processor
 
 
@@ -13,248 +11,48 @@ class SageX3ProcessServiceTest(TestCase):
     A test case for the ProcessService.
     """
 
-    @staticmethod
-    def _get_xml_element_from_transaction(transaction: Transaction) -> ET.Element:
-        xml = SageX3Processor(transaction).data
-        root = ET.fromstring(xml)  # nosec
-        object_xml: str = root.findall(".//*/objectXml")[0].text.strip()
-        return ET.fromstring(object_xml)  # nosec
+    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com/somelocation")
+    @mock.patch("requests.post", return_value=MockResponse(data="", status_code=200))
+    @mock.patch("apps.billing.services.processor_service.SageX3Processor.data", side_effect=lambda: {"some": "thing"})
+    def test_send_transaction_to_processor_transaction_processor_url_setting(self, mock_data, mock_post):
+        """
+        Test the `TRANSACTION_PROCESSOR_URL` setting changes the called URL.
+        """
+        SageX3Processor(None).send_transaction_to_processor()
+        _, kwargs = mock_post.call_args
 
-    def test_data_processor_transaction_id(self):
-        """
-        Test the SageX3Processor for transaction_id field.
-        """
-        transaction_id = "NAU00653"
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(transaction_id=transaction_id)
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='INVREF']"), transaction_id)
+        self.assertEqual("http://fake-processor.com/somelocation", kwargs["url"])
 
-    def test_data_processor_transaction_date(self):
+    @override_settings(USER_PROCESSOR_AUTH="someuser", USER_PROCESSOR_PASSWORD="somepassword")
+    @mock.patch("requests.post", return_value=MockResponse(data="", status_code=200))
+    @mock.patch("apps.billing.services.processor_service.SageX3Processor.data", side_effect=lambda: {"some": "thing"})
+    def test_send_transaction_to_processor_user_processor_auth_password(self, mock_data, mock_post):
         """
-        Test the SageX3Processor for transaction_date field.
+        Test the `USER_PROCESSOR_AUTH` and `USER_PROCESSOR_PASSWORD` settings changes
+        the authentication user and password.
         """
-        transaction_date = datetime.now()
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(transaction_date=transaction_date)
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='INVDAT']"), transaction_date.strftime("%Y-%m-%d"))
+        SageX3Processor(None).send_transaction_to_processor()
+        _, kwargs = mock_post.call_args
+        self.assertEqual(("someuser", "somepassword"), kwargs["auth"])
 
-    @override_settings(GEOGRAPHIC_ACTIVITY_VACBPR_FIELD="XPTO")
-    def test_data_processor_geographic_activity_override(self):
+    @mock.patch("requests.post", return_value=MockResponse(data="", status_code=200))
+    @mock.patch("apps.billing.services.processor_service.SageX3Processor.data", side_effect=lambda: {"some": "thing"})
+    def test_send_transaction_to_processor_header_content_type(self, mock_data, mock_post):
         """
-        Test the SageX3Processor for geographic activity field.
+        Test the Content-type HTTP header sent to SageX3 is XML.
         """
-        transaction_date = datetime.now()
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(transaction_date=transaction_date)
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='VACBPR']"), "XPTO")
+        SageX3Processor(None).send_transaction_to_processor()
+        _, kwargs = mock_post.call_args
+        called_headers = kwargs["headers"]
+        self.assertEqual("application/xml", called_headers["Content-type"])
 
-    def test_data_processor_geographic_activity_default(self):
+    @mock.patch("requests.post", return_value=MockResponse(data="", status_code=200))
+    @mock.patch("apps.billing.services.processor_service.SageX3Processor.data", side_effect=lambda: {"some": "thing"})
+    def test_send_transaction_to_processor_header_soapaction(self, mock_data, mock_post):
         """
-        Test the SageX3Processor for geographic activity field.
+        Test the SOAPAction HTTP header sent to SageX3 is XML.
         """
-        transaction_date = datetime.now()
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(transaction_date=transaction_date)
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='VACBPR']"), "CON")
-
-    def test_data_processor_vat_identification_country_france(self):
-        """
-        Test the SageX3Processor for vat identification country field for france
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(vat_identification_country="FR")
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YCRY']"), "FR")
-
-    def test_data_processor_vat_identification_country_portugal(self):
-        """
-        Test the SageX3Processor for vat identification country field for portugal
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(vat_identification_country="PT")
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YCRY']"), "PT")
-
-    def test_data_processor_vat_identification_country_portugal_alpha3(self):
-        """
-        Test the SageX3Processor for vat identification country field for portugal
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(vat_identification_country="PRT")
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YCRY']"), "PT")
-
-    def test_data_processor_vat_identification_country_none(self):
-        """
-        Test the SageX3Processor for vat identification country field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(vat_identification_country=None)
-        )
-        self.assertEqual(object_xml_root.find(".//*/FLD[@NAME='YCRY']").text, None)
-
-    def test_data_processor_country_code_portugal(self):
-        """
-        Test the SageX3Processor for country code field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(country_code="PT")
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YCRYNAM']"), "PT")
-
-    def test_data_processor_country_code_great_britain_alpha3(self):
-        """
-        Test the SageX3Processor for country code field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(country_code="GBR")
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YCRYNAM']"), "GB")
-
-    def test_data_processor_country_code_none(self):
-        """
-        Test the SageX3Processor for country code field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(country_code=None)
-        )
-        self.assertEqual(object_xml_root.find(".//*/FLD[@NAME='YCRYNAM']").text, None)
-
-    def test_data_processor_postal_code_portugal(self):
-        """
-        Test the SageX3Processor for country code field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(postal_code="1249-068")
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YPOSCOD']"), "1249068")
-
-    def test_data_processor_postal_code_france(self):
-        """
-        Test the SageX3Processor for country code field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(postal_code="93600")
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YPOSCOD']"), "93600")
-
-    def test_data_processor_postal_code_none(self):
-        """
-        Test the SageX3Processor for country code field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(postal_code=None)
-        )
-        self.assertEqual(object_xml_root.find(".//*/FLD[@NAME='YPOSCOD']").text, None)
-
-    def test_data_processor_vat_identification_number_corporate(self):
-        """
-        Test the SageX3Processor for country code field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(vat_identification_number=503904040)
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YBPIEECNUM']"), "503904040")
-
-    def test_data_processor_email(self):
-        """
-        Test the SageX3Processor for email field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(email="example@email.com")
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YILINKMAIL']"), "example@email.com")
-
-    def test_data_processor_email_none(self):
-        """
-        Test the SageX3Processor for email field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(email=None)
-        )
-        self.assertEqual(object_xml_root.find(".//*/FLD[@NAME='YILINKMAIL']").text, None)
-
-    def test_data_processor_transaction_type_credit(self):
-        """
-        Test the SageX3Processor for transaction_type field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(transaction_type="credit")
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YPAM']"), "credit")
-
-    def test_data_processor_transaction_type_none(self):
-        """
-        The transaction_type is a required field.
-        """
-        with self.assertRaises(Exception):
-            SageX3ProcessServiceTest._get_xml_element_from_transaction(TransactionFactory(transaction_type=None))
-
-    def test_data_processor_transaction_type_strange(self):
-        """
-        Test the SageX3Processor for transaction_type field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(transaction_type="strange")
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YPAM']"), "strange")
-
-    def test_data_processor_client_name(self):
-        """
-        Test the SageX3Processor for email field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(client_name="John Snow")
-        )
-        self.assertEqual(object_xml_root.findtext(".//*/LST[@NAME='YBPRNAM']/ITM"), "John Snow")
-
-    def test_data_processor_client_name_none(self):
-        """
-        Test the SageX3Processor for email field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(client_name=None)
-        )
-        self.assertEqual(object_xml_root.find(".//*/LST[@NAME='YBPRNAM']/ITM").text, None)
-
-    def test_data_processor_address_line_1(self):
-        """
-        Test the SageX3Processor for address_line_1 field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(address_line_1="Estrada Nacional nº1")
-        )
-        self.assertEqual(object_xml_root.findall(".//*/LST[@NAME='YBPAADDLIG']/ITM")[0].text, "Estrada Nacional nº1")
-
-    def test_data_processor_address_line_1_none(self):
-        """
-        Test the SageX3Processor for address_line_1 field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(address_line_1=None)
-        )
-        self.assertEqual(object_xml_root.find(".//*/LST[@NAME='YBPAADDLIG']/ITM").text, None)
-
-    def test_data_processor_address_line_2(self):
-        """
-        Test the SageX3Processor for address_line_2 field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(address_line_2="Uma localidade")
-        )
-        self.assertEqual(object_xml_root.findall(".//*/LST[@NAME='YBPAADDLIG']/ITM")[1].text, "Uma localidade")
-
-    def test_data_processor_address_line_2_none(self):
-        """
-        Test the SageX3Processor for address_line_2 field.
-        """
-        object_xml_root: ET.Element = SageX3ProcessServiceTest._get_xml_element_from_transaction(
-            TransactionFactory(address_line_2=None)
-        )
-        self.assertFalse(object_xml_root.findall(".//*/LST[@NAME='YBPAADDLIG']/ITM")[1].text)
-
-    # TODO test each items
+        SageX3Processor(None).send_transaction_to_processor()
+        _, kwargs = mock_post.call_args
+        called_headers = kwargs["headers"]
+        self.assertEqual("", called_headers["SOAPAction"])
