@@ -220,6 +220,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+logging_default_root_level = CONFIG.get("LOGGING_DEFAULT_ROOT_LEVEL", "DEBUG" if DEBUG else "INFO")
 
 _LOGGING = CONFIG.get(
     "LOGGING",
@@ -233,7 +234,7 @@ _LOGGING = CONFIG.get(
         },
         "root": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": logging_default_root_level,
         },
     },
 )
@@ -293,3 +294,11 @@ SWAGGER_SETTINGS = {
 # Unfortunately this will be added to the production image, in future we need a different run mode for production.
 # This fixes the error: "CSRF verification failed. Request aborted." when accessing using local nginx.
 CSRF_TRUSTED_ORIGINS = CONFIG.get("CSRF_TRUSTED_ORIGINS", ["http://localhost:8081"])
+
+# To log the outgoing HTTP requests:
+# Increase verbosity of root logger using the `LOGGING_DEFAULT_ROOT_LEVEL` setting
+# and also activate the `HTTP_CLIENT_DEBUG` setting.
+if CONFIG.get("HTTP_CLIENT_DEBUG", False):
+    import http.client
+
+    http.client.HTTPConnection.debuglevel = 1
