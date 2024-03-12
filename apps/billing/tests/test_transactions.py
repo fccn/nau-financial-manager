@@ -21,8 +21,8 @@ class TransactionTest(TestCase):
         """
         Test the string representation of a Transaction instance.
         """
-        transaction = TransactionFactory(client_name="John Doe")
-        self.assertEqual(str(transaction), "John Doe")
+        transaction = TransactionFactory(transaction_id="A_LONG_HASH_ID")
+        self.assertEqual(str(transaction), "A_LONG_HASH_ID")
 
     def test_transaction_update(self):
         """
@@ -70,8 +70,10 @@ class TransactionItemTest(TestCase):
         """
         Test the string representation of a TransactionItem instance.
         """
-        transaction_item = TransactionItemFactory(description="Product A")
-        self.assertEqual(str(transaction_item), "Product A")
+        transaction_item = TransactionItemFactory(
+            product_id="Product_A",
+        )
+        self.assertEqual(str(transaction_item), "Product_A")
 
     def test_transaction_item_update(self):
         """

@@ -48,8 +48,8 @@ class OrganizationModelTest(TestCase):
         """
         Test that the string representation of the organization is its name.
         """
-        expected_object_name = f"{self.organization.name}"
-        self.assertEqual(expected_object_name, str(self.organization))
+        expected_object_short_name = f"{self.organization.short_name}"
+        self.assertEqual(expected_object_short_name, str(self.organization))
 
     def test_create_organization(self):
         """
