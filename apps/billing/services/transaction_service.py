@@ -81,7 +81,11 @@ class TransactionService:
 
         return document_id
 
-    def run_steps_to_send_transaction(self):
+    def run_steps_to_send_transaction(self) -> bool:
+        """
+        Send the transaction to the SageX3,
+        returns a boolean indicating if the send has been run with success.
+        """
         try:
             log.info("Send transaction to SageX3 input_xml: %s", self.__processor.data)
 
@@ -112,6 +116,7 @@ class TransactionService:
             document_id = self.__class__.__extract_document_id_from_response(response)
             self.transaction.document_id = document_id
             self.transaction.save()
+            return True
         except Exception as e:
             # log the exception and eat it.
             log.exception(f"An exception has been raised when sending data to processor, exception message={e}")
@@ -123,3 +128,4 @@ class TransactionService:
                 },
                 transaction=self.transaction,
             )
+            return False
