@@ -81,14 +81,14 @@ class TransactionItem(BaseModel):
     """
 
     transaction = models.ForeignKey(Transaction, related_name="transaction_items", on_delete=models.CASCADE)
-    description = models.CharField(max_length=255, null=True)
-    quantity = models.PositiveIntegerField(default=1, null=True)
-    vat_tax = models.DecimalField(max_digits=5, decimal_places=2, null=True)
-    unit_price_excl_vat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    unit_price_incl_vat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    organization_code = models.CharField(max_length=255, null=True)
-    product_id = models.CharField(max_length=50, null=True, blank=True)
-    product_code = models.CharField(max_length=50, null=True, blank=True)
+    description = models.CharField(max_length=255)
+    quantity = models.PositiveIntegerField(default=1)
+    vat_tax = models.DecimalField(max_digits=5, decimal_places=2)
+    unit_price_excl_vat = models.DecimalField(max_digits=10, decimal_places=2)
+    unit_price_incl_vat = models.DecimalField(max_digits=10, decimal_places=2)
+    organization_code = models.CharField(max_length=255)
+    product_id = models.CharField(max_length=50)
+    product_code = models.CharField(max_length=50)
     discount = models.DecimalField(
         default=0.0,
         max_digits=3,
