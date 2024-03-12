@@ -1,6 +1,8 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.utils.translation import gettext_lazy as _
 
 from apps.billing.models import SageX3TransactionInformation, Transaction, TransactionItem
+from apps.billing.services.transaction_service import TransactionService
 
 
 class TransactionItemInline(admin.TabularInline):
@@ -14,35 +16,56 @@ class TransactionAdmin(admin.ModelAdmin):
         "transaction_id",
         "client_name",
         "email",
-        "address_line_1",
-        "address_line_2",
-        "city",
-        "postal_code",
-        "state",
-        "country_code",
-        "vat_identification_number",
-        "vat_identification_country",
-        "total_amount_exclude_vat",
-        "total_amount_include_vat",
-        "currency",
     )
     search_fields = (
         "transaction_id",
         "client_name",
         "email",
-        "address_line_1",
-        "address_line_2",
-        "city",
-        "postal_code",
-        "state",
-        "country_code",
-        "vat_identification_number",
-        "vat_identification_country",
-        "total_amount_exclude_vat",
-        "total_amount_include_vat",
-        "currency",
     )
 
 
 admin.site.register(Transaction, TransactionAdmin)
-admin.site.register(SageX3TransactionInformation)
+
+
+class SageX3TransactionInformationAdmin(admin.ModelAdmin):
+    list_display = (
+        "transaction",
+        "status",
+        "retries",
+    )
+    list_filter = [
+        "status",
+    ]
+    search_fields = (
+        "transaction_id",
+        "status",
+    )
+
+    @admin.action(description="Retry to SageX3")
+    def retry_sage_transaction(self, request, queryset):
+        for sageX3TransactionInformation in queryset:
+            transaction = sageX3TransactionInformation.transaction
+            transaction_id = sageX3TransactionInformation.transaction.transaction_id
+            if TransactionService(transaction).run_steps_to_send_transaction():
+                self.message_user(
+                    request,
+                    _(
+                        "%s transaction was successfully retried.",
+                    )
+                    % transaction_id,
+                    messages.SUCCESS,
+                )
+            else:
+                self.message_user(
+                    request,
+                    _(
+                        "The %s transaction has raised an error while retrying.",
+                    )
+                    % transaction_id,
+                    messages.ERROR,
+                )
+
+    actions = [retry_sage_transaction]
+
+
+admin.site.register(SageX3TransactionInformation, SageX3TransactionInformationAdmin)
