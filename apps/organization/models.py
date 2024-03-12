@@ -18,4 +18,4 @@ class Organization(BaseModel):
         verbose_name_plural = _("Organizations")
 
     def __str__(self) -> str:
-        return f"{self.name}"
+        return f"{self.short_name}"

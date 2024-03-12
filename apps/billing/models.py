@@ -58,7 +58,7 @@ class Transaction(BaseModel):
     document_id = models.CharField(max_length=150, null=True, blank=True)
 
     def __str__(self):
-        return self.client_name
+        return self.transaction_id
 
 
 class TransactionItem(BaseModel):
@@ -97,7 +97,7 @@ class TransactionItem(BaseModel):
     )
 
     def __str__(self):
-        return self.description
+        return self.product_id
 
 
 class SageX3TransactionInformation(BaseModel):
