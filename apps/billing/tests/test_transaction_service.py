@@ -20,7 +20,7 @@ class TransactionServiceTestCase(TestCase):
     Tests the `TransactionService`
     """
 
-    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
+    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com", DEFAULT_SERIES="AAA")
     @mock.patch("requests.post", side_effect=processor_success_response)
     def test_transaction_to_processor_success(self, mocked_post):
         """
@@ -37,9 +37,9 @@ class TransactionServiceTestCase(TestCase):
 
         self.assertTrue(isinstance(document_id, str))
         self.assertNotEqual(document_id, "")
-        self.assertTrue(document_id.startswith("FRN-"))
+        self.assertTrue(document_id.startswith("AAA-"))
 
-    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
+    @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com", DEFAULT_SERIES="QWERTY")
     @mock.patch("requests.post", side_effect=processor_duplicate_error_response)
     def test_transaction_to_processor_duplicate_error(self, mocked_post):
         """
@@ -55,7 +55,8 @@ class TransactionServiceTestCase(TestCase):
 
         self.assertTrue(isinstance(document_id, str))
         self.assertNotEqual(document_id, "")
-        self.assertTrue(document_id.startswith("FRN-"))
+        print(document_id)
+        self.assertTrue(document_id.startswith("QWERTY-"))
 
     @override_settings(TRANSACTION_PROCESSOR_URL="http://fake-processor.com")
     @mock.patch("requests.post", side_effect=processor_success_response)

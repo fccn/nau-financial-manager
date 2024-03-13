@@ -19,13 +19,15 @@ class TransactionService:
     def __init__(
         self,
         transaction: Transaction,
+        *args,
+        **kwargs,
     ) -> None:
         """
         Initialize a TransactionService and save the necessary information marking
         that there is a pending transaction to be sent.
         """
         self.transaction = transaction
-        self.__processor: TransactionProcessorInterface = SageX3Processor(transaction)
+        self.__processor: TransactionProcessorInterface = SageX3Processor(transaction, *args, **kwargs)
         SageX3TransactionInformation.objects.get_or_create(transaction=transaction)
 
     def __save_transaction_xml(self, transaction: Transaction, informations: dict) -> None:

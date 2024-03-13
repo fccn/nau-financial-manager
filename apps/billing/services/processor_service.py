@@ -17,13 +17,14 @@ class SageX3Processor(TransactionProcessorInterface):
     need to be implemented here as private methods.
     """
 
-    def __init__(self, transaction: Transaction) -> None:
+    def __init__(self, transaction: Transaction, series=getattr(settings, "DEFAULT_SERIES")) -> None:
         super().__init__(transaction)
         self.__processor_url = getattr(settings, "TRANSACTION_PROCESSOR_URL")
         self.__vacitm1 = getattr(settings, "IVA_VACITM1_FIELD")
         self.__vacbpr = getattr(settings, "GEOGRAPHIC_ACTIVITY_VACBPR_FIELD")
         self.__user_processor_auth = getattr(settings, "USER_PROCESSOR_AUTH")
         self.__user_processor_password = getattr(settings, "USER_PROCESSOR_PASSWORD")
+        self.__default_series = series
         self.__data = None
 
     def send_transaction_to_processor(self) -> dict:
@@ -121,7 +122,7 @@ class SageX3Processor(TransactionProcessorInterface):
                         <PARAM>
                             <GRP ID="SIH0_1">
                                 <FLD NAME="SALFCY">SED</FLD>
-                                <FLD NAME="SIVTYP">FRN</FLD>
+                                <FLD NAME="SIVTYP">{self.__default_series}</FLD>
                                 <FLD NAME="NUM"></FLD>
                                 <FLD NAME="INVREF">{transaction_id}</FLD>
                                 <FLD NAME="INVDAT">{transaction_date}</FLD>

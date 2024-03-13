@@ -1,6 +1,7 @@
 import json
 from random import randint
 
+from django.conf import settings
 from requests import Response
 
 ILINK_RESPONSE_MOCK = {
@@ -257,7 +258,7 @@ def xml_success_response_mock(data):
                         <FLD NAME="ZSALFCY" TYPE="Char"/>
                         <FLD NAME="SIVTYP" TYPE="Char">{data["nau_data"]['SIVTYP']}</FLD>
                         <FLD NAME="ZSIVTYP" TYPE="Char"/>
-                        <FLD NAME="NUM" TYPE="Char">FRN-23/000{randint(10, 99)}</FLD>
+                        <FLD NAME="NUM" TYPE="Char">{settings.DEFAULT_SERIES}-23/000{randint(10, 99)}</FLD>
                         <FLD NAME="INVREF" TYPE="Char">{data["nau_data"]['INVREF']}</FLD>
                         <FLD NAME="INVDAT" TYPE="Date">{data["nau_data"]['INVDAT']}</FLD>
                         <FLD NAME="BPCINV" TYPE="Char">{data["nau_data"]['BPCINV']}</FLD>
@@ -494,7 +495,7 @@ def xml_duplicate_error_response_mock():
                 </wss:saveResponse>
                 <multiRef id="id0" soapenc:root="0" soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xsi:type="wss:CAdxMessage">
                     <type>3</type>
-                    <message>Nº Fatura NAU já registada no documento: FRN-{randint(21, 23)}/000{randint(10, 64)}</message>
+                    <message>Nº Fatura NAU já registada no documento: {settings.DEFAULT_SERIES}-{randint(21, 23)}/000{randint(10, 64)}</message>
                 </multiRef>
             </soapenv:Body>
             </soapenv:Envelope>
