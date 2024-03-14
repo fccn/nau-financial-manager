@@ -1,3 +1,5 @@
+import xml.etree.ElementTree as ET
+
 import requests
 from django.conf import settings
 
@@ -111,65 +113,74 @@ class SageX3Processor(TransactionProcessorInterface):
         address_line_1 = str(transaction.address_line_1 or "")
         address_line_2 = str(transaction.address_line_2 or "")
 
-        data = f"""
-        <soapenv:Envelope
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-            xmlns:wss="http://www.adonix.com/WSS">
-            <soapenv:Header/>
-            <soapenv:Body>
-                <wss:save soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
-                    <callContext xsi:type="wss:CAdxCallContext">
-                        <codeLang xsi:type="xsd:string">POR</codeLang>
-                        <poolAlias xsi:type="xsd:string">WSTEST</poolAlias>
-                        <poolId xsi:type="xsd:string">?</poolId>
-                        <requestConfig xsi:type="xsd:string">adxwss.beautify=true</requestConfig>
-                    </callContext>
-                    <publicName xsi:type="xsd:string">YWSSIH</publicName>
-                    <objectXml xsi:type="xsd:string">
-                        <![CDATA[<?xml version="1.0" encoding="utf-8" ?>
-                        <PARAM>
-                            <GRP ID="SIH0_1">
-                                <FLD NAME="SALFCY">SED</FLD>
-                                <FLD NAME="SIVTYP">{self._series()}</FLD>
-                                <FLD NAME="NUM"></FLD>
-                                <FLD NAME="INVREF">{transaction_id}</FLD>
-                                <FLD NAME="INVDAT">{transaction_date}</FLD>
-                                <FLD NAME="BPCINV">9999</FLD>
-                                <FLD NAME="CUR">EUR</FLD>
-                            </GRP>
-                            <GRP ID="SIH1_5">
-                                <FLD NAME="VACBPR">{self.__vacbpr}</FLD>
-                                <FLD NAME="PRITYP">2</FLD>
-                            </GRP>
-                            <GRP ID="SIH1_6">
-                                <FLD NAME="STOMVTFLG">1</FLD>
-                            </GRP>
-                            <GRP ID="SIH2_2">
-                                <FLD NAME="PTE">PTTRFPP</FLD>
-                            </GRP>
-                            <GRP ID="YIL_2">
-                                <FLD NAME="YCRY" TYPE="Char">{vat_identification_country}</FLD>
-                                <FLD NAME="YCRYNAM" TYPE="Char">{country_code}</FLD>
-                                <FLD NAME="YPOSCOD" TYPE="Char">{postal_code}</FLD>
-                                <FLD NAME="YCTY" TYPE="Char">{city}</FLD>
-                                <FLD NAME="YBPIEECNUM" TYPE="Char">{vat_identification_number}</FLD>
-                                <FLD NAME="YILINKMAIL" TYPE="Char">{email}</FLD>
-                                <FLD NAME="YPAM" TYPE="Char">{transaction_type}</FLD>
-                                <LST NAME="YBPRNAM" SIZE="2" TYPE="Char">
-                                    <ITM>{client_name}</ITM>
-                                </LST>
-                                <LST NAME="YBPAADDLIG" SIZE="3" TYPE="Char">
-                                    <ITM>{address_line_1}</ITM>
-                                    <ITM>{address_line_2}</ITM>
-                                </LST>
-                            </GRP>
-                            <TAB ID="SIH4_1">{items_as_xml}</TAB>
-                        </PARAM>]]>
-                    </objectXml>
-                </wss:save>
-            </soapenv:Body>
-        </soapenv:Envelope>
+        objectXML = f"""
+            <PARAM>
+                <GRP ID="SIH0_1">
+                    <FLD NAME="SALFCY">SED</FLD>
+                    <FLD NAME="SIVTYP">{self._series()}</FLD>
+                    <FLD NAME="NUM"></FLD>
+                    <FLD NAME="INVREF">{transaction_id}</FLD>
+                    <FLD NAME="INVDAT">{transaction_date}</FLD>
+                    <FLD NAME="BPCINV">9999</FLD>
+                    <FLD NAME="CUR">EUR</FLD>
+                </GRP>
+                <GRP ID="SIH1_5">
+                    <FLD NAME="VACBPR">{self.__vacbpr}</FLD>
+                    <FLD NAME="PRITYP">2</FLD>
+                </GRP>
+                <GRP ID="SIH1_6">
+                    <FLD NAME="STOMVTFLG">1</FLD>
+                </GRP>
+                <GRP ID="SIH2_2">
+                    <FLD NAME="PTE">PTTRFPP</FLD>
+                </GRP>
+                <GRP ID="YIL_2">
+                    <FLD NAME="YCRY" TYPE="Char">{vat_identification_country}</FLD>
+                    <FLD NAME="YCRYNAM" TYPE="Char">{country_code}</FLD>
+                    <FLD NAME="YPOSCOD" TYPE="Char">{postal_code}</FLD>
+                    <FLD NAME="YCTY" TYPE="Char">{city}</FLD>
+                    <FLD NAME="YBPIEECNUM" TYPE="Char">{vat_identification_number}</FLD>
+                    <FLD NAME="YILINKMAIL" TYPE="Char">{email}</FLD>
+                    <FLD NAME="YPAM" TYPE="Char">{transaction_type}</FLD>
+                    <LST NAME="YBPRNAM" SIZE="2" TYPE="Char">
+                        <ITM>{client_name}</ITM>
+                    </LST>
+                    <LST NAME="YBPAADDLIG" SIZE="3" TYPE="Char">
+                        <ITM>{address_line_1}</ITM>
+                        <ITM>{address_line_2}</ITM>
+                    </LST>
+                </GRP>
+                <TAB ID="SIH4_1">{items_as_xml}</TAB>
+            </PARAM>
         """
+        objectXML = self.__class__._pretty_format_xml(objectXML, space="\t")
+
+        data = f"""
+<soapenv:Envelope
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:wss="http://www.adonix.com/WSS">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <wss:save soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+            <callContext xsi:type="wss:CAdxCallContext">
+                <codeLang xsi:type="xsd:string">POR</codeLang>
+                <poolAlias xsi:type="xsd:string">WSTEST</poolAlias>
+                <poolId xsi:type="xsd:string">?</poolId>
+                <requestConfig xsi:type="xsd:string">adxwss.beautify=true</requestConfig>
+            </callContext>
+            <publicName xsi:type="xsd:string">YWSSIH</publicName>
+            <objectXml xsi:type="xsd:string"><![CDATA[<?xml version="1.0" encoding="utf-8" ?>
+{objectXML}]]></objectXml>
+        </wss:save>
+    </soapenv:Body>
+</soapenv:Envelope>"""
         return data
+
+    @staticmethod
+    def _pretty_format_xml(data, space="  ", level=0):
+        element = ET.XML(data)
+        ET.indent(element, space=space, level=level)
+        pretty = ET.tostring(element, encoding="unicode")
+        return pretty
