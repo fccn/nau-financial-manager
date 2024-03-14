@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 
 from apps.util.constants import TRANSACTION_TYPE
@@ -120,9 +122,21 @@ class SageX3TransactionInformation(BaseModel):
     status = models.CharField(max_length=255, null=False, blank=False, choices=STATE_CHOICES, default=PENDING)
     last_status_date = models.DateTimeField(auto_now_add=True)
     retries = models.PositiveIntegerField(default=0)
+    series = models.CharField(
+        _("Serie"),
+        default=getattr(settings, "DEFAULT_SERIES"),
+        max_length=50,
+        help_text=_("The transaction series, by default we should use FRN, to fix date issues use FRX"),
+    )
     input_xml = models.TextField(null=True, blank=True)
     output_xml = models.TextField(null=True, blank=True)
     error_messages = models.TextField(null=True, blank=True)
+
+    @property
+    def processor_custom_fields(self):
+        d = dict()
+        d["series"] = self.series
+        return d
 
     def __str__(self):
         return f"{self.transaction.transaction_id} - {self.status}"

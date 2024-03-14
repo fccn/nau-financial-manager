@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
         python manage.py retry_sage_transactions
 
-        python manage.py retry_sage_transactions --transaction_id=XXXX --custom_series=FRX
+        python manage.py retry_sage_transactions --transaction_id=XXXX
 
     """
 
@@ -28,12 +28,6 @@ class Command(BaseCommand):
         """
         parser.add_argument(
             "--transaction_id", type=str, required=False, help="The transaction_id to retry to send to SageX3"
-        )
-        parser.add_argument(
-            "--custom_series",
-            type=str,
-            required=False,
-            help="Change the default 'FRN' SageX3 series, use the series 'FRX' to fix date validation issues on SageX3, note it also requires the use of transaction_id argument.",
         )
 
     @staticmethod
@@ -47,16 +41,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs) -> str | None:
         transaction_id = kwargs["transaction_id"]
-        custom_series = kwargs["custom_series"]
-
-        # check required argument based on condition
-        if custom_series and not transaction_id:
-            assert "The custom_series requires also the transaction_id argument"
-
-        transaction_service_kwargs = {}
-        if custom_series:
-            transaction_service_kwargs["series"] = custom_series
-
         start = time.time()
         self.stdout.write("\nGetting failed transactions with Sage X3...\n")
         sagex3_to_retry = self.__class__._sagex3_transaction_info_query(transaction_id)
@@ -64,9 +48,7 @@ class Command(BaseCommand):
         counters = {"success": 0, "failed": 0}
         try:
             for sagex3_failed_transaction in sagex3_to_retry:
-                if TransactionService(
-                    sagex3_failed_transaction.transaction, **transaction_service_kwargs
-                ).run_steps_to_send_transaction():
+                if TransactionService(sagex3_failed_transaction.transaction).run_steps_to_send_transaction():
                     counters["success"] += 1
                 else:
                     counters["failed"] += 1

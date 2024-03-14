@@ -16,13 +16,13 @@ TEST_MYSQL_CMD = $(POETRY_RUN) python manage.py test --settings nau_financial_ma
 # TEST_CMD = $(POETRY_RUN) pytest
 LINT_CMD = $(POETRY_RUN) black .
 PRE_COMMIT = $(POETRY_RUN) pre-commit run --all-files
-RUN_CMD = $(POETRY_RUN) python manage.py runserver
+RUN_CMD = $(POETRY_RUN) python manage.py runserver --settings=nau_financial_manager.settings
 CREATE_TOKEN = $(POETRY_RUN) python manage.py drf_create_token admin
 FLUSH_DB = $(POETRY_RUN) python manage.py flush
 POPULATE_DB = $(POETRY_RUN) python apps/util/populate_db.py
 RESET_MIGRATIONS = find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
-MAKE_MIGRATIONS = $(POETRY_RUN) python manage.py makemigrations
-MIGRATE = $(POETRY_RUN) python manage.py migrate
+MAKE_MIGRATIONS = $(POETRY_RUN) python manage.py makemigrations --settings=nau_financial_manager.settings
+MIGRATE = $(POETRY_RUN) python manage.py migrate --settings=nau_financial_manager.settings
 COMPOSE_FILE := docker/docker-compose-dependencies.yml
 RUN_APP ?= true
 ifeq ($(RUN_APP), true)
