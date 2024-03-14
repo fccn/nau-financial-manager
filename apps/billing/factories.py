@@ -4,6 +4,7 @@ from decimal import Decimal
 
 import factory
 import factory.fuzzy
+from django.conf import settings
 from django.utils import timezone
 
 from apps.billing.mocks import xml_duplicate_error_response_mock
@@ -80,6 +81,7 @@ class SageX3TransactionInformationFactory(factory.django.DjangoModelFactory):
         "date_time_between", start_date="-5d", end_date="-1d", tzinfo=timezone.get_current_timezone()
     )
     retries = factory.Faker("pyint", min_value=0, max_value=10)
+    series = getattr(settings, "DEFAULT_SERIES")
 
     @factory.lazy_attribute
     def input_xml(self):

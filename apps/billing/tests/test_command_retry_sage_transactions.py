@@ -43,11 +43,6 @@ class CommandRetrySageTransactionsTestCase(TestCase):
         call_command("retry_sage_transactions")
         transaction_service_mock.assert_called_with(f)
 
-        # test a failed transaction with a custom series should be retried
-        t = create_transaction(SageX3TransactionInformation.FAILED)
-        call_command("retry_sage_transactions", transaction_id=t.transaction_id, custom_series="KSERIES")
-        transaction_service_mock.assert_called_with(t, series="KSERIES")
-
         # test the force retry of a success transaction
         t = create_transaction(SageX3TransactionInformation.SUCCESS)
         call_command("retry_sage_transactions", transaction_id=t.transaction_id)

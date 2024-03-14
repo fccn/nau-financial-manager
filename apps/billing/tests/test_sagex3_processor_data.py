@@ -3,7 +3,7 @@ from datetime import datetime
 
 from django.test import TestCase, override_settings
 
-from apps.billing.factories import TransactionFactory
+from apps.billing.factories import SageX3TransactionInformationFactory, TransactionFactory
 from apps.billing.models import Transaction
 from apps.billing.services.processor_service import SageX3Processor
 
@@ -254,5 +254,14 @@ class SageX3ProcessDataTest(TestCase):
             TransactionFactory(address_line_2=None)
         )
         self.assertFalse(object_xml_root.findall(".//*/LST[@NAME='YBPAADDLIG']/ITM")[1].text)
+
+    def test_data_processor_custom_series(self):
+        """
+        Test the SageX3Processor for a custom series.
+        """
+        transaction = TransactionFactory()
+        SageX3TransactionInformationFactory(transaction=transaction, series="Some")
+        object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(transaction)
+        self.assertEqual(object_xml_root.findall(".//*/FLD[@NAME='SIVTYP']")[0].text, "Some")
 
     # TODO test each items
