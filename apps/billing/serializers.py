@@ -1,4 +1,3 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
@@ -11,19 +10,7 @@ from apps.shared_revenue.models import RevenueConfiguration
 class TransactionItemSerializer(CountryFieldMixin, serializers.ModelSerializer):
     """
     A serializer class for the `TransactionItem` model.
-
-    This serializer includes the `transaction`, `description`, `quantity`, `vat_tax`, `unit_price_excl_vat`,
-    `unit_price_incl_vat`, `organization_code`, `product_code`, `product_id` and `discount` fields of the `TransactionItem` model.
     """
-
-    # Redefined the discount field because for some reason it isn't using the model default value.
-    # So the solution was to define it again in the Serializer.
-    discount = serializers.DecimalField(
-        default=0.00,
-        max_digits=3,
-        decimal_places=2,
-        validators=[MaxValueValidator(1), MinValueValidator(0)],
-    )
 
     class Meta:
         model = TransactionItem
@@ -35,21 +22,17 @@ class TransactionItemSerializer(CountryFieldMixin, serializers.ModelSerializer):
             "vat_tax",
             "unit_price_excl_vat",
             "unit_price_incl_vat",
+            "discount_excl_tax",
+            "discount_incl_tax",
             "organization_code",
             "product_id",
             "product_code",
-            "discount",
         ]
 
 
 class TransactionSerializer(CountryFieldMixin, serializers.ModelSerializer):
     """
     A serializer class for the `Transaction` model.
-
-    This serializer includes the `id`, `client_name`, `email`, `address_line_1`, `address_line_2,` `vat_identification_country`,
-    `vat_identification_number`, `city`, `postal_code`, `state`, `country_code`, `total_amount_exclude_vat`, `total_amount_include_vat`, `payment_type`,
-    `transaction_id`, `currency`, `transaction_date`, `transaction_type`, `document_id` and `transaction_items` fields of the `Transaction` model. The `transaction_items` field is a nested
-    serializer that includes the `TransactionItem` model fields.
     """
 
     class Meta:
@@ -68,6 +51,8 @@ class TransactionSerializer(CountryFieldMixin, serializers.ModelSerializer):
             "vat_identification_country",
             "total_amount_exclude_vat",
             "total_amount_include_vat",
+            "total_discount_excl_tax",
+            "total_discount_incl_tax",
             "currency",
             "payment_type",
             "transaction_type",
@@ -95,7 +80,7 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
         to_representation(instance): Returns the given instance.
     """
 
-    items = serializers.ListField()
+    items = TransactionItemSerializerWithoutTransaction(many=True)
 
     class Meta:
         model = Transaction
@@ -115,6 +100,8 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
             "vat_identification_country",
             "total_amount_exclude_vat",
             "total_amount_include_vat",
+            "total_discount_excl_tax",
+            "total_discount_incl_tax",
             "currency",
             "payment_type",
             "transaction_date",

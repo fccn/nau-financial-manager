@@ -28,6 +28,8 @@ classDiagram
         -vat_identification_country: CountryField
         -total_amount_exclude_vat: DecimalField
         -total_amount_include_vat: DecimalField
+        -total_discount_excl_tax: DecimalField
+        -total_discount_incl_tax: DecimalField
         -currency: CharField
         -document_id: CharField
         -payment_type: CharField
@@ -41,6 +43,8 @@ classDiagram
         -vat_tax: DecimalField
         -unit_price_excl_vat: DecimalField
         -unit_price_incl_vat: DecimalField
+        -discount_excl_tax: DecimalField
+        -discount_incl_tax: DecimalField
         -organization: CharField
         -product_id: CharField
         -product_code: CharField

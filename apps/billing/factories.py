@@ -40,6 +40,8 @@ class TransactionFactory(factory.django.DjangoModelFactory):
         "date_time_between", start_date="-5d", end_date="-1d", tzinfo=timezone.get_current_timezone()
     )
     document_id = factory.Faker("pystr_format", string_format="DCI-######{{random_int}}")
+    total_discount_excl_tax = 0.00
+    total_discount_incl_tax = 0.00
 
     @factory.lazy_attribute
     def total_amount_include_vat(self):
@@ -56,7 +58,8 @@ class TransactionItemFactory(factory.django.DjangoModelFactory):
     vat_tax = factory.Faker("pydecimal", min_value=1, max_value=100, left_digits=3, right_digits=2)
     organization_code = factory.Sequence(lambda n: f"Org {n}")
     product_code = "".join([random.choice(string.ascii_uppercase) for _ in range(5)])
-    discount = factory.Faker("pydecimal", min_value=0, max_value=1, left_digits=1, right_digits=2)
+    discount_excl_tax = 0.00
+    discount_incl_tax = 0.00
 
     @factory.lazy_attribute
     def product_id(self):

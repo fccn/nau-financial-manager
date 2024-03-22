@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
@@ -53,6 +52,8 @@ class Transaction(BaseModel):
     vat_identification_country = CountryField(max_length=255, null=True, blank=True)
     total_amount_exclude_vat = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount_include_vat = models.DecimalField(max_digits=10, decimal_places=2)
+    total_discount_excl_tax = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    total_discount_incl_tax = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     currency = models.CharField(max_length=7, default="EUR")
     payment_type = models.CharField(max_length=20, default="credit_card")
     transaction_type = models.CharField(max_length=15, choices=TRANSACTION_TYPE)
@@ -68,17 +69,19 @@ class TransactionItem(BaseModel):
     One-to-many relationship with Transaction model (related_name='transaction_items').
 
     The fields for this model was defined in the following documentation:
-        ecommerce_integration_specification
-        https://github.com/fccn/nau-financial-manager/blob/main/docs/integrations/ecommerce_integration_specification.md
+    ```
+    docs/integrations/ecommerce_integration_specification.md
+    ```
 
     - Description
     - Quantity
-    - Amount excluding VAT
-    - Amount including VAT
+    - Unit price excluding VAT
+    - Unit price including VAT
     - Product id
     - Organization
     - Product code
-    - Discount
+    - Total Discount excluding TAX
+    - Total Discount including TAX
 
     """
 
@@ -88,15 +91,21 @@ class TransactionItem(BaseModel):
     vat_tax = models.DecimalField(max_digits=5, decimal_places=2)
     unit_price_excl_vat = models.DecimalField(max_digits=10, decimal_places=2)
     unit_price_incl_vat = models.DecimalField(max_digits=10, decimal_places=2)
+    discount_excl_tax = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    discount_incl_tax = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     organization_code = models.CharField(max_length=255)
     product_id = models.CharField(max_length=50)
     product_code = models.CharField(max_length=50)
-    discount = models.DecimalField(
-        default=0.0,
-        max_digits=3,
-        validators=[MaxValueValidator(1), MinValueValidator(0)],
-        decimal_places=2,
-    )
+
+    @property
+    def discount_rate(self):
+        """
+        The discount rate
+        """
+        try:
+            round(self.discount_incl_tax / (self.unit_price_incl_vat + self.discount_incl_tax), 2)
+        except ZeroDivisionError:
+            return 0
 
     def __str__(self):
         return self.product_id
