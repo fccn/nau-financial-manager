@@ -24,7 +24,8 @@ class ReceiptDocumentHost:
         The `__receipt_bearer_token` is setted in the environment.
         """
         response = requests.get(
-            url=f"{self.__receipt_host_url}/{document_id}",
+            url=f"{self.__receipt_host_url}",
+            params={"document_number": document_id},
             headers={
                 "entity": self.__receipt_entity_public_key,
                 "Authorization": f"Bearer {self.__receipt_bearer_token}",
@@ -34,7 +35,10 @@ class ReceiptDocumentHost:
         response = response.content
         response = json.JSONDecoder().decode(response)
         document_informations = [
-            attachment for attachment in response["response"]["data"]["attachments"] if attachment["type"] == "pdf"
+            attachment
+            for data in response["response"]["data"]
+            for attachment in data["attachments"]
+            if attachment["type"] == "pdf"
         ][0]
 
         return document_informations["file"]
