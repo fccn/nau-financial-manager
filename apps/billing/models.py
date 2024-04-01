@@ -107,6 +107,20 @@ class TransactionItem(BaseModel):
         except ZeroDivisionError:
             return 0
 
+    @property
+    def price_excl_vat(self):
+        """
+        The price payed excluding VAT
+        """
+        return (self.unit_price_excl_vat - self.discount_excl_tax) * self.quantity
+
+    @property
+    def price_incl_vat(self):
+        """
+        The price payed including VAT
+        """
+        return (self.unit_price_incl_vat - self.discount_incl_tax) * self.quantity
+
     def __str__(self):
         return self.product_id
 
