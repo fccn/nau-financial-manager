@@ -103,7 +103,7 @@ class TransactionItem(BaseModel):
         The discount rate
         """
         try:
-            round(self.discount_incl_tax / (self.unit_price_incl_vat + self.discount_incl_tax), 2)
+            return round(self.discount_incl_tax / (self.unit_price_incl_vat + self.discount_incl_tax), 2)
         except ZeroDivisionError:
             return 0
 
