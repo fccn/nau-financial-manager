@@ -124,11 +124,11 @@ class SageX3Processor(TransactionProcessorInterface):
                     <FLD NAME="BPCINV">9999</FLD>
                     <FLD NAME="CUR">EUR</FLD>
                 </GRP>
-                <GRP ID="SIH1_5">
+                <GRP ID="SIH1_6">
                     <FLD NAME="VACBPR">{self.__vacbpr}</FLD>
                     <FLD NAME="PRITYP">2</FLD>
                 </GRP>
-                <GRP ID="SIH1_6">
+                <GRP ID="SIH1_7">
                     <FLD NAME="STOMVTFLG">1</FLD>
                 </GRP>
                 <GRP ID="SIH2_2">
