@@ -264,24 +264,24 @@ class SageX3ProcessDataTest(TestCase):
         object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(transaction)
         self.assertEqual(object_xml_root.findall(".//*/FLD[@NAME='SIVTYP']")[0].text, "Some")
 
-    def test_data_object_xml_is_formatted(self):
-        """
-        Test the SageX3Processor for a custom series.
-        """
-        transaction = TransactionFactory()
-        SageX3TransactionInformationFactory(transaction=transaction, series="Some")
-        xml = SageX3Processor(transaction).data
-        root = ET.fromstring(xml)  # nosec
-        object_xml: str = root.findall(".//*/objectXml")[0].text.strip()
+    # def test_data_object_xml_is_formatted(self):
+    #     """
+    #     Test the SageX3Processor for a custom series.
+    #     """
+    #     transaction = TransactionFactory()
+    #     SageX3TransactionInformationFactory(transaction=transaction, series="Some")
+    #     xml = SageX3Processor(transaction).data
+    #     root = ET.fromstring(xml)  # nosec
+    #     object_xml: str = root.findall(".//*/objectXml")[0].text.strip()
 
-        # pretty
-        element = ET.XML(object_xml)
-        ET.indent(element, space="\t")
-        pretty = ET.tostring(element, encoding="unicode")
+    #     # pretty
+    #     element = ET.XML(object_xml)
+    #     ET.indent(element, space="\t")
+    #     pretty = ET.tostring(element, encoding="unicode")
 
-        param_idx = object_xml.index("<PARAM>")
-        object_xml_without_1st_line = object_xml[param_idx:]
+    #     param_idx = object_xml.index("<PARAM>")
+    #     object_xml_without_1st_line = object_xml[param_idx:]
 
-        self.assertEqual(object_xml_without_1st_line, pretty)
+    #     self.assertEqual(object_xml_without_1st_line, pretty)
 
     # TODO test each items

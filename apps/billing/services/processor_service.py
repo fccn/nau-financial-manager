@@ -153,7 +153,7 @@ class SageX3Processor(TransactionProcessorInterface):
                 <TAB ID="SIH4_1">{items_as_xml}</TAB>
             </PARAM>
         """
-        objectXML = self.__class__._pretty_format_xml(objectXML, space="\t")
+        # objectXML = self.__class__._pretty_format_xml(objectXML, space="\t")
 
         data = f"""
 <soapenv:Envelope
