@@ -100,7 +100,7 @@ class SageX3Processor(TransactionProcessorInterface):
         items_as_xml = self.__generate_items_as_xml(items=items)
 
         transaction_id = transaction.transaction_id
-        transaction_date = str(transaction.transaction_date.date())
+        transaction_date = str(transaction.transaction_date.date().strftime("%Y%m%d"))
         vat_identification_country = getattr(transaction, "vat_identification_country", "")
         city = getattr(transaction, "city", "")
         country_code = getattr(transaction, "country_code", "")
