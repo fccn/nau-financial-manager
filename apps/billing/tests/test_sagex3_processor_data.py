@@ -38,7 +38,7 @@ class SageX3ProcessDataTest(TestCase):
         object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(
             TransactionFactory(transaction_date=transaction_date)
         )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='INVDAT']"), transaction_date.strftime("%Y-%m-%d"))
+        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='INVDAT']"), transaction_date.strftime("%Y%m%d"))
 
     @override_settings(GEOGRAPHIC_ACTIVITY_VACBPR_FIELD="XPTO")
     def test_data_processor_geographic_activity_override(self):
