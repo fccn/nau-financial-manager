@@ -22,6 +22,7 @@ class SageX3Processor(TransactionProcessorInterface):
     def __init__(self, transaction: Transaction) -> None:
         super().__init__(transaction)
         self.__processor_url = getattr(settings, "TRANSACTION_PROCESSOR_URL")
+        self.__pool_alias = getattr(settings, "POOL_ALIAS")
         self.__vacitm1 = getattr(settings, "IVA_VACITM1_FIELD")
         self.__vacbpr = getattr(settings, "GEOGRAPHIC_ACTIVITY_VACBPR_FIELD")
         self.__user_processor_auth = getattr(settings, "USER_PROCESSOR_AUTH")
@@ -166,7 +167,7 @@ class SageX3Processor(TransactionProcessorInterface):
         <wss:save soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
             <callContext xsi:type="wss:CAdxCallContext">
                 <codeLang xsi:type="xsd:string">POR</codeLang>
-                <poolAlias xsi:type="xsd:string">WSTEST</poolAlias>
+                <poolAlias xsi:type="xsd:string">{self.__pool_alias}</poolAlias>
                 <poolId xsi:type="xsd:string">?</poolId>
                 <requestConfig xsi:type="xsd:string">adxwss.beautify=true</requestConfig>
             </callContext>

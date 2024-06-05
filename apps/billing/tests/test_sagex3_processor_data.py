@@ -13,6 +13,14 @@ class SageX3ProcessDataTest(TestCase):
     A test case for the SageX3Processor data property.
     """
 
+    @override_settings(POOL_ALIAS="MY_POOL")
+    def test_pool_alias(self):
+        transaction = TransactionFactory()
+        xml = SageX3Processor(transaction).data
+        root = ET.fromstring(xml)  # nosec
+        poolAlias: str = root.findall(".//*/poolAlias")[0].text.strip()
+        self.assertEqual(poolAlias, "MY_POOL")
+
     @staticmethod
     def _get_xml_element_from_transaction(transaction: Transaction) -> ET.Element:
         xml = SageX3Processor(transaction).data
