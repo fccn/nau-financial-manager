@@ -2,7 +2,7 @@ import json
 from unittest import mock
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
@@ -12,13 +12,11 @@ from apps.billing.models import Transaction
 from apps.billing.services.receipt_host_service import ReceiptDocumentHost
 
 
-class ReceiptDocumentHostForTest(ReceiptDocumentHost):
-    def __init__(self) -> None:
-        self.__receipt_host_url = "https://receipt-fake.com/"
-        self.__receipt_entity_public_key = "receipt_entity_public_key"
-        self.__receipt_bearer_token = "Bearer token"
-
-
+@override_settings(
+    RECEIPT_HOST_URL="https://receipt-fake.com/",
+    RECEIPT_BEARER_TOKEN="receipt_entity_public_key",
+    RECEIPT_ENTITY_PUBLIC_KEY="Bearer token",
+)
 class ReceiptDocumentHostTest(TestCase):
     def setUp(self) -> None:
         """
@@ -29,11 +27,11 @@ class ReceiptDocumentHostTest(TestCase):
         user = get_user_model().objects.create(username="user_test", password="pwd_test")
         self.token = Token.objects.create(user=user)
         self.api_client = APIClient()
-        self.receipt_document_host = ReceiptDocumentHostForTest()
+        self.receipt_document_host = ReceiptDocumentHost()
         self.transaction: Transaction = TransactionFactory.create()
 
-    @mock.patch("requests.get", lambda *args, **kargs: MockResponse(data=ILINK_RESPONSE_MOCK, status_code=200))
-    def test_get_document_success(self):
+    @mock.patch("requests.get", return_value=MockResponse(data=ILINK_RESPONSE_MOCK, status_code=200))
+    def test_get_document_success(self, mocked_post):
         """
         This test ensures to success getting a file link providing the
         transaction_id though the url.
@@ -52,6 +50,13 @@ class ReceiptDocumentHostTest(TestCase):
         self.assertTrue(isinstance(obtained_link, str))
         self.assertTrue(obtained_link is not None and obtained_link.lstrip() != "")
         self.assertEqual(link, obtained_link)
+
+        mocked_post.assert_called_once()
+        _, _, kwargs = mocked_post.mock_calls[0]
+        self.assertEqual("https://receipt-fake.com/", kwargs.get("url"))
+        self.assertDictEqual(
+            {"document_type": "issued", "document_number": self.transaction.document_id}, kwargs.get("params")
+        )
 
     def test_get_document_transaction_not_found(self):
         """
@@ -123,8 +128,8 @@ class ReceiptDocumentHostTest(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.data["response"], "File not found")
 
-    @mock.patch("requests.get", lambda *args, **kwargs: MockResponse(UNAUTHORIZED_ILINK_RESPONSE, status_code=500))
-    def test_get_document_unauthorized(self):
+    @mock.patch("requests.get", return_value=MockResponse(UNAUTHORIZED_ILINK_RESPONSE, status_code=500))
+    def test_get_document_unauthorized(self, mocked_post):
         """
         This test ensures that the unauthorized exception is correctly handled.
         """
