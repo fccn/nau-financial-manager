@@ -25,7 +25,7 @@ class ReceiptDocumentHost:
         """
         response = requests.get(
             url=f"{self.__receipt_host_url}",
-            params={"document_number": document_id},
+            params={"document_number": document_id, "document_type": "issued"},
             headers={
                 "entity": self.__receipt_entity_public_key,
                 "Authorization": f"Bearer {self.__receipt_bearer_token}",
