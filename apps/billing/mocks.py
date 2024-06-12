@@ -1,4 +1,5 @@
 import json
+import sys
 from random import randint
 
 from django.conf import settings
@@ -69,7 +70,21 @@ ILINK_RESPONSE_MOCK = {
                         "identifier": "FT 1/1",
                         "ubl_type": "invoice_representation",
                         "hash": "pPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
-                    }
+                    },
+                    {
+                        "type": "xml",
+                        "file": "https://ilink.acin.pt/ilinktests-api/file/sadad21dsg435fcjdsfjht43uhfdsncoijdsfds",
+                        "identifier": "FT 1/43324",
+                        "ubl_type": "xml_representation",
+                        "hash": "sadad21dsg435fcjdsfjht43uhfdsncoijdsfds",
+                    },
+                    {
+                        "type": "txt",
+                        "file": "https://ilink.acin.pt/ilinktests-api/file/5regedggfdgfdfgfdgfdgfdgfdgfdgfdgdgdf432543t",
+                        "identifier": "ANG JJZH6HPJ-00001",
+                        "ubl_type": "qr_code",
+                        "hash": "5regedggfdgfdfgfdgfdgfdgfdgfdgfdgdgdf432543t",
+                    },
                 ],
                 "amounts": {
                     "tax_amount": "4.86",
@@ -518,7 +533,13 @@ class MockResponse(Response):
     @property
     def content(self):
         data = self.data
-        if not isinstance(data, str):
-            data = json.JSONEncoder().encode(o=self.data)
+        # if not isinstance(data, str):
+        #     data = json.JSONEncoder().encode(o=self.data)
+        if isinstance(data, dict):
+            data = json.dumps(data).encode(sys.getdefaultencoding())
 
         return data
+
+    @property
+    def encoding(self):
+        return sys.getdefaultencoding()

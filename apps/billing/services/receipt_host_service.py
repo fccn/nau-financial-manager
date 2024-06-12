@@ -1,5 +1,3 @@
-import json
-
 import requests
 from django.conf import settings
 
@@ -32,8 +30,7 @@ class ReceiptDocumentHost:
             },
         )
         self.__check_status_code(response=response)
-        response = response.content
-        response = json.JSONDecoder().decode(response)
+        response = response.json()
         document_informations = [
             attachment
             for data in response["response"]["data"]
