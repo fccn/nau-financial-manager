@@ -40,12 +40,9 @@ class ReceiptDocumentHostTest(TestCase):
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
 
         response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
-        obtained_link = response.data["response"]
+        obtained_link = response.data
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(len(response.data))
-        self.assertTrue(isinstance(response.data, dict))
-        self.assertTrue(len(response.data.values()))
         self.assertTrue(isinstance(obtained_link, str))
         self.assertTrue(obtained_link is not None and obtained_link.lstrip() != "")
         self.assertEqual(ILINK_RESPONSE_MOCK["response"]["data"][0]["attachments"][0]["file"], obtained_link)
@@ -66,7 +63,7 @@ class ReceiptDocumentHostTest(TestCase):
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
 
         response = self.api_client.get("/api/billing/receipt-link/wrong-transaction-id/")
-        data = response.data["response"]
+        data = response.data
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(data, "Transaction not found")
@@ -125,7 +122,7 @@ class ReceiptDocumentHostTest(TestCase):
         response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
 
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.data["response"], "File not found")
+        self.assertEqual(response.data, "File not found")
 
     @mock.patch("requests.get", return_value=MockResponse(UNAUTHORIZED_ILINK_RESPONSE, status_code=500))
     def test_get_document_unauthorized(self, mocked_post):
@@ -138,4 +135,4 @@ class ReceiptDocumentHostTest(TestCase):
         response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
 
         self.assertEqual(response.status_code, 500)
-        self.assertEqual(response.data["response"], "Occurred an error getting the document")
+        self.assertEqual(response.data, "Occurred an error getting the document")
