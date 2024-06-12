@@ -1,3 +1,5 @@
+import logging
+
 import requests
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.authentication import TokenAuthentication
@@ -10,6 +12,8 @@ from apps.billing.models import Transaction
 from apps.billing.serializers import ProcessTransactionSerializer
 from apps.billing.services.receipt_host_service import ReceiptDocumentHost
 from apps.util.base_views import GeneralPost
+
+log = logging.getLogger(__name__)
 
 
 class ProcessTransaction(APIView, GeneralPost):
@@ -60,4 +64,5 @@ def get_receipt_link(request, *args, **kwargs):
     except ObjectDoesNotExist:
         return Response({"response": "Transaction not found"}, status=404)
     except Exception:
+        log.exception("Not expected error ocurred getting the document")
         return Response({"response": "A not expected error ocurred getting the document"}, status=500)

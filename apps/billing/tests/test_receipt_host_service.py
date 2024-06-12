@@ -39,7 +39,6 @@ class ReceiptDocumentHostTest(TestCase):
 
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
 
-        link = ILINK_RESPONSE_MOCK["response"]["data"][0]["attachments"][0]["file"]
         response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
         obtained_link = response.data["response"]
 
@@ -49,7 +48,7 @@ class ReceiptDocumentHostTest(TestCase):
         self.assertTrue(len(response.data.values()))
         self.assertTrue(isinstance(obtained_link, str))
         self.assertTrue(obtained_link is not None and obtained_link.lstrip() != "")
-        self.assertEqual(link, obtained_link)
+        self.assertEqual(ILINK_RESPONSE_MOCK["response"]["data"][0]["attachments"][0]["file"], obtained_link)
 
         mocked_post.assert_called_once()
         _, _, kwargs = mocked_post.mock_calls[0]
