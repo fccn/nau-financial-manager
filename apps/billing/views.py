@@ -47,6 +47,13 @@ def get_receipt_link(request, *args, **kwargs):
     meaning that the client should send the `Authorization` HTTP header with a value of `Token`
     string plus the value of the token, example:
         Authorization: Token 401f7ac837da42b97f613d789819ff93537bee6a
+
+    Returns a Json with a response.
+    - 200
+    {"response": "https://ilink.acin.pt/ilinktests-api/file/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+    - 404 - if transaction isn't found or the file is missing on iLink
+    - 400 - if transaction if isn't found
+    - 500 - if error getting document
     """
 
     try:
