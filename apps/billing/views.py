@@ -2,6 +2,7 @@ import logging
 
 import requests
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.permissions import IsAuthenticated
@@ -50,19 +51,24 @@ def get_receipt_link(request, *args, **kwargs):
 
     try:
         if not kwargs:
-            return Response({"response": "Invalid transaction id"}, status=400)
+            return Response({"response": "Invalid transaction id"}, status=status.HTTP_400_BAD_REQUEST)
 
         transaction = Transaction.objects.get(transaction_id=kwargs["transaction_id"])
         receipt_link = ReceiptDocumentHost().get_document(document_id=transaction.document_id)
 
-        return Response({"response": receipt_link}, status=200)
+        return Response({"response": receipt_link}, status=status.HTTP_200_OK)
     except requests.exceptions.RequestException as e:
-        if e.response.status_code == 404:
-            return Response({"response": "File not found"}, status=404)
+        if e.response.status_code == status.HTTP_404_NOT_FOUND:
+            return Response({"response": "File not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        return Response({"response": "Occurred an error getting the document"}, status=500)
+        return Response(
+            {"response": "Occurred an error getting the document"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
     except ObjectDoesNotExist:
-        return Response({"response": "Transaction not found"}, status=404)
+        return Response({"response": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception:
         log.exception("Not expected error ocurred getting the document")
-        return Response({"response": "A not expected error ocurred getting the document"}, status=500)
+        return Response(
+            {"response": "A not expected error ocurred getting the document"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
