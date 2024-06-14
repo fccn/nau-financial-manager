@@ -55,14 +55,14 @@ def get_receipt_link(request, *args, **kwargs):
         transaction = Transaction.objects.get(transaction_id=kwargs["transaction_id"])
         receipt_link = ReceiptDocumentHost().get_document(document_id=transaction.document_id)
 
-        return Response(receipt_link, status=200)
+        return Response({"response": receipt_link}, status=200)
     except requests.exceptions.RequestException as e:
         if e.response.status_code == 404:
-            return Response("File not found", status=404)
+            return Response({"response": "File not found"}, status=404)
 
-        return Response("Occurred an error getting the document", status=500)
+        return Response({"response": "Occurred an error getting the document"}, status=500)
     except ObjectDoesNotExist:
-        return Response("Transaction not found", status=404)
+        return Response({"response": "Transaction not found"}, status=404)
     except Exception:
         log.exception("Not expected error ocurred getting the document")
-        return Response("A not expected error ocurred getting the document", status=500)
+        return Response({"response": "A not expected error ocurred getting the document"}, status=500)
