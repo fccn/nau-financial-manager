@@ -9,7 +9,6 @@ from rest_framework.test import APIClient
 from apps.billing.factories import TransactionFactory
 from apps.billing.mocks import ILINK_RESPONSE_MOCK, UNAUTHORIZED_ILINK_RESPONSE, MockResponse
 from apps.billing.models import Transaction
-from apps.billing.services.receipt_host_service import ReceiptDocumentHost
 
 
 @override_settings(
@@ -27,7 +26,6 @@ class ReceiptDocumentHostTest(TestCase):
         user = get_user_model().objects.create(username="user_test", password="pwd_test")
         self.token = Token.objects.create(user=user)
         self.api_client = APIClient()
-        self.receipt_document_host = ReceiptDocumentHost()
         self.transaction: Transaction = TransactionFactory.create()
 
     @mock.patch("requests.get", return_value=MockResponse(data=ILINK_RESPONSE_MOCK, status_code=200))
@@ -40,7 +38,7 @@ class ReceiptDocumentHostTest(TestCase):
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
 
         response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
-        obtained_link = response.data
+        obtained_link = response.data["response"]
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(isinstance(obtained_link, str))
@@ -63,7 +61,7 @@ class ReceiptDocumentHostTest(TestCase):
         self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
 
         response = self.api_client.get("/api/billing/receipt-link/wrong-transaction-id/")
-        data = response.data
+        data = response.data["response"]
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(data, "Transaction not found")
@@ -122,7 +120,7 @@ class ReceiptDocumentHostTest(TestCase):
         response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
 
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.data, "File not found")
+        self.assertEqual(response.data["response"], "File not found")
 
     @mock.patch("requests.get", return_value=MockResponse(UNAUTHORIZED_ILINK_RESPONSE, status_code=500))
     def test_get_document_unauthorized(self, mocked_post):
@@ -135,4 +133,4 @@ class ReceiptDocumentHostTest(TestCase):
         response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
 
         self.assertEqual(response.status_code, 500)
-        self.assertEqual(response.data, "Occurred an error getting the document")
+        self.assertEqual(response.data["response"], "Occurred an error getting the document")
