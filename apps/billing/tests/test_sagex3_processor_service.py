@@ -44,7 +44,7 @@ class SageX3ProcessServiceTest(TestCase):
         SageX3Processor(None).send_transaction_to_processor()
         _, kwargs = mock_post.call_args
         called_headers = kwargs["headers"]
-        self.assertEqual("application/xml; charset=utf-8", called_headers["Content-type"])
+        self.assertEqual("text/xml; charset=UTF-8", called_headers["Content-type"])
 
     @mock.patch("requests.post", return_value=MockResponse(data="", status_code=200))
     @mock.patch("apps.billing.services.processor_service.SageX3Processor.data", side_effect=lambda: {"some": "thing"})

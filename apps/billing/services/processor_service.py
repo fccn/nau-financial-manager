@@ -47,7 +47,7 @@ class SageX3Processor(TransactionProcessorInterface):
         response = requests.post(
             url=self.__processor_url,
             data=self.data,
-            headers={"Content-type": "application/xml; charset=utf-8", "SOAPAction": "''"},
+            headers={"Content-type": "text/xml; charset=UTF-8", "SOAPAction": "''"},
             auth=(
                 self.__user_processor_auth,
                 self.__user_processor_password,
