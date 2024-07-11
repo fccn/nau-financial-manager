@@ -164,9 +164,9 @@ class SageX3ProcessDataTest(TestCase):
         Test the SageX3Processor for country code field.
         """
         object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(
-            TransactionFactory(vat_identification_number=503904040)
+            TransactionFactory(vat_identification_country="ES", vat_identification_number="A123456789")
         )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YBPIEECNUM']"), "503904040")
+        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YBPIEECNUM']"), "ESA123456789")
 
     def test_data_processor_email(self):
         """
