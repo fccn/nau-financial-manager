@@ -140,7 +140,7 @@ class SageX3Processor(TransactionProcessorInterface):
                     <FLD NAME="YCRYNAM" TYPE="Char">{country_code}</FLD>
                     <FLD NAME="YPOSCOD" TYPE="Char">{postal_code}</FLD>
                     <FLD NAME="YCTY" TYPE="Char">{city}</FLD>
-                    <FLD NAME="YBPIEECNUM" TYPE="Char">{vat_identification_number}</FLD>
+                    <FLD NAME="YBPIEECNUM" TYPE="Char">{vat_identification_country}{vat_identification_number}</FLD>
                     <FLD NAME="YILINKMAIL" TYPE="Char">{email}</FLD>
                     <FLD NAME="YPAM" TYPE="Char">{transaction_type}</FLD>
                     <LST NAME="YBPRNAM" SIZE="2" TYPE="Char">
