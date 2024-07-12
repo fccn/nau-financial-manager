@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 
 import requests
 from django.conf import settings
+from django.utils import translation
 
 from apps.billing.models import Transaction, TransactionItem
 from apps.billing.services.financial_processor_service import TransactionProcessorInterface
@@ -104,7 +105,9 @@ class SageX3Processor(TransactionProcessorInterface):
         transaction_date = str(transaction.transaction_date.date().strftime("%Y%m%d"))
         vat_identification_country = getattr(transaction, "vat_identification_country", "")
         city = getattr(transaction, "city", "")
-        country_code = getattr(transaction, "country_code", "")
+        with translation.override("PT"):  # We have to send the Country name in Portuguese
+            country_code = getattr(transaction, "country_code")
+            country_name = country_code.name if country_code else ""
         postal_code = transaction.postal_code
         postal_code = postal_code.replace("-", "").replace(" ", "") if postal_code else ""
         vat_identification_number = str(transaction.vat_identification_number or "")
@@ -137,7 +140,7 @@ class SageX3Processor(TransactionProcessorInterface):
                 </GRP>
                 <GRP ID="YIL_2">
                     <FLD NAME="YCRY" TYPE="Char">{vat_identification_country}</FLD>
-                    <FLD NAME="YCRYNAM" TYPE="Char">{country_code}</FLD>
+                    <FLD NAME="YCRYNAM" TYPE="Char">{country_name}</FLD>
                     <FLD NAME="YPOSCOD" TYPE="Char">{postal_code}</FLD>
                     <FLD NAME="YCTY" TYPE="Char">{city}</FLD>
                     <FLD NAME="YBPIEECNUM" TYPE="Char">{vat_identification_country}{vat_identification_number}</FLD>
