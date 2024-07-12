@@ -87,9 +87,10 @@ class SageX3ProcessDataTest(TestCase):
         )
         self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YCRY']"), "PT")
 
-    def test_data_processor_vat_identification_country_portugal_alpha3(self):
+    def test_data_processor_vat_identification_country_portugal_alpha2(self):
         """
-        Test the SageX3Processor for vat identification country field for portugal
+        Test the SageX3Processor for vat identification country field for Portugal
+        is using the correct format of 2 digits to represent the country.
         """
         object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(
             TransactionFactory(vat_identification_country="PRT")
@@ -112,16 +113,16 @@ class SageX3ProcessDataTest(TestCase):
         object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(
             TransactionFactory(country_code="PT")
         )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YCRYNAM']"), "PT")
+        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YCRYNAM']"), "Portugal")
 
-    def test_data_processor_country_code_great_britain_alpha3(self):
+    def test_data_processor_country_code_great_britain_in_portuguese(self):
         """
         Test the SageX3Processor for country code field.
         """
         object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(
             TransactionFactory(country_code="GBR")
         )
-        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YCRYNAM']"), "GB")
+        self.assertEqual(object_xml_root.findtext(".//*/FLD[@NAME='YCRYNAM']"), "Reino Unido")
 
     def test_data_processor_country_code_none(self):
         """
