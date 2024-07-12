@@ -9,6 +9,9 @@ from apps.billing.services.financial_processor_service import TransactionProcess
 
 
 class SageX3Processor(TransactionProcessorInterface):
+
+    ENCODING = "utf-8"
+
     """
     This class is a transaction processor. It means that by implementing the `TransactionProcessorInterface` type,
     it can be replaced by another implementation.
@@ -48,7 +51,7 @@ class SageX3Processor(TransactionProcessorInterface):
         response = requests.post(
             url=self.__processor_url,
             data=self.data,
-            headers={"Content-type": "text/xml; charset=UTF-8", "SOAPAction": "''"},
+            headers={"Content-type": f"text/xml; charset={self.ENCODING}", "SOAPAction": "''"},
             auth=(
                 self.__user_processor_auth,
                 self.__user_processor_password,
@@ -89,7 +92,7 @@ class SageX3Processor(TransactionProcessorInterface):
         It uses memoization to prevent the generation of data multiple times unnecessary.
         """
         if not self.__data:
-            self.__data = self.__generate_data()
+            self.__data = self.__generate_data().encode(self.ENCODING, "ignore")
         return self.__data
 
     def __generate_data(self) -> str:
@@ -175,7 +178,7 @@ class SageX3Processor(TransactionProcessorInterface):
                 <requestConfig xsi:type="xsd:string">adxwss.beautify=true</requestConfig>
             </callContext>
             <publicName xsi:type="xsd:string">YWSSIH</publicName>
-            <objectXml xsi:type="xsd:string"><![CDATA[<?xml version="1.0" encoding="utf-8" ?>
+            <objectXml xsi:type="xsd:string"><![CDATA[<?xml version="1.0" encoding="{self.ENCODING}" ?>
 {objectXML}]]></objectXml>
         </wss:save>
     </soapenv:Body>

@@ -212,12 +212,20 @@ class SageX3ProcessDataTest(TestCase):
 
     def test_data_processor_client_name(self):
         """
-        Test the SageX3Processor for email field.
+        Test the SageX3Processor for client name field.
         """
         object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(
             TransactionFactory(client_name="John Snow")
         )
         self.assertEqual(object_xml_root.findtext(".//*/LST[@NAME='YBPRNAM']/ITM"), "John Snow")
+
+    def test_data_processor_client_name_special_character(self):
+        """
+        Test the SageX3Processor for client name field with special character.
+        This tests if the xml is encoded on utf-8.
+        """
+        xml = SageX3Processor(TransactionFactory(client_name="Ana Rosário Maria")).data
+        self.assertIn(b"Ana Ros\xc3\xa1rio Maria", xml)
 
     def test_data_processor_client_name_none(self):
         """
