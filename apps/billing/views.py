@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.billing.models import Transaction
-from apps.billing.serializers import ProcessTransactionSerializer
+from apps.billing.serializers import ProcessTransactionSerializerForAPI
 from apps.billing.services.receipt_host_service import ReceiptDocumentHost
 from apps.util.base_views import GeneralPost
 
@@ -31,7 +31,7 @@ class ProcessTransaction(APIView, GeneralPost):
     """
 
     authentication_classes = [TokenAuthentication]
-    serializer = ProcessTransactionSerializer
+    serializer = ProcessTransactionSerializerForAPI
     permission_classes = [IsAuthenticated]
 
 

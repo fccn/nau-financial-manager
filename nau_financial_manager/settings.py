@@ -287,6 +287,9 @@ SWAGGER_PROJECT_NAME = CONFIG.get("SWAGGER_PROJECT_NAME", "Nau Financial Manager
 SWAGGER_PROJECT_VERSION = CONFIG.get("SWAGGER_PROJECT_VERSION", "1.0.0")
 SWAGGER_DESCRIPTION = CONFIG.get("SWAGGER_DESCRIPTION", "API for Nau Financial Manager")
 
+# VAT / IVA
+VAT_TAX_RATE = CONFIG.get("VAT_TAX_RATE", 0.23)
+
 # Add a way to use Token authentication on the Swagger UI
 SWAGGER_SETTINGS = {
     "SECURITY_DEFINITIONS": {"api_key": {"type": "apiKey", "in": "header", "name": "Authorization"}},
