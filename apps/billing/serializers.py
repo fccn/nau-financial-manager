@@ -1,3 +1,6 @@
+from decimal import ROUND_HALF_UP, Decimal
+
+from django.conf import settings
 from django_countries.serializers import CountryFieldMixin
 from rest_framework import serializers
 
@@ -66,9 +69,24 @@ class TransactionItemSerializerWithoutTransaction(TransactionItemSerializer):
         del self.fields["transaction"]
 
 
-class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerializer):
+class TransactionItemSerializerForAPI(serializers.ModelSerializer):
+    class Meta:
+        model = TransactionItem
+        fields = [
+            "id",
+            "description",
+            "quantity",
+            "unit_price_incl_vat",
+            "discount_incl_tax",
+            "organization_code",
+            "product_id",
+            "product_code",
+        ]
+
+
+class ProcessTransactionSerializerForAPI(CountryFieldMixin, serializers.ModelSerializer):
     """
-    Serializer for processing transactions.
+    Serializer for processing transactions on API.
     This serializer is responsible for validating and processing transaction data. It includes methods for creating
     transactions, executing shared revenue resources, and converting transaction data to internal and external formats.
     Methods:
@@ -80,7 +98,7 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
         to_representation(instance): Returns the given instance.
     """
 
-    items = TransactionItemSerializerWithoutTransaction(many=True)
+    items = TransactionItemSerializerForAPI(many=True)
 
     class Meta:
         model = Transaction
@@ -98,9 +116,7 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
             "country_code",
             "vat_identification_number",
             "vat_identification_country",
-            "total_amount_exclude_vat",
             "total_amount_include_vat",
-            "total_discount_excl_tax",
             "total_discount_incl_tax",
             "currency",
             "payment_type",
@@ -124,10 +140,10 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
 
     def _execute_billing_resources(
         self,
-        validate_data: dict,
+        data: dict,
     ) -> tuple[Transaction, list[TransactionItem]]:
-        items = validate_data.pop("items", [])
-        transaction = Transaction.objects.create(**validate_data)
+        items = data.pop("items", [])
+        transaction = Transaction.objects.create(**data)
         items_as_instances: list[TransactionItem] = []
         serialized_items = []
         for item in items:
@@ -136,11 +152,11 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
             items_as_instances.append(item)
             serialized_items.append(TransactionItemSerializer(item).data)
 
-        validate_data["items"] = serialized_items
+        data["items"] = serialized_items
         return transaction, items_as_instances
 
-    def create(self, validate_data):
-        transaction, items = self._execute_billing_resources(validate_data=validate_data)
+    def create(self, validated_data):
+        transaction, items = self._execute_billing_resources(data=validated_data)
         for item in items:
             organization, created = Organization.objects.get_or_create(
                 short_name=item.organization_code,
@@ -153,25 +169,39 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
 
         create_and_async_send_transactions_to_processor_task(transaction=transaction)
 
-        return validate_data
+        return validated_data
 
     def to_representation(self, instance):
         return instance
 
     def validate(self, data):
+        additional_data = {
+            "total_amount_exclude_vat": get_excl_tax(data.get("total_amount_include_vat")),
+            "total_discount_excl_tax": get_excl_tax(data.get("total_discount_incl_tax")),
+        }
+        additional_data_fields = set(additional_data.keys())
         serializer_fields = set(self.fields.keys())
-        data_fields = set(self.initial_data.keys())
-        extra_fields = data_fields - serializer_fields
+        initial_data_fields = set(self.initial_data.keys())
+        extra_fields = initial_data_fields - serializer_fields - additional_data_fields
         if extra_fields:
             raise serializers.ValidationError(f"Extra fields: {', '.join(extra_fields)}")
 
-        items = data.pop("items", [])
+        data = {**data, **additional_data}
+        items_data = data.pop("items", [])
         transaction = TransactionSerializer(data=data)
         transaction.is_valid(raise_exception=True)
         serialized_items = []
 
-        for item in items:
-            item = TransactionItemSerializerWithoutTransaction(data=item)
+        for item_data in items_data:
+            item_data = {
+                **item_data,
+                **{
+                    "unit_price_excl_vat": get_excl_tax(item_data.get("unit_price_incl_vat")),
+                    "discount_excl_tax": get_excl_tax(item_data.get("discount_incl_tax")),
+                    "vat_tax": settings.VAT_TAX_RATE,
+                },
+            }
+            item = TransactionItemSerializerWithoutTransaction(data=item_data)
             item.is_valid(raise_exception=True)
             serialized_items.append(item.data)
 
@@ -179,3 +209,17 @@ class ProcessTransactionSerializer(CountryFieldMixin, serializers.ModelSerialize
         transaction["items"] = serialized_items
 
         return transaction
+
+
+def get_excl_tax(value_incl_vat_tax):
+    """
+    Calculate the value excluding vat tax from the including tax value.
+    """
+    return round(value_incl_vat_tax / (1 + Decimal(settings.VAT_TAX_RATE)))
+
+
+def round(value: Decimal) -> Decimal:
+    """
+    Round 2 decimal cases.
+    """
+    return Decimal(value.quantize(Decimal(".01"), rounding=ROUND_HALF_UP))
