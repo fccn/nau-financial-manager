@@ -1,6 +1,7 @@
 import decimal
 import json
 import logging
+from copy import deepcopy
 from unittest import mock
 
 import factory
@@ -10,7 +11,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from apps.billing.factories import TransactionFactory, TransactionItemFactory
-from apps.billing.models import Transaction
+from apps.billing.models import SageX3TransactionInformation, Transaction
 from apps.billing.serializers import TransactionItemSerializer, TransactionSerializer
 
 from .test_transaction_service import processor_success_response
@@ -68,6 +69,39 @@ class ProcessTransactionTest(TestCase):
                     [self.assertEqual(v, same_item[k]) for k, v in dict(item).items()]
 
             self.assertEqual(value, transaction_data[key])
+
+        self.assertTrue(SageX3TransactionInformation.objects.filter(transaction=transaction).exists())
+
+    @mock.patch("requests.post", side_effect=processor_success_response)
+    def test_doest_not_send_transaction_with_zero_as_total_amount(self, mock):
+        """
+        Test that a transaction will not be sent to the processor if the total amound sold is zero.
+        """
+        payload = deepcopy(self.payload)
+        payload["total_amount_exclude_vat"] = 0
+        payload["total_amount_include_vat"] = 0
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
+
+        log.info(payload)
+        response = self.client.post(self.endpoint, payload, format="json")
+        log.info(response.content)
+        self.assertEqual(response.status_code, 201)
+
+        transaction = Transaction.objects.get(transaction_id=payload["transaction_id"])
+        transaction_data = TransactionSerializer(transaction).data
+        transaction_data["items"] = [
+            TransactionItemSerializer(item).data for item in transaction.transaction_items.all()
+        ]
+
+        for key, value in dict(response.data["data"]).items():
+            if key == "items":
+                for item in value:
+                    same_item = [i for i in transaction_data["items"] if i == item][0]
+                    [self.assertEqual(v, same_item[k]) for k, v in dict(item).items()]
+
+            self.assertEqual(value, transaction_data[key])
+
+        self.assertFalse(SageX3TransactionInformation.objects.filter(transaction=transaction).exists())
 
     def test_create_transaction_without_token(self):
         """
