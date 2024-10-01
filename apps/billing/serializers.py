@@ -167,7 +167,8 @@ class ProcessTransactionSerializerForAPI(CountryFieldMixin, serializers.ModelSer
                 product_id=item.product_id,
             )
 
-        create_and_async_send_transactions_to_processor_task(transaction=transaction)
+        if not float(transaction.total_amount_include_vat) == 0:
+            create_and_async_send_transactions_to_processor_task(transaction=transaction)
 
         return validated_data
 
