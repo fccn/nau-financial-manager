@@ -35,7 +35,7 @@ def insert_in_dict(item: dict):
         else:
             client_data[item["@NAME"]] = item["#text"]
 
-    if item["@NAME"] in ["ITMREF", "ITMDES1", "QTY", "STU", "GROPRI", "DISCRGVAL1", "VACITM1"]:
+    if item["@NAME"] in ["ITMREF", "ITMDES", "ITMDES1", "QTY", "STU", "GROPRI", "DISCRGVAL1", "VACITM1"]:
         transaction_item_data[item["@NAME"]] = item["#text"]
 
 

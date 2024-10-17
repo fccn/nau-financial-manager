@@ -72,6 +72,7 @@ class SageX3Processor(TransactionProcessorInterface):
             {items_as_xml}
             <LIN>
                 <FLD NAME="ITMREF">N0001</FLD>
+                <FLD NAME="ITMDES">{item.description}</FLD>
                 <FLD NAME="ITMDES1">{item.description}</FLD>
                 <FLD NAME="QTY">{item.quantity}</FLD>
                 <FLD NAME="STU">UN</FLD>
