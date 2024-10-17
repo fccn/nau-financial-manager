@@ -365,7 +365,7 @@ def xml_success_response_mock(data):
                     <TAB DIM="300" ID="SIH4_1" SIZE="2">
                         <LIN NUM="1">
                             <FLD NAME="ITMREF" TYPE="Char">{data["transaction_item_data"]['ITMREF']}</FLD>
-                            <FLD NAME="ITMDES" TYPE="Char">Genérico NAU - Formação Cientifca e Tec. </FLD>
+                            <FLD NAME="ITMDES" TYPE="Char">{data["transaction_item_data"]['ITMDES1']}</FLD>
                             <FLD NAME="ITMDES1" TYPE="Char">{data["transaction_item_data"]['ITMDES1']}</FLD>
                             <FLD NAME="YPERIODO" TYPE="Date"></FLD>
                             <FLD NAME="YPERIODOF" TYPE="Date"></FLD>
