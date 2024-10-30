@@ -7,7 +7,14 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from apps.billing.factories import TransactionFactory
-from apps.billing.mocks import ILINK_RESPONSE_MOCK, UNAUTHORIZED_ILINK_RESPONSE, MockResponse
+from apps.billing.mocks import (
+    ILINK_RESPONSE_MOCK,
+    ILINK_RESPONSE_MOCK_NO_DOCUMENT,
+    ILINK_RESPONSE_MOCK_NO_PDF_DOCUMENT,
+    ILINK_RESPONSE_MOCK_WRONG_PDF_KEY,
+    UNAUTHORIZED_ILINK_RESPONSE,
+    MockResponse,
+)
 from apps.billing.models import Transaction
 
 
@@ -134,3 +141,66 @@ class ReceiptDocumentHostTest(TestCase):
 
         self.assertEqual(response.status_code, 500)
         self.assertEqual(response.data["response"], "Occurred an error getting the document")
+
+    @mock.patch("requests.get", lambda *args, **kwargs: MockResponse("File not found", status_code=404))
+    def test_get_document_file_document_id_not_valid(self):
+        """
+        This test ensures when the `document_id` is not valid, it will return `404`
+        """
+
+        self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token}")
+
+        self.transaction.document_id = None
+        self.transaction.save()
+        response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
+        self.assertEqual(response.status_code, 404)
+
+        self.transaction.document_id = ""
+        self.transaction.save()
+        response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
+        self.assertEqual(response.status_code, 404)
+
+        self.transaction.document_id = " "
+        self.transaction.save()
+        response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch("requests.get", lambda *args, **kwargs: MockResponse(ILINK_RESPONSE_MOCK_NO_DOCUMENT, status_code=200))
+    def test_get_document_file_without_document(self):
+        """
+        This test ensures when `iLink` return a success response without any document link
+        it will be returned `404`
+        """
+
+        self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token}")
+        response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
+
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch(
+        "requests.get", lambda *args, **kwargs: MockResponse(ILINK_RESPONSE_MOCK_NO_PDF_DOCUMENT, status_code=200)
+    )
+    def test_get_document_file_without_pdf_document(self):
+        """
+        This test ensures when `iLink` return a success response without a PDF document link
+        it will be returned `404`
+        """
+
+        self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token}")
+        response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
+
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch(
+        "requests.get", lambda *args, **kwargs: MockResponse(ILINK_RESPONSE_MOCK_WRONG_PDF_KEY, status_code=200)
+    )
+    def test_get_document_file_wrong_pdf_key_in_response(self):
+        """
+        This test ensures when `iLink` return a success response without a PDF document link
+        it will be returned `404`
+        """
+
+        self.api_client.credentials(HTTP_AUTHORIZATION=f"Token {self.token}")
+        response = self.api_client.get(f"/api/billing/receipt-link/{self.transaction.transaction_id}/")
+
+        self.assertEqual(response.status_code, 200)

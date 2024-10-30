@@ -14,13 +14,22 @@ class ReceiptDocumentHost:
         except Exception:
             raise requests.exceptions.RequestException(response=response)
 
+    def __raise_document_not_found(self):
+        not_found_response = requests.Response()
+        not_found_response.status_code = 404
+        raise requests.exceptions.RequestException(response=not_found_response)
+
     def get_document(self, document_id: str):
         """
         This method gets the file url, it calls the receipt host giving the required parameters.
 
         The `document_id` is a transaction parameter, it is the returned id from the transaction processor.
-        The `__receipt_bearer_token` is setted in the environment.
+        The `__receipt_bearer_token` is set in the environment.
         """
+
+        if not document_id:
+            self.__raise_document_not_found()
+
         response = requests.get(
             url=f"{self.__receipt_host_url}",
             params={"document_number": document_id, "document_type": "issued"},
@@ -31,11 +40,16 @@ class ReceiptDocumentHost:
         )
         self.__check_status_code(response=response)
         response = response.json()
-        document_informations = [
-            attachment
-            for data in response["response"]["data"]
-            for attachment in data["attachments"]
-            if attachment["type"] == "pdf"
-        ][0]
+        response = response["response"]["data"]
 
-        return document_informations["file"]
+        document = [
+            attachment
+            for data in response
+            for attachment in data["attachments"]
+            if attachment["type"] and str(attachment["type"]).replace(" ", "").upper() == "PDF"
+        ]
+
+        if document:
+            return document[0]["file"]
+
+        self.__raise_document_not_found()

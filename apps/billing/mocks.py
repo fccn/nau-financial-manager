@@ -264,6 +264,113 @@ ILINK_RESPONSE_MOCK = {
 }
 
 
+ILINK_RESPONSE_MOCK_NO_DOCUMENT = {
+    "success": "true",
+    "response": {
+        "data": [
+            {
+                "attachments": [],
+            }
+        ]
+    },
+}
+
+ILINK_RESPONSE_MOCK_WRONG_PDF_KEY = {
+    "success": "true",
+    "response": {
+        "data": [
+            {
+                "attachments": [
+                    {
+                        "type": "pdF",
+                        "file": "https://ilink.pt/ilink-api/file/lPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                        "identifier": "FT 1/1",
+                        "ubl_type": "invoice_representation",
+                        "hash": "pPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                    },
+                    {
+                        "type": "pDf",
+                        "file": "https://ilink.pt/ilink-api/file/lPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                        "identifier": "FT 1/1",
+                        "ubl_type": "invoice_representation",
+                        "hash": "pPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                    },
+                    {
+                        "type": "Pdf",
+                        "file": "https://ilink.pt/ilink-api/file/lPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                        "identifier": "FT 1/1",
+                        "ubl_type": "invoice_representation",
+                        "hash": "pPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                    },
+                    {
+                        "type": "PDf",
+                        "file": "https://ilink.pt/ilink-api/file/lPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                        "identifier": "FT 1/1",
+                        "ubl_type": "invoice_representation",
+                        "hash": "pPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                    },
+                    {
+                        "type": "pDF",
+                        "file": "https://ilink.pt/ilink-api/file/lPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                        "identifier": "FT 1/1",
+                        "ubl_type": "invoice_representation",
+                        "hash": "pPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                    },
+                    {
+                        "type": "PdF",
+                        "file": "https://ilink.pt/ilink-api/file/lPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                        "identifier": "FT 1/1",
+                        "ubl_type": "invoice_representation",
+                        "hash": "pPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                    },
+                    {
+                        "type": "PD F",
+                        "file": "https://ilink.pt/ilink-api/file/lPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                        "identifier": "FT 1/1",
+                        "ubl_type": "invoice_representation",
+                        "hash": "pPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                    },
+                    {
+                        "type": "p df",
+                        "file": "https://ilink.pt/ilink-api/file/lPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                        "identifier": "FT 1/1",
+                        "ubl_type": "invoice_representation",
+                        "hash": "pPikLsRAJEyjGmHsrAVATZuJgba7xgjf7dgJsJ85eEd8ScQbAEwG8ovh0IeP",
+                    },
+                ],
+            }
+        ]
+    },
+}
+
+
+ILINK_RESPONSE_MOCK_NO_PDF_DOCUMENT = {
+    "success": "true",
+    "response": {
+        "data": [
+            {
+                "attachments": [
+                    {
+                        "type": "xml",
+                        "file": "https://ilink.acin.pt/ilinktests-api/file/sadad21dsg435fcjdsfjht43uhfdsncoijdsfds",
+                        "identifier": "FT 1/43324",
+                        "ubl_type": "xml_representation",
+                        "hash": "sadad21dsg435fcjdsfjht43uhfdsncoijdsfds",
+                    },
+                    {
+                        "type": "txt",
+                        "file": "https://ilink.acin.pt/ilinktests-api/file/5regedggfdgfdfgfdgfdgfdgfdgfdgfdgdgdf432543t",
+                        "identifier": "ANG JJZH6HPJ-00001",
+                        "ubl_type": "qr_code",
+                        "hash": "5regedggfdgfdfgfdgfdgfdgfdgfdgfdgdgdf432543t",
+                    },
+                ],
+            }
+        ]
+    },
+}
+
+
 def xml_success_response_mock(data):
     return f"""
                 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wss="http://www.adonix.com/WSS">
