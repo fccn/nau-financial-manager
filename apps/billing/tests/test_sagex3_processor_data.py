@@ -3,7 +3,7 @@ from datetime import datetime
 
 from django.test import TestCase, override_settings
 
-from apps.billing.factories import SageX3TransactionInformationFactory, TransactionFactory
+from apps.billing.factories import SageX3TransactionInformationFactory, TransactionFactory, TransactionItemFactory
 from apps.billing.models import Transaction
 from apps.billing.services.processor_service import SageX3Processor
 
@@ -301,4 +301,195 @@ class SageX3ProcessDataTest(TestCase):
 
     #     self.assertEqual(object_xml_without_1st_line, pretty)
 
-    # TODO test each items
+    def test_data_processor_items_ITEMREF_field(self):
+        """
+        This test validates the content of `ITEMREF` field.
+        """
+
+        transaction = TransactionFactory.create()
+        items_quantity = 5
+
+        TransactionItemFactory.create_batch(items_quantity, **{"transaction_id": transaction.id})
+
+        object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(transaction=transaction)
+        items_as_xml = object_xml_root.findall("./TAB/")
+
+        self.assertEqual(len(items_as_xml), items_quantity)
+
+        for xml in items_as_xml:
+            field_ITMREF = xml.find("./*[@NAME='ITMREF']").text
+            self.assertEqual(field_ITMREF, "N0001")
+
+    def test_data_processor_items_ITMDES_ITMDES1_fields(self):
+        """
+        This test validates the content of `ITMDES` and `ITMDES1` fields.
+        """
+
+        transaction = TransactionFactory.create()
+        items_quantity = 5
+        items = []
+
+        for i in range(0, items_quantity):
+            item_data = {"transaction_id": transaction.id, "description": f"This is the item at position {i}"}
+
+            item = TransactionItemFactory.create(**item_data)
+            items.append(item)
+
+        object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(transaction=transaction)
+        items_as_xml = object_xml_root.findall("./TAB/")
+
+        self.assertEqual(len(items_as_xml), items_quantity)
+
+        for i in range(0, items_quantity):
+            self.assertEqual(items[i].description, f"This is the item at position {i}")
+
+            item_xml = [
+                xml
+                for xml in items_as_xml
+                if xml.find("./*[@NAME='ITMDES']").text == items[i].description
+                and xml.find("./*[@NAME='ITMDES1']").text == items[i].description
+            ][0]
+
+            self.assertIsNotNone(item_xml)
+
+            self.assertEqual(item_xml.find("./*[@NAME='ITMDES']").text, f"This is the item at position {i}")
+            self.assertEqual(item_xml.find("./*[@NAME='ITMDES1']").text, f"This is the item at position {i}")
+
+    def test_data_processor_items_description_special_character(self):
+        """
+        This test validates the content of `ITMDES` and `ITMDES1` fields with special character.
+        """
+
+        transaction = TransactionFactory.create()
+
+        item_data = {"transaction_id": transaction.id, "description": "This item was bought by Ana Rosário Maria"}
+        item = TransactionItemFactory.create(**item_data)
+
+        object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(transaction=transaction)
+        items_as_xml = object_xml_root.findall("./TAB/")
+
+        self.assertEqual(len(items_as_xml), 1)
+        self.assertEqual(item.transaction_id, transaction.id)
+
+        item_xml = [xml for xml in items_as_xml if xml.find("./*[@NAME='ITMDES']").text == item.description][0]
+
+        self.assertIsNotNone(item_xml)
+
+        decoded_name = b"Ana Ros\xc3\xa1rio Maria".decode()
+
+        self.assertIn(decoded_name, item_xml.find("./*[@NAME='ITMDES']").text)
+        self.assertIn(decoded_name, item_xml.find("./*[@NAME='ITMDES1']").text)
+
+    def test_data_processor_items_QTY_field(self):
+        """
+        This test validates the content of `QTY` field.
+        """
+
+        transaction = TransactionFactory.create()
+        items_quantity = 5
+
+        item_data = {"transaction_id": transaction.id, "quantity": items_quantity}
+        item = TransactionItemFactory.create(**item_data)
+
+        object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(transaction=transaction)
+        items_as_xml = object_xml_root.findall("./TAB/")
+
+        self.assertEqual(len(items_as_xml), 1)
+        self.assertEqual(item.transaction_id, transaction.id)
+
+        item_xml = [xml for xml in items_as_xml if xml.find("./*[@NAME='ITMDES']").text == item.description][0]
+
+        self.assertIsNotNone(item_xml)
+        self.assertEqual(int(item_xml.find("./*[@NAME='QTY']").text), items_quantity)
+
+    def test_data_processor_items_UN_field(self):
+        """
+        This test validates the content of `UN` field.
+        """
+
+        transaction = TransactionFactory.create()
+        items_quantity = 5
+
+        TransactionItemFactory.create_batch(items_quantity, **{"transaction_id": transaction.id})
+
+        object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(transaction=transaction)
+        items_as_xml = object_xml_root.findall("./TAB/")
+
+        self.assertEqual(len(items_as_xml), items_quantity)
+
+        for xml in items_as_xml:
+            field_ITMREF = xml.find("./*[@NAME='STU']").text
+            self.assertEqual(field_ITMREF, "UN")
+
+    def test_data_processor_items_GROPRI_field(self):
+        """
+        This test validates the content of `GROPRI` field.
+        """
+
+        transaction = TransactionFactory.create()
+        unit_price_incl_vat = 20.35
+
+        item_data = {"transaction_id": transaction.id, "unit_price_incl_vat": unit_price_incl_vat}
+        item = TransactionItemFactory.create(**item_data)
+
+        object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(transaction=transaction)
+        items_as_xml = object_xml_root.findall("./TAB/")
+
+        self.assertEqual(len(items_as_xml), 1)
+        self.assertEqual(item.transaction_id, transaction.id)
+
+        item_xml = [xml for xml in items_as_xml if xml.find("./*[@NAME='ITMDES']").text == item.description][0]
+
+        self.assertIsNotNone(item_xml)
+        self.assertEqual(float(item_xml.find("./*[@NAME='GROPRI']").text), unit_price_incl_vat)
+
+    def test_data_processor_items_DISCRGVAL1_field(self):
+        """
+        This test validates the content of `DISCRGVAL1` field.
+        """
+
+        transaction = TransactionFactory.create()
+        discount_incl_tax = 0.3
+        unit_price_incl_vat = 20.35
+
+        item_data = {
+            "transaction_id": transaction.id,
+            "discount_incl_tax": discount_incl_tax,
+            "unit_price_incl_vat": unit_price_incl_vat,
+        }
+        item = TransactionItemFactory.create(**item_data)
+
+        discount_rate = round(discount_incl_tax / (unit_price_incl_vat + discount_incl_tax), 2)
+
+        object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(transaction=transaction)
+        items_as_xml = object_xml_root.findall("./TAB/")
+
+        self.assertEqual(len(items_as_xml), 1)
+        self.assertEqual(item.transaction_id, transaction.id)
+
+        item_xml = [xml for xml in items_as_xml if xml.find("./*[@NAME='ITMDES']").text == item.description][0]
+
+        self.assertIsNotNone(item_xml)
+        self.assertEqual(float(item_xml.find("./*[@NAME='GROPRI']").text), unit_price_incl_vat)
+        self.assertEqual(float(item_xml.find("./*[@NAME='DISCRGVAL1']").text), discount_rate * 100)
+
+    @override_settings(IVA_VACITM1_FIELD="IVA_VACITM1_FIELD_TO_TEST")
+    def test_data_processor_items_VACITM1_field(self):
+        """
+        This test validates the content of `VACITM1` field.
+        """
+
+        transaction = TransactionFactory.create()
+
+        item = TransactionItemFactory.create(**{"transaction_id": transaction.id})
+
+        object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(transaction=transaction)
+        items_as_xml = object_xml_root.findall("./TAB/")
+
+        self.assertEqual(len(items_as_xml), 1)
+        self.assertEqual(item.transaction_id, transaction.id)
+
+        item_xml = [xml for xml in items_as_xml if xml.find("./*[@NAME='ITMDES']").text == item.description][0]
+
+        self.assertIsNotNone(item_xml)
+        self.assertEqual(item_xml.find("./*[@NAME='VACITM1']").text, "IVA_VACITM1_FIELD_TO_TEST")
