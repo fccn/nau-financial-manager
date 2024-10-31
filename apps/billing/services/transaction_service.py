@@ -130,3 +130,45 @@ class TransactionService:
                 transaction=self.transaction,
             )
             return False
+
+    @staticmethod
+    def sagex3_transaction_info_query(transaction_id: str | None):
+        """
+        This method returns the transactions that need to be retried and if
+        a `transaction_id` was provided, it will return only the corresponding transaction.
+
+        This method must always return a list, regardless of its length.
+        """
+
+        if transaction_id:
+            result = SageX3TransactionInformation.objects.filter(transaction__transaction_id=transaction_id)
+
+            return list(result)
+
+        result = SageX3TransactionInformation.objects.filter(
+            status__in=[SageX3TransactionInformation.FAILED, SageX3TransactionInformation.PENDING]
+        )
+
+        return list(result)
+
+    @staticmethod
+    def retry_sending_transactions(transaction_id: str | None):
+        """
+        This method retries sending transactions and also is
+        possible to retry an specific one by providing the `transaction_id`.
+        """
+
+        sagex3_to_retry = TransactionService.sagex3_transaction_info_query(transaction_id)
+        counters = {"success": 0, "failed": 0, "total_count": len(sagex3_to_retry)}
+
+        for sagex3_failed_transaction in sagex3_to_retry:
+            try:
+                if TransactionService(sagex3_failed_transaction.transaction).run_steps_to_send_transaction():
+                    counters["success"] += 1
+                else:
+                    counters["failed"] += 1
+            except Exception as e:
+                print(f"Error while retrying: {e}")
+                counters["failed"] += 1
+
+        return counters
