@@ -19,7 +19,7 @@ repos:
       args: [--django]
     - id: trailing-whitespace
 - repo: https://github.com/pycqa/bandit
-  rev: 1.7.4
+  rev: 1.7.8
   hooks:
     - id: bandit
       args: ['-iii', '-ll']
