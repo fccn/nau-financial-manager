@@ -63,9 +63,9 @@ class TransactionService:
         response_as_json = response_as_json["soapenv:Envelope"]["soapenv:Body"]
 
         if "multiRef" in list(dict(response_as_json).keys()):
-            message = "Nº Fatura NAU já registada no documento: "
-            if message in response_as_json["multiRef"]["message"]:
-                document_id = response_as_json["multiRef"]["message"].replace(message, "")
+            expected_message = "já registada no Nº Fatura NAU : "
+            if expected_message in response_as_json["multiRef"]["message"]:
+                document_id = response_as_json["multiRef"]["message"].split(":")[-1].strip()
 
                 return document_id
 
@@ -74,7 +74,7 @@ class TransactionService:
         for r in result["RESULT"]["GRP"]:
             for field in r["FLD"]:
                 if field["@NAME"] == "NUM":
-                    document_id = field["#text"]
+                    document_id = field.get("#text")
                     break
 
             if document_id:

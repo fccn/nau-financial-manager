@@ -622,7 +622,7 @@ def xml_duplicate_error_response_mock():
                 </wss:saveResponse>
                 <multiRef id="id0" soapenc:root="0" soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xsi:type="wss:CAdxMessage">
                     <type>3</type>
-                    <message>Nº Fatura NAU já registada no documento: {settings.DEFAULT_SERIES}-{randint(21, 23)}/000{randint(10, 64)}</message>
+                    <message>A Referência OPENEDX-{randint(100000, 999999)} já registada no Nº Fatura NAU : {settings.DEFAULT_SERIES}-{randint(21, 26)}/000{randint(10, 64)}</message>
                 </multiRef>
             </soapenv:Body>
             </soapenv:Envelope>
