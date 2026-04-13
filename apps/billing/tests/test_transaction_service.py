@@ -416,6 +416,8 @@ class TransactionServiceTestCase(TestCase):
         self.assertEqual(len(transaction_information), 1)
         self.assertEqual(transaction_information[0].transaction.transaction_id, transaction.transaction_id)
         self.assertEqual(transaction_information[0].status, SageX3TransactionInformation.FAILED)
+        document_id = transaction_information[0].transaction.document_id
+        self.assertTrue(document_id.startswith("AAA-"))
 
         self.assertTrue(isinstance(counters, dict))
         self.assertEqual(counters["total_count"], 1)
