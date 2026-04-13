@@ -9,7 +9,6 @@ from apps.billing.services.financial_processor_service import TransactionProcess
 
 
 class SageX3Processor(TransactionProcessorInterface):
-
     ENCODING = "utf-8"
 
     """
