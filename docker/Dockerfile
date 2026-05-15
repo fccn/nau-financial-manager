@@ -5,7 +5,7 @@
 # Define the multi-stage arguments
 # those need to be redeclared without default value after each stage (FROM).
 ARG NGINX_IMAGE_NAME=nginx
-ARG NGINX_IMAGE_TAG=1.20.1
+ARG NGINX_IMAGE_TAG=1.31.0
 ARG DOCKER_USER=nau-financial-manager
 ARG STATIC_ROOT=/nau/nau-financial-manager/static
 
