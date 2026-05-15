@@ -86,7 +86,7 @@ COPY wait-for-mysql.sh /app/
 COPY apps /app/apps/
 
 # ---- Static files/links collector ----
-FROM core as collector
+FROM core AS collector
 
 ARG STATIC_ROOT
 
@@ -102,7 +102,7 @@ RUN SECRET_KEY=any python manage.py collectstatic --noinput
 RUN rdfind -makesymlinks true ${STATIC_ROOT}
 
 # ---- Development image ----
-FROM core as development
+FROM core AS development
 
 ARG DOCKER_USER
 
@@ -113,12 +113,13 @@ RUN poetry install --verbose
 USER ${DOCKER_USER}:${DOCKER_USER}
 
 # Run django development server
-CMD python manage.py runserver 0.0.0.0:8000
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 # ---- Production image ----
-FROM core as production
+FROM core AS production
 
 ARG DOCKER_USER
+ARG STATIC_ROOT
 
 # Copy collected symlinks to static files
 COPY --from=collector ${STATIC_ROOT} ${STATIC_ROOT}
@@ -129,10 +130,10 @@ USER ${DOCKER_USER}:${DOCKER_USER}
 ENV GUNICORN_WORKERS=3
 
 # The default command runs gunicorn WSGI server in the sandbox
-CMD gunicorn --workers ${GUNICORN_WORKERS} -c /usr/local/etc/gunicorn/app.py nau_financial_manager.wsgi:application
+CMD ["gunicorn", "--workers", "${GUNICORN_WORKERS}", "-c", "/usr/local/etc/gunicorn/app.py", "nau_financial_manager.wsgi:application"]
 
 # ---- Nginx ----
-FROM ${NGINX_IMAGE_NAME}:${NGINX_IMAGE_TAG} as nginx
+FROM ${NGINX_IMAGE_NAME}:${NGINX_IMAGE_TAG} AS nginx
 
 ARG STATIC_ROOT
 
