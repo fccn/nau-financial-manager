@@ -107,7 +107,7 @@ class SageX3Processor(TransactionProcessorInterface):
         transaction_id = transaction.transaction_id
         transaction_date = str(transaction.transaction_date.date().strftime("%Y%m%d"))
         vat_identification_country = getattr(transaction, "vat_identification_country", "")
-        city = getattr(transaction, "city", "")
+        city = str(transaction.city or "")
         with translation.override("PT"):  # We have to send the Country name in Portuguese
             country_code = getattr(transaction, "country_code")
             country_name = country_code.name if country_code else ""
