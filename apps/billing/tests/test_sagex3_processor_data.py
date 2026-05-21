@@ -160,6 +160,18 @@ class SageX3ProcessDataTest(TestCase):
         )
         self.assertEqual(object_xml_root.find(".//*/FLD[@NAME='YPOSCOD']").text, None)
 
+    def test_data_processor_city_none_sends_empty_string(self):
+        """
+        When the transaction city is None it should send an empty string in the XML.
+        """
+        transaction = TransactionFactory(city=None)
+        xml = SageX3Processor(transaction).data
+        root = ET.fromstring(xml)  # nosec
+        object_xml: str = root.findall(".//*/objectXml")[0].text.strip()
+
+        # Expect an explicit empty element body for the city field
+        self.assertIn('<FLD NAME="YCTY" TYPE="Char"></FLD>', object_xml)
+
     def test_data_processor_vat_identification_number_corporate(self):
         """
         Test the SageX3Processor for country code field.
