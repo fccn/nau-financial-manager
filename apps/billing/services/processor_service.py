@@ -116,8 +116,8 @@ class SageX3Processor(TransactionProcessorInterface):
         vat_identification_number = str(transaction.vat_identification_number or "")
         email = str(transaction.email or "")
         transaction_type = str(transaction.transaction_type or "")
-        client_name = str(transaction.client_name or "")
-        address_line_1 = str(transaction.address_line_1 or "")
+        client_name = str(transaction.client_name or "Consumidor Final")
+        address_line_1 = str(transaction.address_line_1 or "Não Definido")
         address_line_2 = str(transaction.address_line_2 or "")
 
         objectXML = f"""

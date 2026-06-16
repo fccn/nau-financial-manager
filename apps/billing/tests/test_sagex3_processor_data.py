@@ -246,7 +246,7 @@ class SageX3ProcessDataTest(TestCase):
         object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(
             TransactionFactory(client_name=None)
         )
-        self.assertEqual(object_xml_root.find(".//*/LST[@NAME='YBPRNAM']/ITM").text, None)
+        self.assertEqual(object_xml_root.find(".//*/LST[@NAME='YBPRNAM']/ITM").text, "Consumidor Final")
 
     def test_data_processor_address_line_1(self):
         """
@@ -264,7 +264,7 @@ class SageX3ProcessDataTest(TestCase):
         object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(
             TransactionFactory(address_line_1=None)
         )
-        self.assertEqual(object_xml_root.find(".//*/LST[@NAME='YBPAADDLIG']/ITM").text, None)
+        self.assertEqual(object_xml_root.find(".//*/LST[@NAME='YBPAADDLIG']/ITM").text, "Não Definido")
 
     def test_data_processor_address_line_2(self):
         """
