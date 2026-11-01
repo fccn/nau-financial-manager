@@ -199,3 +199,52 @@ class SplitExecutionServiceTestCase(TestCase):
             self.assertEqual(
                 result["amount_for_nau_exclude_vat"], (item.unit_price_excl_vat * self.nau_percentage) * item.quantity
             )
+
+    def test_split_includes_every_item_of_a_multi_item_transaction(self):
+        """
+        Regression test for issue #336.
+
+        A transaction with more than one item must have every item represented in the
+        split result, including items that belong to a different organization than the first one.
+        """
+        first_organization, second_organization = OrganizationFactory.create_batch(2)
+
+        transaction = TransactionFactory.create()
+        first_item = TransactionItemFactory.create(
+            organization_code=first_organization.short_name,
+            transaction=transaction,
+        )
+        second_item = TransactionItemFactory.create(
+            organization_code=second_organization.short_name,
+            transaction=transaction,
+        )
+        for organization, item in [(first_organization, first_item), (second_organization, second_item)]:
+            RevenueConfigurationFactory.create(
+                organization=organization,
+                product_id=item.product_id,
+                partner_percentage=self.partner_percentage,
+                start_date=transaction.transaction_date - timezone.timedelta(days=1),
+                end_date=transaction.transaction_date + timezone.timedelta(days=1),
+            )
+
+        split_result = SplitExecutionService(
+            start_date=self.options["start_date"],
+            end_date=self.options["end_date"],
+        ).execute_split_steps()
+
+        results = [result for result in split_result[0] if result["transaction_id"] == transaction.transaction_id]
+
+        self.assertEqual(len(results), 2)
+        self.assertEqual(
+            {(result["product_id"], result["organization"]) for result in results},
+            {
+                (first_item.product_id, first_organization.short_name),
+                (second_item.product_id, second_organization.short_name),
+            },
+        )
+        for item in [first_item, second_item]:
+            result = next(r for r in results if r["product_id"] == item.product_id)
+            self.assertEqual(
+                result["amount_for_organization_including_vat"],
+                (item.unit_price_incl_vat * self.partner_percentage) * item.quantity,
+            )

@@ -35,9 +35,7 @@ class SplitExecutionService:
         transactions = Transaction.objects.filter(transaction_date__range=[self.start_date, self.end_date])
         transaction_items: list[TransactionItem] = []
         for transaction in transactions:
-            items = transaction.transaction_items.all()
-            if items:
-                transaction_items.append(items[0])
+            transaction_items.extend(transaction.transaction_items.all())
 
         return transaction_items
 
