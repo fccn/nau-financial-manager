@@ -241,12 +241,69 @@ class SageX3ProcessDataTest(TestCase):
 
     def test_data_processor_client_name_none(self):
         """
-        Test the SageX3Processor for email field.
+        Test the SageX3Processor for client name field when it is none.
         """
         object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(
             TransactionFactory(client_name=None)
         )
         self.assertEqual(object_xml_root.find(".//*/LST[@NAME='YBPRNAM']/ITM").text, "Consumidor Final")
+
+    def _client_name_items(self, client_name: str) -> list[str | None]:
+        object_xml_root: ET.Element = self.__class__._get_xml_element_from_transaction(
+            TransactionFactory(client_name=client_name)
+        )
+        return [item.text for item in object_xml_root.findall(".//*/LST[@NAME='YBPRNAM']/ITM")]
+
+    def test_data_processor_client_name_short_has_empty_second_field(self):
+        """
+        Test the SageX3Processor sends two `YBPRNAM` items, the second one empty when the name fits
+        in the first field.
+        """
+        self.assertEqual(self._client_name_items("John Snow"), ["John Snow", None])
+
+    def test_data_processor_client_name_exactly_field_size(self):
+        """
+        Test the SageX3Processor keeps a name with exactly 35 characters in the first field.
+        """
+        name = "Maria Antonieta de Castro Figueira"  # 34 characters
+        name = f"{name}s"  # 35 characters
+        self.assertEqual(len(name), 35)
+        self.assertEqual(self._client_name_items(name), [name, None])
+
+    def test_data_processor_client_name_long_is_split_on_word_boundary(self):
+        """
+        Test the SageX3Processor splits a long client name into two fields without cutting words.
+        """
+        self.assertEqual(
+            self._client_name_items("John Nicholson Howard Hughes Jefferson Smith"),
+            ["John Nicholson Howard Hughes", "Jefferson Smith"],
+        )
+
+    def test_data_processor_client_name_longer_than_two_fields_is_truncated(self):
+        """
+        Test the SageX3Processor truncates the second field when the name doesn't fit in two fields.
+        """
+        name = "John Nicholson Howard Hughes Jefferson Smith Alexander Christopher Montgomery"
+        first, second = self._client_name_items(name)
+        self.assertEqual(first, "John Nicholson Howard Hughes")
+        self.assertEqual(second, "Jefferson Smith Alexander Christoph")
+        self.assertLessEqual(len(second), 35)
+
+    def test_data_processor_client_name_single_long_word_is_truncated(self):
+        """
+        Test the SageX3Processor cuts a single word longer than a field at the field size.
+        """
+        name = "A" * 80
+        self.assertEqual(self._client_name_items(name), ["A" * 35, "A" * 35])
+
+    def test_data_processor_client_name_extra_spaces_are_normalized(self):
+        """
+        Test the SageX3Processor normalizes repeated spaces before splitting the client name.
+        """
+        self.assertEqual(
+            self._client_name_items("  John   Nicholson Howard Hughes   Jefferson  Smith "),
+            ["John Nicholson Howard Hughes", "Jefferson Smith"],
+        )
 
     def test_data_processor_address_line_1(self):
         """
