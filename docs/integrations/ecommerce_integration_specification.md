@@ -40,6 +40,11 @@ duplicate receipts.
 #### Client Name
 The name of the person or company that have payed and that we need to generate a receipt.
 
+The iLink receipt has two name fields of 35 characters each. Names longer than 35 characters are
+split between the two fields on a word boundary, so a word is never cut when the name fits in two
+fields. A single word longer than 35 characters, or a name longer than both fields together, is
+truncated to fit.
+
 #### Email
 The email of the person or company that bought the product, this field is important because is the
 email address that the receipt will be sent automatically from the iLink.

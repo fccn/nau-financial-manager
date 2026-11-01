@@ -10,6 +10,8 @@ from apps.billing.services.financial_processor_service import TransactionProcess
 
 class SageX3Processor(TransactionProcessorInterface):
     ENCODING = "utf-8"
+    # iLink accepts two name fields (`YBPRNAM`), each limited to 35 characters.
+    CLIENT_NAME_FIELD_SIZE = 35
 
     """
     This class is a transaction processor. It means that by implementing the `TransactionProcessorInterface` type,
@@ -31,6 +33,46 @@ class SageX3Processor(TransactionProcessorInterface):
         self.__user_processor_auth = getattr(settings, "USER_PROCESSOR_AUTH")
         self.__user_processor_password = getattr(settings, "USER_PROCESSOR_PASSWORD")
         self.__data = None
+
+    @classmethod
+    def _split_client_name(cls, client_name: str) -> tuple[str, str]:
+        """
+        Split the client name into the two `YBPRNAM` fields accepted by iLink, each one limited
+        to `CLIENT_NAME_FIELD_SIZE` characters.
+
+        The split happens on word boundaries whenever possible, so a name is never cut in the
+        middle of a word if it fits in two fields. When a single word is longer than a field, or
+        the full name doesn't fit in two fields, the exceeding characters are truncated.
+
+        Args:
+            client_name (str): The full client name.
+
+        Returns:
+            tuple[str, str]: The first and second name fields, the second one is empty when not needed.
+        """
+        size = cls.CLIENT_NAME_FIELD_SIZE
+        client_name = " ".join(client_name.split())
+        if len(client_name) <= size:
+            return client_name, ""
+
+        first_line = ""
+        remaining_words: list[str] = client_name.split(" ")
+        while remaining_words:
+            word = remaining_words[0]
+            candidate = f"{first_line} {word}".strip()
+            if len(candidate) > size:
+                break
+            first_line = candidate
+            remaining_words.pop(0)
+
+        if not first_line:
+            # A single word longer than the field, cut it at the field size.
+            first_line = client_name[:size]
+            second_line = client_name[size:]
+        else:
+            second_line = " ".join(remaining_words)
+
+        return first_line, second_line[:size]
 
     def _series(self):
         info = None
@@ -116,7 +158,7 @@ class SageX3Processor(TransactionProcessorInterface):
         vat_identification_number = str(transaction.vat_identification_number or "")
         email = str(transaction.email or "")
         transaction_type = str(transaction.transaction_type or "")
-        client_name = str(transaction.client_name or "Consumidor Final")
+        client_name_1, client_name_2 = self._split_client_name(str(transaction.client_name or "Consumidor Final"))
         address_line_1 = str(transaction.address_line_1 or "Não Definido")
         address_line_2 = str(transaction.address_line_2 or "")
 
@@ -150,7 +192,8 @@ class SageX3Processor(TransactionProcessorInterface):
                     <FLD NAME="YILINKMAIL" TYPE="Char">{email}</FLD>
                     <FLD NAME="YPAM" TYPE="Char">{transaction_type}</FLD>
                     <LST NAME="YBPRNAM" SIZE="2" TYPE="Char">
-                        <ITM>{client_name}</ITM>
+                        <ITM>{client_name_1}</ITM>
+                        <ITM>{client_name_2}</ITM>
                     </LST>
                     <LST NAME="YBPAADDLIG" SIZE="3" TYPE="Char">
                         <ITM>{address_line_1}</ITM>
