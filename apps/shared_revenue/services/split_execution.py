@@ -32,7 +32,9 @@ class SplitExecutionService:
         The kwargs might also contains filters, `organization_code` and `product_id`
         are optional filters for this function.
         """
-        transactions = Transaction.objects.filter(transaction_date__range=[self.start_date, self.end_date])
+        transactions = Transaction.objects.filter(
+            transaction_date__range=[self.start_date, self.end_date]
+        ).prefetch_related("transaction_items")
         transaction_items: list[TransactionItem] = []
         for transaction in transactions:
             transaction_items.extend(transaction.transaction_items.all())
@@ -46,7 +48,7 @@ class SplitExecutionService:
         The kwargs might also contains filters, `organization_code` and `product_id`
         are optional filters for this function.
         """
-        configurations = RevenueConfiguration.objects.filter(
+        configurations = RevenueConfiguration.objects.select_related("organization").filter(
             Q(start_date__isnull=True)
             | Q(end_date__isnull=True)
             | Q(start_date__lte=self.end_date) & Q(end_date__gte=self.start_date)
