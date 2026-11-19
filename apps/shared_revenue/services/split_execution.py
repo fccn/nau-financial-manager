@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, List
 
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 from apps.billing.models import Transaction, TransactionItem
 from apps.organization.models import Organization
@@ -32,7 +32,9 @@ class SplitExecutionService:
         The kwargs might also contains filters, `organization_code` and `product_id`
         are optional filters for this function.
         """
-        transactions = Transaction.objects.filter(transaction_date__range=[self.start_date, self.end_date])
+        transactions = Transaction.objects.filter(
+            transaction_date__range=[self.start_date, self.end_date]
+        ).prefetch_related("transaction_items")
         transaction_items: list[TransactionItem] = []
         for transaction in transactions:
             transaction_items.extend(transaction.transaction_items.all())
@@ -46,7 +48,7 @@ class SplitExecutionService:
         The kwargs might also contains filters, `organization_code` and `product_id`
         are optional filters for this function.
         """
-        configurations = RevenueConfiguration.objects.filter(
+        configurations = RevenueConfiguration.objects.select_related("organization").filter(
             Q(start_date__isnull=True)
             | Q(end_date__isnull=True)
             | Q(start_date__lte=self.end_date) & Q(end_date__gte=self.start_date)
@@ -99,14 +101,20 @@ class SplitExecutionService:
             "discount_rate": item.discount_rate,
         }
 
-    def _calculate_nau_percentage(self, product_id: str):
-        percentage = 1
+    def _calculate_nau_percentages(self, product_ids: set[str]) -> dict:
+        """
+        Calculates the percentage that belongs to NAU for each one of the given products, which is
+        what remains after the percentages of the partners.
 
-        configurations: list[RevenueConfiguration] = RevenueConfiguration.objects.filter(product_id=product_id)
-        for configuration in configurations:
-            percentage = percentage - configuration.partner_percentage
+        It executes a single query, regardless of the amount of products.
+        """
+        partner_percentages = dict(
+            RevenueConfiguration.objects.filter(product_id__in=product_ids)
+            .values_list("product_id")
+            .annotate(total=Sum("partner_percentage"))
+        )
 
-        return percentage
+        return {product_id: 1 - partner_percentages.get(product_id, 0) for product_id in product_ids}
 
     def _calculate_transactions(
         self,
@@ -125,20 +133,21 @@ class SplitExecutionService:
             the second, a list of used `RevenueConfiguration` for calculate each transaction.
         """
 
-        nau_percentage_per_product: dict = {}
+        nau_percentage_per_product: dict = self._calculate_nau_percentages(
+            product_ids={item.product_id for item in transaction_items}
+        )
         split_results: list[Dict] = []
         used_configurations: list[Dict] = []
 
         for item in transaction_items:
             for configuration in configurations:
-                if item.organization_code == configuration.organization.short_name:
+                if (
+                    item.organization_code == configuration.organization.short_name
+                    and item.product_id == configuration.product_id
+                ):
                     if None not in [configuration.start_date, configuration.end_date]:
                         if not configuration.start_date <= item.transaction.transaction_date <= configuration.end_date:
                             continue
-
-                    if item.product_id not in nau_percentage_per_product:
-                        nau_percentage = self._calculate_nau_percentage(product_id=item.product_id)
-                        nau_percentage_per_product[item.product_id] = nau_percentage
 
                     configuration.nau_percentage = nau_percentage_per_product[item.product_id]
                     result = self._assembly_each_result(item=item, configuration=configuration)

@@ -33,6 +33,9 @@ class RevenueConfiguration(BaseModel):
     class Meta:
         verbose_name = _("Revenue configuration")
         verbose_name_plural = _("Revenue configurations")
+        permissions = [
+            ("export_split_revenue", "Can export the split revenue report"),
+        ]
 
     @property
     def status(self) -> bool:
