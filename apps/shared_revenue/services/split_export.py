@@ -64,3 +64,33 @@ class SplitExportService:
         logging.getLogger("nau_financial_manager").warning(
             f"No data available to generate file using the parameters: start_date: {start_date}, end_date: {end_date}, options: {kwargs}"
         )
+
+    def export_split_to_xlsx_content(
+        self,
+        start_date: datetime,
+        end_date: datetime,
+        **kwargs,
+    ) -> tuple[str, bytes] | None:
+        """
+        Calculates the split revenue based on the given parameters and returns it as a xlsx file content,
+        without saving the file in the storage. It is meant to be delivered directly, as a download.
+
+        Args:
+            start_date (datetime): The start date of the range of dates that needs to be calculated
+            end_date (datetime): The end date of the range of dates that needs to be calculated
+
+        Returns:
+            tuple[str, bytes] | None: The file name, with its extension, and the file content.
+            None if there is no data for the given parameters.
+        """
+        split_sheets: list[List[Dict]] = SplitExecutionService(
+            start_date=start_date,
+            end_date=end_date,
+        ).execute_split_steps(**kwargs)
+        if len(split_sheets[0]) == 0:
+            return None
+
+        file_name: str = self._generate_file_name(optional=kwargs)
+        content: bytes = FileGenerator().generate_xlsx_content(sheets=split_sheets)
+
+        return f"{file_name}.xlsx", content

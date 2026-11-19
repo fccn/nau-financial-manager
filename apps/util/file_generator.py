@@ -1,4 +1,5 @@
 import os
+from io import BytesIO
 from string import ascii_uppercase
 from typing import Dict, List
 
@@ -66,13 +67,39 @@ class XlsxGenerator:
             columns (list[str]): The columns to be created in this file
             values (list[Dict]): The values to be saved in each column
         """
-        workbook = xlsxwriter.Workbook(
-            f"{file_name}.xlsx",
-            options={
-                "remove_timezone": True,
-                "default_date_format": "dd/mm/yy hh:mm:ss.000",
-            },
-        )
+        workbook = xlsxwriter.Workbook(f"{file_name}.xlsx", options=self._workbook_options())
+        self._write_sheets(workbook=workbook, sheets=sheets)
+        workbook.close()
+        self.__save_generated_file(file_name=file_name)
+
+    def generate_xlsx_content(self, sheets: List[List[Dict]]) -> bytes:
+        """
+        This method generates a xlsx format file in memory, without saving it anywhere
+
+        Args:
+            sheets (List[List[Dict]]): The sheets to be created, each one is a list of rows
+
+        Returns:
+            bytes: The content of the generated xlsx file
+        """
+        output = BytesIO()
+        workbook = xlsxwriter.Workbook(output, options={**self._workbook_options(), "in_memory": True})
+        self._write_sheets(workbook=workbook, sheets=sheets)
+        workbook.close()
+
+        return output.getvalue()
+
+    def _workbook_options(self) -> dict:
+        return {
+            "remove_timezone": True,
+            "default_date_format": "dd/mm/yy hh:mm:ss.000",
+        }
+
+    def _write_sheets(self, workbook: xlsxwriter.Workbook, sheets: List[List[Dict]]) -> None:
+        """
+        Writes each sheet in the workbook, the columns are the keys of the first row of each sheet
+        """
+        bold = workbook.add_format({"bold": True})
 
         for sheet in sheets:
             work_sheet = workbook.add_worksheet()
@@ -84,16 +111,12 @@ class XlsxGenerator:
                     f"{column_letter}:{column_letter}",
                     width=20,
                 )
-                bold = workbook.add_format({"bold": True})
                 work_sheet.write(f"{column_letter}1", column, bold)
 
                 row = 2
                 for value in sheet:
                     work_sheet.write(f"{column_letter}{row}", value[column])
                     row += 1
-
-        workbook.close()
-        self.__save_generated_file(file_name=file_name)
 
 
 class PdfGenerator:
