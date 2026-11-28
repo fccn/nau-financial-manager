@@ -248,3 +248,40 @@ class SplitExecutionServiceTestCase(TestCase):
                 result["amount_for_organization_including_vat"],
                 (item.unit_price_incl_vat * self.partner_percentage) * item.quantity,
             )
+
+    def test_calculate_transactions_matching_the_product(self):
+        """
+        Should calculate each transaction only once, using the revenue configuration of its own product,
+        when an organization has revenue configurations for more than one product.
+        """
+        organization = self.organizations[0]
+        other_product_id = "course-v1:OTHER+PRODUCT+2024_T1"
+        other_percentage = Decimal("0.50")
+        other_item = TransactionItemFactory.create(
+            organization_code=organization.short_name,
+            transaction=TransactionFactory.create(),
+            product_id=other_product_id,
+        )
+        RevenueConfigurationFactory.create(
+            organization=organization,
+            product_id=other_product_id,
+            partner_percentage=other_percentage,
+            start_date=None,
+            end_date=None,
+        )
+        service = SplitExecutionService(start_date=self.options["start_date"], end_date=self.options["end_date"])
+
+        results, _ = service.execute_split_steps()
+
+        transaction_ids = [result["transaction_id"] for result in results]
+        self.assertEqual(len(transaction_ids), len(set(transaction_ids)))
+        for result in results:
+            expected = other_percentage if result["product_id"] == other_product_id else self.partner_percentage
+            self.assertEqual(result["percentage_for_organization"], expected)
+
+        results, configurations = service.execute_split_steps(product_id=other_product_id)
+
+        self.assertEqual([result["transaction_id"] for result in results], [other_item.transaction.transaction_id])
+        self.assertEqual(results[0]["percentage_for_organization"], other_percentage)
+        self.assertEqual(results[0]["percentage_for_nau"], other_percentage)
+        self.assertEqual([configuration["product_id"] for configuration in configurations], [other_product_id])
